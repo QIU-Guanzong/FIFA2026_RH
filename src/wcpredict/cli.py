@@ -290,16 +290,30 @@ def run_national(since: str = "2006-01-01", n_teams: int = 48, sims: int = 30000
     print("  下一步可接官方 2026 分组 + Annex C 落位表，把它变成真正的赛会预测。")
 
 
-def run_wc2026(since: str = "2006-01-01", sims: int = 40000, top: int = 16) -> None:
+def run_wc2026(
+    since: str = "2006-01-01", sims: int = 40000, top: int = 16,
+    *, confed_correction: bool = True, host_boost: float = 0.0,
+) -> None:
     """正式 2026 赛会预测：真实国际赛 Elo 评分 → 官方分组 + 官方 R32/淘汰赛树 Monte Carlo。"""
+    from wcpredict.config import HOSTS
     from wcpredict.data.sources import InternationalResultsSource
+    from wcpredict.ratings import apply_offsets, derive_confederations, deployment_offsets
     from wcpredict.tournament.wc2026 import GROUPS_2026, OfficialWC2026Simulator
 
     _section(f"1. 真实国际赛 → 多趟 Elo 评分（{since}→今）")
-    matches = InternationalResultsSource(since=since).fetch_matches()
+    src = InternationalResultsSource(since=since)
+    matches = src.fetch_matches()
     elo = EloRating(passes=4)
     elo.fit(matches)
     ratings_all = elo.to_dict()
+
+    # #6b 洲际通胀校正：无泄漏测量+增量 bootstrap 表明仅 OFC（大洋洲孤立通胀，NZ 刷分）稳健，全历史估幅度
+    conf = derive_confederations(src.raw_results())
+    if confed_correction:
+        offsets = deployment_offsets(matches, ratings_all, conf)
+        applied = {c: round(v, 1) for c, v in offsets.items() if abs(v) > 1e-6}
+        ratings_all = apply_offsets(ratings_all, conf, offsets)
+        print(f"  洲际校正(仅经验证稳健洲): {applied or '无可应用'}")
 
     official = [t for v in GROUPS_2026.values() for t in v]
     if len(set(official)) != 48:   # 唯一性硬断言：重名会让 params.index 静默合并、污染小组赛
@@ -309,6 +323,11 @@ def run_wc2026(since: str = "2006-01-01", sims: int = 40000, top: int = 16) -> N
     if missing:   # 名称对齐硬断言（避免未知队静默当平均队）
         raise SystemExit(f"官方球队在国际赛数据中无评分（名称未对齐）: {missing}")
     ratings = {t: ratings_all[t] for t in official}
+    if host_boost:   # 东道主加成=假设项（无法 OOS 验证），默认关闭，仅作敏感性
+        hosts_in = [h for h in HOSTS if h in ratings]
+        for h in hosts_in:
+            ratings[h] += host_boost
+        print(f"  东道主加成(+{host_boost:.0f}，假设项·不可 OOS 验证): {hosts_in}")
     sd = float(np.std(list(ratings.values())))
     params = DixonColesParams.from_ratings(ratings, goals_scale=0.35 / (2 * sd) if sd else 0.0015)
 
@@ -332,9 +351,10 @@ def run_wc2026(since: str = "2006-01-01", sims: int = 40000, top: int = 16) -> N
 
     _section("4. 一致性 + 诚实边界")
     print(f"  Σ出线={p['advance'].sum():.1f}(=32)  Σ夺冠={p['champion'].sum():.3f}(=1)")
-    print("  ✓ 真实官方分组(48 队名 100% 对齐) + 官方 R32/淘汰赛树(73–104) + 多趟 Elo 评分。")
+    print("  ✓ 真实官方分组(48 队名 100% 对齐) + 官方 R32/淘汰赛树(73–104) + 多趟 Elo + #6b 洲际(OFC)校正。")
     print("  边界：实力来自我们的 Elo 先验（非市场）；第三名落位取合法匹配之一（对夺冠≈0.1pp）；")
-    print("        尚无阵容/伤停/xG 层（=#5）。这已是接真实赛制的 2026 预测，可随评分迭代刷新。")
+    print("        东道主加成默认关闭（不可 OOS 验证，--host-boost 看敏感性）；xG(#5A)未并入主链路。")
+    print("        这已是接真实赛制的 2026 预测，可随评分迭代刷新。")
 
 
 def run_train(
@@ -541,6 +561,9 @@ def main(argv: list[str] | None = None) -> int:
     w = sub.add_parser("wc2026", help="正式 2026 预测：真实 Elo 评分 + 官方分组 + 官方淘汰赛树")
     w.add_argument("--since", default="2006-01-01")
     w.add_argument("--sims", type=int, default=40000)
+    w.add_argument("--no-confed-correction", action="store_true", help="关闭 #6b 洲际(OFC)通胀校正")
+    w.add_argument("--host-boost", type=float, default=0.0,
+                   help="东道主评分加成(假设项，不可 OOS 验证；默认 0=关闭，仅作敏感性)")
     t = sub.add_parser("train", help="拟合并注册模型到模型仓")
     t.add_argument("--model", default="national", choices=["national", "couk"])
     t.add_argument("--since", default="2006-01-01")
@@ -570,7 +593,8 @@ def main(argv: list[str] | None = None) -> int:
         run_national(since=args.since, sims=args.sims)
         return 0
     if args.cmd == "wc2026":
-        run_wc2026(since=args.since, sims=args.sims)
+        run_wc2026(since=args.since, sims=args.sims,
+                   confed_correction=not args.no_confed_correction, host_boost=args.host_boost)
         return 0
     if args.cmd == "train":
         run_train(model=args.model, since=args.since, league=args.league,

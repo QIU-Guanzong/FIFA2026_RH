@@ -78,12 +78,28 @@
   - **xG 尚未并入 wc2026**：单射 xG→进攻/防守强度需广泛俱乐部样本、国家队赛会样本稀疏，本回合不整合（已在报告/README 声明）。
   - `_download` 顺手硬化：有界重试+指数退避+原子写（修一次瞬时 SSL EOF，惠及所有数据源）。测试 78 项全绿。
   - 许可：StatsBomb 开放数据公开研究须注明来源。
+- **2026-06-04 #6b 残留洲际通胀校正**（CEO 连续"继续"）：`ratings/confederation.py`——洲际归属从洲际赛事名
+  **数据驱动派生**（近期优先处理 Australia OFC→AFC；48 队核验 Mexico/USA 不被 Copa América 客串带偏）；
+  洲际间残差 OLS 估每洲 offset。CLI：`wc2026 --no-confed-correction` / `--host-boost`。
+  - **纪律（advisor）**：归属是元数据可用全历史，但 **offset 幅度只 train 估计**（部署用全历史）。统一 offset 只
+    动洲际间比赛（洲内抵消），故只在洲际间子集(train≤2017/test≥2018, N=1069)量化。
+  - **go/no-go + 只落地 OFC**：OOS 1X2 log loss 0.976→0.973（bootstrap CI 不含 0）；但**增量 bootstrap**
+    (full vs OFC-only) 95%CI=[−0.00002,+0.00183] **含 0** → 仅 OFC（NZ 大洋洲刷分）稳健，CAF/AFC 在噪声内。
+    部署只应用 OFC(全历史 −70.5)，**不对全体非洲队一刀切 +44**（era-specific）。
+  - **符号教训（advisor 抓 + 实测推翻先验）**：曾据 #6 笔记臆测"AFC/CAF 仍偏高→应下调"，无泄漏实测在多趟 Elo 后
+    恰相反（OFC 才过高估，CAF/AFC 微偏低）。advisor 撤回其 anchor，以测量为准。符号验证：OFC 主队洲际间跑输期望→负 offset✓。
+  - **部署级验证（advisor 要求的真检验）**：champion/advance with-vs-without——NZ 出线 39%→33%(−6.4pp)，其余 48 队 <0.3pp。
+    Spain 仍 ~14.6%。东道主加成=不可 OOS 验证假设项，**默认关闭**，仅敏感性(+75 Elo→美/墨/加出线 +4~7.5pp)。
+  - 修了 config `HOSTS`："USA"→"United States"（原会与 martj42 队名失配静默无效）。分层贝叶斯仍后置。
+  - 顺手核查：martj42 含 72 行未来 WC 占位赛程(无比分)，但 `fetch_matches` 经 validate 已丢弃（部署模型无污染，已验证）。
+  - 测试 83 项全绿（+5 洲际：派生含会籍变更/offset 符号/部署只取稳健洲/洲内忽略）。
 
 ## 常用命令
 
 ```bash
-make test          # 78 项测试
+make test          # 83 项测试
 # wcpredict xg     # 自建 shot-level xG（StatsBomb WC2022 → 对进球校准）
+# wcpredict wc2026 --host-boost 75   # 东道主加成敏感性（默认关闭）
 make demo          # 端到端 demo（5 万届模拟）
 make demo-fit      # 走 MLE 拟合路径
 ```
@@ -113,6 +129,9 @@ make demo-fit      # 走 MLE 拟合路径
    用国际赛无泄漏回测量化：OOS log loss 0.9118→0.8971（passes 1→5），单调下降；排名 Europe 上移、
    Japan/Morocco/Ecuador 下移（Top3 不变）。national 默认 passes=4。合成"双洲际"离线测试锁定机制。
    残留通胀需洲际标签/SOS 根治（→ #6b）。
+6b. ✅ **残留洲际通胀校正**（2026-06-04 完成）：`ratings/confederation.py`，数据驱动洲际归属 + 洲际间残差 offset。
+   无泄漏增量 bootstrap 判定只有 OFC 稳健 → 部署只落地 OFC(−70.5)；NZ 出线 −6.4pp，其余 <0.3pp。
+   东道主加成=假设项默认关闭(`--host-boost`)。**剩余后置**：分层贝叶斯收缩、东道主加成的可信验证、对齐验证/部署 λ-scale 小项。
 
 **国际数据决策（2026-06-04，CEO 选"免费 WC token 试"）**：实际落地用 martj42 免 token 全量国际赛
 （比 football-data.org WC 决赛圈覆盖广得多、且无需 token、当场可跑），已实现"免费验证国家队链路"的意图。

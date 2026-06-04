@@ -310,3 +310,7 @@ class InternationalResultsSource(MatchDataSource):
 
     def fetch_matches(self) -> pd.DataFrame:
         return self.normalize_matches(self._load_raw(), since=self.since)
+
+    def raw_results(self) -> pd.DataFrame:
+        """原始未归一化结果（含 tournament 列），供洲际归属派生使用。"""
+        return self._load_raw()

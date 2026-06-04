@@ -37,8 +37,8 @@ KNOCKOUT_ROUNDS = ["R32", "R16", "QF", "SF", "Final"]
 # 进入各淘汰轮的队伍数
 ROUND_FIELD = {"R32": 32, "R16": 16, "QF": 8, "SF": 4, "Final": 2}
 
-# 东道主（中立场默认；仅这三队在本土比赛享主场项）
-HOSTS = ("USA", "Canada", "Mexico")
+# 2026 东道主（队名须与 martj42/GROUPS_2026 对齐——曾误写 "USA" 会与 "United States" 失配静默无效）
+HOSTS = ("United States", "Canada", "Mexico")
 
 # ---- 比分矩阵 ----
 MAX_GOALS = 10                         # 比分矩阵截断到 0..10 球（每方 11 档）
