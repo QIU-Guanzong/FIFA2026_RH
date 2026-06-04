@@ -397,6 +397,37 @@ def run_train(
             "elo_passes": 4, "since": since, "n_matches": int(len(matches)), "n_teams": 48,
             "confed_correction": applied, "fit_time": fit_time, "top5": ranked[:5],
         }
+    elif model == "wc2026":
+        from wcpredict.tournament.wc2026 import GROUPS_2026
+
+        _section(f"训练 wc2026 官方模型（martj42 国际赛 {since}→今，多趟暖启动 Elo + 官方 48 队）")
+        src = InternationalResultsSource(since=since)
+        matches = src.fetch_matches()
+        elo = EloRating(passes=4)
+        elo.fit(matches)
+        ratings_all = elo.to_dict()
+        conf = derive_confederations(src.raw_results())
+        offsets = deployment_offsets(matches, ratings_all, conf)
+        ratings_all = apply_offsets(ratings_all, conf, offsets)
+        applied = {c: round(v, 1) for c, v in offsets.items() if abs(v) > 1e-6}
+        official = [t for members in GROUPS_2026.values() for t in members]
+        if len(set(official)) != 48:
+            dups = sorted({t for t in official if official.count(t) > 1})
+            raise SystemExit(f"官方分组出现重复队名（会静默合并）: {dups}")
+        missing = [t for t in official if t not in ratings_all]
+        if missing:
+            raise SystemExit(f"官方球队在国际赛数据中无评分（名称未对齐）: {missing}")
+        ratings = {t: ratings_all[t] for t in official}
+        sd = float(np.std(list(ratings.values())))
+        params = DixonColesParams.from_ratings(ratings, goals_scale=0.35 / (2 * sd) if sd else 0.0015)
+        meta = {
+            "source": "martj42-international-results", "method": "elo-prior",
+            "format": "wc2026_official", "groups": "official_2026", "simulator": "OfficialWC2026Simulator",
+            "elo_passes": 4, "since": since, "n_matches": int(len(matches)), "n_teams": 48,
+            "confed_correction": applied, "fit_time": fit_time,
+            "top5": [t for t, _ in sorted(ratings.items(), key=lambda kv: kv[1], reverse=True)[:5]],
+        }
+        print(f"  洲际校正(仅稳健洲): {applied or '无可应用'}")
     elif model == "couk":
         _section(f"训练 couk 模型（英超 {', '.join(seasons)} MLE 拟合）")
         matches, _ = load_seasons(league, list(seasons))
@@ -414,7 +445,7 @@ def run_train(
             "n_teams": len(teams), "fit_time": fit_time,
         }
     else:
-        print(f"未知 model: {model}（可选 national / couk）")
+        print(f"未知 model: {model}（可选 national / wc2026 / couk）")
         return
 
     version = store.save(params, name=name, metadata=meta)
@@ -573,7 +604,7 @@ def main(argv: list[str] | None = None) -> int:
     w.add_argument("--host-boost", type=float, default=0.0,
                    help="东道主评分加成(假设项，不可 OOS 验证；默认 0=关闭，仅作敏感性)")
     t = sub.add_parser("train", help="拟合并注册模型到模型仓")
-    t.add_argument("--model", default="national", choices=["national", "couk"])
+    t.add_argument("--model", default="national", choices=["national", "wc2026", "couk"])
     t.add_argument("--since", default="2006-01-01")
     t.add_argument("--league", default="E0")
     t.add_argument("--seasons", default="2122,2223,2324")

@@ -3,13 +3,31 @@ import pytest
 from fastapi.testclient import TestClient
 
 import wcpredict.registry as registry
+from wcpredict.model.dixon_coles import DixonColesParams
+from wcpredict.registry import ModelStore
 from wcpredict.service.app import app
+from wcpredict.tournament.wc2026 import GROUPS_2026
 
 
 @pytest.fixture
 def client(tmp_path, monkeypatch):
     # 把模型仓指到临时目录 → lifespan 找不到模型会自动落合成 48 队兜底模型
     monkeypatch.setattr(registry, "ARTIFACTS_DIR", tmp_path)
+    with TestClient(app) as c:
+        yield c
+
+
+@pytest.fixture
+def official_client(tmp_path, monkeypatch):
+    monkeypatch.setattr(registry, "ARTIFACTS_DIR", tmp_path)
+    teams = [t for members in GROUPS_2026.values() for t in members]
+    ratings = {t: 1600.0 - i for i, t in enumerate(teams)}
+    params = DixonColesParams.from_ratings(ratings, goals_scale=0.0012)
+    ModelStore(root=tmp_path / "models").save(
+        params,
+        name="default",
+        metadata={"format": "wc2026_official", "source": "test"},
+    )
     with TestClient(app) as c:
         yield c
 
@@ -86,5 +104,20 @@ def test_tournament_bounds_and_seed_cache(client):
     assert len(b1["teams"]) == 48
     # 两个 seed 应分别缓存，不应因为同 sims 复用同一结果对象。
     version = client.app.state.loaded.version
-    assert (version, 1, 1) in client.app.state.tournament_cache
-    assert (version, 1, 2) in client.app.state.tournament_cache
+    assert ("default", version, "seeded_top48", 1, 1) in client.app.state.tournament_cache
+    assert ("default", version, "seeded_top48", 1, 2) in client.app.state.tournament_cache
+
+
+def test_tournament_uses_official_format_when_model_metadata_says_wc2026(official_client):
+    r = official_client.get("/tournament?sims=500&top=48&seed=7")
+    assert r.status_code == 200
+    b = r.json()
+    assert b["seed"] == 7
+    teams = {t["team"] for t in b["teams"]}
+    assert teams == {t for members in GROUPS_2026.values() for t in members}
+    version = official_client.app.state.loaded.version
+    assert ("default", version, "wc2026_official", 500, 7) in official_client.app.state.tournament_cache
+    advance_sum = sum(t["advance"] for t in b["teams"])
+    champion_sum = sum(t["champion"] for t in b["teams"])
+    assert advance_sum == pytest.approx(32.0)
+    assert champion_sum == pytest.approx(1.0)

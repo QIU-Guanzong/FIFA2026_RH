@@ -24,6 +24,7 @@ from wcpredict.service.schemas import (
     TournamentResponse,
 )
 from wcpredict.tournament import TournamentSimulator, snake_draw_groups
+from wcpredict.tournament.wc2026 import OfficialWC2026Simulator
 
 
 def _ensure_model(store: ModelStore):
@@ -123,6 +124,7 @@ def create_app() -> FastAPI:
     @app.get("/tournament", response_model=TournamentResponse)
     def tournament(sims: int = 20000, top: int = 20, seed: int = 2026):
         sims = max(1, min(sims, 200_000))           # 防滥用：钳制模拟次数上限
+        loaded = app.state.loaded
         p = app.state.model.params
         top = max(1, min(top, len(p.teams)))
         if len(p.teams) < 48:
@@ -130,12 +132,16 @@ def create_app() -> FastAPI:
                 400, f"当前模型仅 {len(p.teams)} 队，赛会模拟需要 ≥48 队（用 national 模型）"
             )
         cache = app.state.tournament_cache
-        key = (app.state.loaded.version, sims, seed)
+        tournament_format = loaded.metadata.get("format", "seeded_top48")
+        key = (loaded.name, loaded.version, tournament_format, sims, seed)
         if key not in cache:
-            strength = {t: float(p.attack[i] - p.defence[i]) for i, t in enumerate(p.teams)}
-            ranked = sorted(strength, key=strength.get, reverse=True)[:48]
-            groups = snake_draw_groups(ranked)
-            res = TournamentSimulator(p, groups).run(n_sims=sims, seed=seed)
+            if tournament_format == "wc2026_official":
+                res = OfficialWC2026Simulator(p).run(n_sims=sims, seed=seed)
+            else:
+                strength = {t: float(p.attack[i] - p.defence[i]) for i, t in enumerate(p.teams)}
+                ranked = sorted(strength, key=strength.get, reverse=True)[:48]
+                groups = snake_draw_groups(ranked)
+                res = TournamentSimulator(p, groups).run(n_sims=sims, seed=seed)
             cache[key] = res.probs
         probs = cache[key].head(top)
         teams = [
