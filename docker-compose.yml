@@ -1,0 +1,20 @@
+# 一条命令起整套推理服务： docker compose up --build
+# 先训练真实模型（可选）： docker compose run --rm app python -m wcpredict.cli train --model national
+services:
+  app:
+    build: .
+    image: wcpredict:0.1.0
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./artifacts:/app/artifacts   # 模型仓持久化（host 训练的模型直接被服务加载）
+      - ./data:/app/data             # 原始/特征数据层
+    environment:
+      - FOOTBALL_DATA_TOKEN=${FOOTBALL_DATA_TOKEN:-}   # 可选：football-data.org token
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health').status==200 else 1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s

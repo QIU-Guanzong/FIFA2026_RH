@@ -1,0 +1,12 @@
+# 世界杯预测模型 — MVP 分析主干依赖
+# 故意保持精简：只装分析链路真正需要的库，部署层（FastAPI/Docker）下一轮再加。
+numpy>=1.26
+scipy>=1.11
+pandas>=2.1
+pyarrow>=14          # Parquet 原始数据层
+duckdb>=0.10         # 特征查询层（可选，graceful import）
+fastapi>=0.110       # 推理服务（#3 部署层）
+uvicorn>=0.29        # ASGI 服务器
+pydantic>=2.6        # 请求/响应模型
+httpx>=0.27          # FastAPI TestClient 依赖
+pytest>=8.0          # 测试

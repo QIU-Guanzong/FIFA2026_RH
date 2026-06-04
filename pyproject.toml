@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wcpredict"
+version = "0.1.0"
+description = "可解释的世界杯比分概率预测主干：rating 先验 → Dixon-Coles 比分矩阵 → 盘口派生 → 全赛事 Monte Carlo"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.26",
+    "scipy>=1.11",
+    "pandas>=2.1",
+    "pyarrow>=14",
+    "fastapi>=0.110",
+    "uvicorn>=0.29",
+    "pydantic>=2.6",
+]
+
+[project.optional-dependencies]
+features = ["duckdb>=0.10"]
+dev = ["pytest>=8.0", "httpx>=0.27"]
+
+[project.scripts]
+wcpredict = "wcpredict.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
