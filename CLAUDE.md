@@ -127,8 +127,13 @@ make demo-fit      # 走 MLE 拟合路径
    **Part B（阵容/首发）已调研**（2026-06-04，`docs/5B_lineup_data_sources.md`）：唯一真数据门槛=**赛前*预测* XI**
    （历史首发用在手 StatsBomb、球员强度用自家 xG、伤停免费抓取——都不必买）。市面仅 Sportmonks expected lineups
    可买（Growth €99 + add-on €159–199，WC 国家队覆盖+提前量须试用坐实）；API-Football 只给确认首发(赛前 20–40min)。
-   建议**先证后买**：Phase 0 用 StatsBomb 真实 XI 做天花板检验（精确首发能否改善*我们自己*的预测，非比市场），
-   通过才买预测 XI。**待 CEO 决策 Phase 0 是否开工 + 是否批 ~€100–300/mo 订阅。**
+   **Phase 0 天花板检验已跑**（CEO 批准，`analysis/phase0_lineup_ceiling.py`，零成本读缓存）：
+   朴素 LOO 无效（球员价值与同场 xG 机械耦合，符号随是否含 M 翻转 −0.78↔+0.82，advisor 抓的坑）；
+   干净组赛→淘汰赛(不相交)测得**首发进攻强度正向显著预测淘汰赛 xG**（r≈+0.48，按队 bootstrap CI 不含 0）→ 天花板为正、首发有真信号。
+   **但再排序洞见（关键）**：把首发→强度的瓶颈是**可解释*球员价值*层**，不是预测 XI 采购（预测 XI 只给名字不给价值；
+   导入其评分=黑箱违铁律）；且 shots-only 太稀疏(淘汰赛 XI 仅 ~4/11 可估)、上界还混入球队整体强弱(Elo 已含)。
+   **结论：下一步先*建*球员价值层（扩展 #5A，用免费稠密俱乐部赛季数据测*增量*），暂不订阅 Sportmonks。**
+   `parse_lineups`+射手 player 字段已加(测试覆盖)，85 项全绿。待 CEO 决策是否批"建价值层"。
 6. ✅ **修 Elo 洲际通胀**（2026-06-04 完成）：多趟暖启动迭代（`EloRating(passes=)`，上趟终值作下趟先验）。
    用国际赛无泄漏回测量化：OOS log loss 0.9118→0.8971（passes 1→5），单调下降；排名 Europe 上移、
    Japan/Morocco/Ecuador 下移（Top3 不变）。national 默认 passes=4。合成"双洲际"离线测试锁定机制。

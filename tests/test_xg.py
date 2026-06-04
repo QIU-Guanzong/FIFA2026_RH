@@ -154,10 +154,37 @@ def test_parse_shots_captures_period_and_shootout_excludable():
     rows = StatsBombSource.parse_shots(events, match_id=1)
     assert len(rows) == 2
     assert [r["period"] for r in rows] == [2, 5]
+    assert rows[0]["player"] is None or "player" in rows[0]   # 含射手 player 字段
     df = pd.DataFrame(rows)
     kept = df[df["period"] != 5]                 # 复刻 shots() 默认剔除点球大战
     assert len(kept) == 1
     assert kept.iloc[0]["period"] == 2
+
+
+def test_parse_shots_captures_player():
+    events = [{"type": {"name": "Shot"}, "period": 1, "location": [110.0, 40.0],
+               "player": {"name": "L. Messi"}, "team": {"name": "Argentina"},
+               "shot": {"outcome": {"name": "Goal"}, "type": {"name": "Open Play"},
+                        "body_part": {"name": "Left Foot"}, "statsbomb_xg": 0.4}}]
+    rows = StatsBombSource.parse_shots(events, match_id=9)
+    assert rows[0]["player"] == "L. Messi" and rows[0]["team"] == "Argentina"
+
+
+def test_parse_lineups_extracts_starting_xi():
+    """Starting XI 事件的 tactics.lineup → 首发球员行（#5B 用）。"""
+    events = [
+        {"type": {"name": "Starting XI"}, "team": {"name": "France"},
+         "tactics": {"lineup": [
+             {"player": {"name": "H. Lloris"}, "position": {"name": "Goalkeeper"}, "jersey_number": 1},
+             {"player": {"name": "K. Mbappé"}, "position": {"name": "Left Wing"}, "jersey_number": 10},
+         ]}},
+        {"type": {"name": "Pass"}},  # 非首发事件，忽略
+    ]
+    rows = StatsBombSource.parse_lineups(events, match_id=7)
+    assert len(rows) == 2
+    assert rows[0] == {"match_id": 7, "team": "France", "player": "H. Lloris",
+                       "position": "Goalkeeper", "jersey": 1}
+    assert rows[1]["player"] == "K. Mbappé" and rows[1]["jersey"] == 10
 
 
 def test_assign_xg_all_penalties():

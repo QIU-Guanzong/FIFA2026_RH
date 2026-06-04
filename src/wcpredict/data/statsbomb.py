@@ -43,6 +43,7 @@ class StatsBombSource:
             rows.append({
                 "match_id": match_id,
                 "team": (e.get("team") or {}).get("name"),
+                "player": (e.get("player") or {}).get("name"),
                 "period": e.get("period"),     # 5 = 点球大战（非比赛内 xG 过程）
                 "x": loc[0],
                 "y": loc[1],
@@ -54,6 +55,40 @@ class StatsBombSource:
                 "under_pressure": bool(e.get("under_pressure", False)),
             })
         return rows
+
+    @staticmethod
+    def parse_lineups(events: list[dict], match_id=None) -> list[dict]:
+        """从事件列表抽取两队首发 XI（Starting XI 事件的 tactics.lineup）。"""
+        rows = []
+        for e in events:
+            if (e.get("type") or {}).get("name") != "Starting XI":
+                continue
+            team = (e.get("team") or {}).get("name")
+            for p in ((e.get("tactics") or {}).get("lineup") or []):
+                rows.append({
+                    "match_id": match_id,
+                    "team": team,
+                    "player": (p.get("player") or {}).get("name"),
+                    "position": (p.get("position") or {}).get("name"),
+                    "jersey": p.get("jersey_number"),
+                })
+        return rows
+
+    def lineups(self, max_matches: int | None = None) -> pd.DataFrame:
+        """拉取该赛事所有比赛的首发 XI（复用按 match 缓存的事件文件）。"""
+        matches = self.matches()
+        if max_matches:
+            matches = matches[:max_matches]
+        rows: list[dict] = []
+        for m in matches:
+            mid = m["match_id"]
+            try:
+                events = self._fetch_json(f"{_SB_BASE}/events/{mid}.json", f"events_{mid}.json")
+            except Exception as e:  # noqa: BLE001
+                print(f"  [警告] 跳过 match {mid} 首发（重试后仍失败）：{e}")
+                continue
+            rows.extend(self.parse_lineups(events, match_id=mid))
+        return pd.DataFrame(rows)
 
     def shots(self, max_matches: int | None = None, *, include_shootouts: bool = False) -> pd.DataFrame:
         """拉取该赛事所有比赛的射门样本（按 match 缓存事件文件）。
