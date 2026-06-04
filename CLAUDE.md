@@ -96,9 +96,9 @@
 
 ## 线上展示页（已部署 2026-06-04）
 
-- **URL**：https://gavin.astock.top/AI4Future/FIFA2026/ （AI4Future 展示子页，noindex，非投注建议）
+- **URL**：https://gavin.astock.top/FIFA2026/ （顶层路径，不挂在 AI4Future 下；noindex，非投注建议）
 - **服务器**：`ssh cfd`（47.236.141.79），nginx `root /var/www/gavin`、`server_name gavin.astock.top`、
-  `try_files $uri $uri/`，故 `/AI4Future/FIFA2026/index.html` 直接 serve，**无需改 nginx、无需 reload**。
+  `try_files $uri $uri/`，故 `/FIFA2026/index.html` 直接 serve，**无需改 nginx、无需 reload**。
 - **页面**：纯静态自包含 `site/index.html`（深色风格对齐既有 AI4Future 页）——夺冠 Top16 + 小组热门 +
   可解释方法论 + 研发深度 + 诚实边界。**已预渲染为静态**（无 JS 依赖，curl 可验证渲染内容）。
 - **一键复部署**：`bash site/deploy.sh`（scp 到 cfd，自动验证 200）。数字刷新：重跑 `wcpredict wc2026`
