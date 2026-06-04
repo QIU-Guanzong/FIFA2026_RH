@@ -244,6 +244,12 @@ class DixonColesModel:
             constraints=constraints,
             options={"maxiter": maxiter, "ftol": 1e-7},
         )
+        if not res.success:
+            raise RuntimeError(
+                "Dixon-Coles 优化失败: "
+                f"status={res.status}, nit={getattr(res, 'nit', None)}, fun={getattr(res, 'fun', None)}, "
+                f"message={res.message}"
+            )
         att, de, intercept, home_adv, rho = unpack(res.x)
         self.params = DixonColesParams(
             teams=teams,

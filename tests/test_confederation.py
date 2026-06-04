@@ -75,3 +75,25 @@ def test_intra_confed_matches_ignored():
     conf = {"A": "UEFA", "B": "UEFA"}                    # 同洲
     off = estimate_confederation_offsets(m, {"A": 1500.0, "B": 1500.0}, conf)
     assert all(abs(v) < 1e-9 for v in off.values())      # 无跨洲样本 → 全 0
+
+
+def test_offset_solver_falls_back_on_ill_conditioned_gram(monkeypatch):
+    """病态矩阵走 lstsq 兜底，而不是让 solve 的失败/坏解静默传播。"""
+    from wcpredict.ratings import confederation as confed
+
+    calls = {"lstsq": 0}
+    original_lstsq = confed.np.linalg.lstsq
+
+    def fake_lstsq(*args, **kwargs):
+        calls["lstsq"] += 1
+        return original_lstsq(*args, **kwargs)
+
+    monkeypatch.setattr(confed.np.linalg, "cond", lambda _: np.inf)
+    monkeypatch.setattr(confed.np.linalg, "lstsq", fake_lstsq)
+
+    m = _lopsided_matches("UEFA", "AFC", n=20)
+    conf = {"UEFA_h": "UEFA", "AFC_a": "AFC"}
+    ratings = {"UEFA_h": 1500.0, "AFC_a": 1500.0}
+    off = estimate_confederation_offsets(m, ratings, conf)
+    assert calls["lstsq"] == 1
+    assert off["AFC"] < 0 < off["UEFA"]

@@ -14,7 +14,6 @@ from wcpredict.config import DATA_DIR
 from wcpredict.data.synthetic import make_world_48, save_history_parquet
 from wcpredict.features import team_form_table
 from wcpredict.markets import outcome_1x2, summarize_match
-from wcpredict.metrics import evaluate_1x2
 from wcpredict.model.dixon_coles import DixonColesModel, DixonColesParams, exp_time_weights
 from wcpredict.odds import blend_log, devig, overround
 from wcpredict.ratings import EloRating
@@ -91,7 +90,7 @@ def run_demo(sims: int = 20000, seed: int = 42, fit_dc: bool = False) -> None:
     print(f"  去水位(乘法)：{p_mult[0]:.1%}/{p_mult[1]:.1%}/{p_mult[2]:.1%}")
     print(f"  去水位(Shin)：{p_shin[0]:.1%}/{p_shin[1]:.1%}/{p_shin[2]:.1%}")
     blended = blend_log(p_mult, p_shin, w_model=0.5)  # 此处演示融合机制
-    fair_odds = 1.0 / p_mult
+    fair_odds = 1.0 / blended
     print(f"  融合后公平赔率：主 {fair_odds[0]:.2f} / 平 {fair_odds[1]:.2f} / 客 {fair_odds[2]:.2f}")
 
     _section("7. 世界杯全赛事 Monte Carlo")
@@ -124,7 +123,7 @@ def run_ingest(league: str = "E0", seasons: tuple[str, ...] = ("2223", "2324"), 
     用 football-data.co.uk 免授权 CSV（俱乐部赛）验证整条链路在真实数据上跑通。
     国家队 rating 先验需国际赛结果（football-data.org WC / 其它），见输出提示。
     """
-    from wcpredict.data import add_days_ago, load_seasons, validate_odds
+    from wcpredict.data import add_days_ago, load_seasons
 
     _section(f"1. 拉取真实数据：football-data.co.uk [{league}] 赛季 {', '.join(seasons)}")
     try:

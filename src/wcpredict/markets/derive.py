@@ -102,9 +102,9 @@ def summarize_match(
     """一站式：从一个比分矩阵导出全部常用盘口。"""
     return {
         "1x2": outcome_1x2(M),
-        "over_under": {l: over_under(M, l) for l in ou_lines},
+        "over_under": {line: over_under(M, line) for line in ou_lines},
         "btts": btts(M),
-        "asian_handicap": {l: asian_handicap(M, l) for l in ah_lines},
+        "asian_handicap": {line: asian_handicap(M, line) for line in ah_lines},
         "top_scores": top_correct_scores(M, top_n),
         "expected_goals": expected_goals(M),
     }

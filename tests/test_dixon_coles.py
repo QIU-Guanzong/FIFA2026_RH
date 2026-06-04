@@ -1,4 +1,6 @@
 """Dixon-Coles 核心：τ 符号、矩阵合法性、参数复原。"""
+from types import SimpleNamespace
+
 import numpy as np
 import pytest
 from scipy.stats import poisson
@@ -77,3 +79,21 @@ def test_parameter_recovery():
     assert est.home_adv == pytest.approx(true_params.home_adv, abs=0.12)
     assert est.rho == pytest.approx(true_params.rho, abs=0.06)
     assert est.intercept == pytest.approx(true_params.intercept, abs=0.15)
+
+
+def test_fit_raises_when_optimizer_fails(monkeypatch):
+    """优化失败必须大声报错，不能把坏参数继续塞进模型。"""
+    from wcpredict.model import dixon_coles as dc
+
+    def fail_minimize(*args, **kwargs):
+        return SimpleNamespace(success=False, status=9, nit=3, fun=123.4, message="iteration limit")
+
+    monkeypatch.setattr(dc, "minimize", fail_minimize)
+    with pytest.raises(RuntimeError, match="Dixon-Coles 优化失败"):
+        DixonColesModel().fit(
+            ["A", "B", "A"],
+            ["B", "A", "B"],
+            [1, 0, 2],
+            [0, 1, 1],
+            teams=["A", "B"],
+        )

@@ -1,5 +1,4 @@
 """盘口派生：内部一致性 + 对称性。"""
-import numpy as np
 import pytest
 
 from wcpredict.markets import (

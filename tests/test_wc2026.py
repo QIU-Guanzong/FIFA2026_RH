@@ -5,7 +5,6 @@ import pytest
 from wcpredict.model.dixon_coles import DixonColesParams
 from wcpredict.tournament.wc2026 import (
     GROUPS_2026,
-    GROUP_LETTERS,
     OfficialWC2026Simulator,
     R32_MATCHES,
     THIRD_SLOT_SETS,

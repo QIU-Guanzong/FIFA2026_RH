@@ -128,9 +128,9 @@ class TournamentSimulator:
     def _simulate_group_stage(self, rng, N: int):
         """向量化小组赛 → 各组 (头名, 次名, 第三名, 第三名复合键)。返回 4 个 [N,12] 数组。"""
         T, W = self.T, self.max_goals + 1
-        points = np.zeros((N, T), dtype=np.int32)
-        gf = np.zeros((N, T), dtype=np.int32)
-        ga = np.zeros((N, T), dtype=np.int32)
+        points = np.zeros((N, T), dtype=np.int16)
+        gf = np.zeros((N, T), dtype=np.int16)
+        ga = np.zeros((N, T), dtype=np.int16)
         for a, b, cdf in self._group_fixtures:
             u = rng.random(N)
             idx = np.searchsorted(cdf, u, side="right")
@@ -154,8 +154,8 @@ class TournamentSimulator:
             cols = np.array(cols)
             key = (
                 points[:, cols].astype(np.float64) * _PTS_MULT
-                + (gd[:, cols] + _GD_OFFSET) * _GD_MULT
-                + gf[:, cols] * _GF_MULT
+                + (gd[:, cols].astype(np.float64) + _GD_OFFSET) * _GD_MULT
+                + gf[:, cols].astype(np.float64) * _GF_MULT
                 + self.seed_value[cols]
             )
             order = np.argsort(-key, axis=1)
@@ -179,7 +179,7 @@ class TournamentSimulator:
     # ---- 模拟（标准做种近似 bracket）----
     def run(self, n_sims: int = 20000, seed: int = 7) -> TournamentResult:
         rng = np.random.default_rng(seed)
-        N, T = n_sims, self.T
+        N = n_sims
 
         winners, runners, thirds, thirds_key = self._simulate_group_stage(rng, N)
         qual_cols, qualifying_third = self._select_best_thirds(thirds, thirds_key)

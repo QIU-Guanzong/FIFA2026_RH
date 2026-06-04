@@ -85,14 +85,27 @@ def estimate_confederation_offsets(
         e = _expected(ratings.get(r["home"], 1500.0), ratings.get(r["away"], 1500.0),
                       bool(r["neutral"]), scale, home_adv)
         w = 1.0 if r["home_goals"] > r["away_goals"] else (0.5 if r["home_goals"] == r["away_goals"] else 0.0)
-        row = np.zeros(len(confs)); row[idx[ch]] += 1.0; row[idx[ca]] -= 1.0
-        rows.append(row); res.append(w - e); ps.append(e)
+        row = np.zeros(len(confs))
+        row[idx[ch]] += 1.0
+        row[idx[ca]] -= 1.0
+        rows.append(row)
+        res.append(w - e)
+        ps.append(e)
     if not rows:
         return {c: 0.0 for c in confs}
     X, y, ps = np.array(rows), np.array(res), np.array(ps)
-    beta = np.linalg.solve(X.T @ X + ridge * np.eye(len(confs)), X.T @ y)
+    gram = X.T @ X + ridge * np.eye(len(confs))
+    rhs = X.T @ y
+    cond = np.linalg.cond(gram)
+    if np.isfinite(cond) and cond < 1e8:
+        beta = np.linalg.solve(gram, rhs)
+    else:
+        beta = np.linalg.lstsq(gram, rhs, rcond=None)[0]
     gamma = beta - beta.mean()                                   # sum-to-zero（仅相对可辨识）
-    kappa = np.log(10) / scale * np.mean(ps * (1.0 - ps))        # 分数残差 → 评分点
+    kappa = max(
+        np.log(10) / scale * float(np.mean(ps * (1.0 - ps))),
+        1e-8,
+    )                                                            # 分数残差 → 评分点
     return {confs[i]: float(gamma[i] / kappa) for i in range(len(confs))}
 
 

@@ -16,8 +16,9 @@ from dataclasses import dataclass
 import numpy as np
 import pandas as pd
 from scipy.optimize import minimize
+from scipy.special import expit
 
-from wcpredict.xg.features import FEATURE_NAMES, feature_matrix, prepare_shots
+from wcpredict.xg.features import FEATURE_NAMES, feature_matrix
 
 # 历史点球进球率（大样本经验值）；点球 xG 直接取常数，不进位置拟合。
 PENALTY_XG = 0.76
@@ -33,6 +34,7 @@ class ShotXGModel:
     coef_: np.ndarray | None = None
     mean_: np.ndarray | None = None
     std_: np.ndarray | None = None
+    fit_result_: object | None = None
 
     # ---- 拟合 ----
     def fit(self, X: np.ndarray, y: np.ndarray) -> "ShotXGModel":
@@ -52,13 +54,26 @@ class ShotXGModel:
 
         def grad(w):
             b, coef = w[0], w[1:]
-            p = 1.0 / (1.0 + np.exp(-(b + Xs @ coef)))
+            p = expit(b + Xs @ coef)
             g = np.empty(d + 1)
             g[0] = np.sum(p - y)
             g[1:] = Xs.T @ (p - y) + self.l2 * coef
             return g
 
-        res = minimize(nll, np.zeros(d + 1), jac=grad, method="BFGS")
+        res = minimize(
+            nll,
+            np.zeros(d + 1),
+            jac=grad,
+            method="L-BFGS-B",
+            options={"maxiter": 200},
+        )
+        self.fit_result_ = res
+        if not res.success:
+            raise RuntimeError(
+                "xG 优化失败: "
+                f"status={res.status}, nit={getattr(res, 'nit', None)}, fun={getattr(res, 'fun', None)}, "
+                f"message={res.message}"
+            )
         self.intercept_ = float(res.x[0])
         self.coef_ = res.x[1:]
         return self
@@ -69,7 +84,7 @@ class ShotXGModel:
         if self.coef_ is None:
             raise RuntimeError("模型未拟合")
         Xs = (np.asarray(X, float) - self.mean_) / self.std_
-        return 1.0 / (1.0 + np.exp(-(self.intercept_ + Xs @ self.coef_)))
+        return expit(self.intercept_ + Xs @ self.coef_)
 
     @property
     def coef_original_(self) -> dict[str, float]:

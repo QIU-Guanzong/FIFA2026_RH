@@ -2,6 +2,8 @@
 
 真值是进球。几何是经典陷阱，逐样本手算核对（advisor 强调）。
 """
+from types import SimpleNamespace
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -170,6 +172,23 @@ def test_parse_shots_captures_player():
     assert rows[0]["player"] == "L. Messi" and rows[0]["team"] == "Argentina"
 
 
+def test_statsbomb_shots_fetches_events_concurrently_but_parses_in_match_order(monkeypatch):
+    src = StatsBombSource()
+    monkeypatch.setattr(src, "matches", lambda: [{"match_id": 2}, {"match_id": 1}])
+
+    def fake_fetch_json(url, dest_name):
+        mid = int(dest_name.removeprefix("events_").removesuffix(".json"))
+        return [{"type": {"name": "Shot"}, "period": 1, "location": [110.0, 40.0],
+                 "player": {"name": f"P{mid}"}, "team": {"name": f"T{mid}"},
+                 "shot": {"outcome": {"name": "Saved"}, "type": {"name": "Open Play"},
+                          "body_part": {"name": "Right Foot"}, "statsbomb_xg": 0.2}}]
+
+    monkeypatch.setattr(src, "_fetch_json", fake_fetch_json)
+    df = src.shots(max_workers=2)
+    assert df["match_id"].tolist() == [2, 1]
+    assert df["player"].tolist() == ["P2", "P1"]
+
+
 def test_parse_lineups_extracts_starting_xi():
     """Starting XI 事件的 tactics.lineup → 首发球员行（#5B 用）。"""
     events = [
@@ -185,6 +204,18 @@ def test_parse_lineups_extracts_starting_xi():
     assert rows[0] == {"match_id": 7, "team": "France", "player": "H. Lloris",
                        "position": "Goalkeeper", "jersey": 1}
     assert rows[1]["player"] == "K. Mbappé" and rows[1]["jersey"] == 10
+
+
+def test_shot_xg_raises_when_optimizer_fails(monkeypatch):
+    from wcpredict.xg import model as xg_model
+
+    def fail_minimize(*args, **kwargs):
+        return SimpleNamespace(success=False, status=2, nit=5, fun=9.9, message="bad curvature")
+
+    monkeypatch.setattr(xg_model, "minimize", fail_minimize)
+    X, y, _ = _synth(100, seed=10)
+    with pytest.raises(RuntimeError, match="xG 优化失败"):
+        ShotXGModel().fit(X, y)
 
 
 def test_assign_xg_all_penalties():

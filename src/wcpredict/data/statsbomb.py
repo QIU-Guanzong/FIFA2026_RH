@@ -6,6 +6,7 @@ data/raw/statsbomb/，解析与下载分离便于离线单测。许可：公开�
 """
 from __future__ import annotations
 
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import json
 
 import pandas as pd
@@ -26,6 +27,40 @@ class StatsBombSource:
         dest = _SB_DIR / dest_name
         _download(url, dest, force=self.force_download, timeout=60)
         return json.loads(dest.read_bytes().decode("utf-8"))
+
+    def _fetch_events_many(
+        self,
+        match_ids: list[int],
+        *,
+        max_workers: int = 8,
+    ) -> tuple[dict[int, list[dict]], dict[int, Exception]]:
+        """并行拉取事件文件，返回成功事件与失败异常；解析顺序由调用方按 match_ids 保持。"""
+        events_by_match: dict[int, list[dict]] = {}
+        failures: dict[int, Exception] = {}
+        if not match_ids:
+            return events_by_match, failures
+
+        def fetch_one(mid: int) -> list[dict]:
+            return self._fetch_json(f"{_SB_BASE}/events/{mid}.json", f"events_{mid}.json")
+
+        workers = max(1, min(int(max_workers), len(match_ids)))
+        if workers == 1:
+            for mid in match_ids:
+                try:
+                    events_by_match[mid] = fetch_one(mid)
+                except Exception as e:  # noqa: BLE001
+                    failures[mid] = e
+            return events_by_match, failures
+
+        with ThreadPoolExecutor(max_workers=workers) as ex:
+            futures = {ex.submit(fetch_one, mid): mid for mid in match_ids}
+            for fut in as_completed(futures):
+                mid = futures[fut]
+                try:
+                    events_by_match[mid] = fut.result()
+                except Exception as e:  # noqa: BLE001
+                    failures[mid] = e
+        return events_by_match, failures
 
     def matches(self) -> list[dict]:
         url = f"{_SB_BASE}/matches/{self.competition_id}/{self.season_id}.json"
@@ -74,23 +109,30 @@ class StatsBombSource:
                 })
         return rows
 
-    def lineups(self, max_matches: int | None = None) -> pd.DataFrame:
+    def lineups(self, max_matches: int | None = None, *, max_workers: int = 8) -> pd.DataFrame:
         """拉取该赛事所有比赛的首发 XI（复用按 match 缓存的事件文件）。"""
         matches = self.matches()
         if max_matches:
             matches = matches[:max_matches]
         rows: list[dict] = []
+        match_ids = [int(m["match_id"]) for m in matches]
+        events_by_match, failures = self._fetch_events_many(match_ids, max_workers=max_workers)
         for m in matches:
-            mid = m["match_id"]
-            try:
-                events = self._fetch_json(f"{_SB_BASE}/events/{mid}.json", f"events_{mid}.json")
-            except Exception as e:  # noqa: BLE001
-                print(f"  [警告] 跳过 match {mid} 首发（重试后仍失败）：{e}")
+            mid = int(m["match_id"])
+            events = events_by_match.get(mid)
+            if events is None:
+                print(f"  [警告] 跳过 match {mid} 首发（重试后仍失败）：{failures.get(mid)}")
                 continue
             rows.extend(self.parse_lineups(events, match_id=mid))
         return pd.DataFrame(rows)
 
-    def shots(self, max_matches: int | None = None, *, include_shootouts: bool = False) -> pd.DataFrame:
+    def shots(
+        self,
+        max_matches: int | None = None,
+        *,
+        include_shootouts: bool = False,
+        max_workers: int = 8,
+    ) -> pd.DataFrame:
         """拉取该赛事所有比赛的射门样本（按 match 缓存事件文件）。
 
         单场事件文件经 _download 有界重试后仍失败时，大声告警并跳过该场（不静默截断），
@@ -103,15 +145,14 @@ class StatsBombSource:
         if max_matches:
             matches = matches[:max_matches]
         all_rows: list[dict] = []
-        skipped: list[int] = []
+        match_ids = [int(m["match_id"]) for m in matches]
+        events_by_match, failures = self._fetch_events_many(match_ids, max_workers=max_workers)
+        skipped = sorted(failures)
         for m in matches:
-            mid = m["match_id"]
-            url = f"{_SB_BASE}/events/{mid}.json"
-            try:
-                events = self._fetch_json(url, f"events_{mid}.json")
-            except Exception as e:  # noqa: BLE001
-                skipped.append(mid)
-                print(f"  [警告] 跳过 match {mid}（重试后仍失败）：{e}")
+            mid = int(m["match_id"])
+            events = events_by_match.get(mid)
+            if events is None:
+                print(f"  [警告] 跳过 match {mid}（重试后仍失败）：{failures.get(mid)}")
                 continue
             all_rows.extend(self.parse_shots(events, match_id=mid))
         if skipped:

@@ -73,9 +73,9 @@ class WalkForwardBacktest:
             return {}
         o = self.odds[(self.odds["book"] == book) & (self.odds["snapshot"] == snapshot)]
         m = {}
-        for _, r in o.iterrows():
-            m[(pd.Timestamp(r["date"]), r["home"], r["away"])] = (
-                r["odds_home"], r["odds_draw"], r["odds_away"]
+        for r in o.itertuples(index=False):
+            m[(pd.Timestamp(r.date), r.home, r.away)] = (
+                r.odds_home, r.odds_draw, r.odds_away
             )
         return m
 
@@ -90,17 +90,17 @@ class WalkForwardBacktest:
         devig_method: str = "multiplicative",
     ) -> BacktestResult:
         m = self.matches
-        dates = m["date"].to_numpy()
+        dates = m["date"].to_numpy(dtype="datetime64[ns]")
+        train_bounds = np.searchsorted(dates, dates, side="left")
         odds_map = self._odds_map(market_book, market_snapshot)
 
         records: list[dict] = []
         preds_since_fit = refit_every          # 强制首次拟合
         train_max_date: pd.Timestamp | None = None
 
-        for i in range(len(m)):
-            row = m.iloc[i]
+        for i, row in enumerate(m.itertuples(index=False)):
             # 严格早于本场日期的比赛数（含同日比赛一并排除）
-            k = int(np.searchsorted(dates, np.datetime64(row["date"]), side="left"))
+            k = int(train_bounds[i])
             if k < min_train:
                 continue
             if preds_since_fit >= refit_every:
@@ -109,16 +109,16 @@ class WalkForwardBacktest:
                 train_max_date = train["date"].max()
                 preds_since_fit = 0
 
-            p = predictor.predict_1x2(row["home"], row["away"], bool(row["neutral"]))
+            p = predictor.predict_1x2(row.home, row.away, bool(row.neutral))
             preds_since_fit += 1
 
             rec = {
-                "date": row["date"], "home": row["home"], "away": row["away"],
-                "outcome": _outcome(int(row["home_goals"]), int(row["away_goals"])),
+                "date": row.date, "home": row.home, "away": row.away,
+                "outcome": _outcome(int(row.home_goals), int(row.away_goals)),
                 "pm_home": p[0], "pm_draw": p[1], "pm_away": p[2],
                 "train_max_date": train_max_date,
             }
-            key = (pd.Timestamp(row["date"]), row["home"], row["away"])
+            key = (pd.Timestamp(row.date), row.home, row.away)
             if key in odds_map:
                 pk = devig(np.array(odds_map[key], dtype=float), devig_method)
                 rec.update(has_market=True, mk_home=pk[0], mk_draw=pk[1], mk_away=pk[2])
