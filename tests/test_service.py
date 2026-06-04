@@ -33,6 +33,14 @@ def test_rankings_sorted(client):
     assert teams[0]["rank"] == 1
 
 
+def test_rankings_top_is_clamped(client):
+    r = client.get("/rankings?top=999")
+    assert r.status_code == 200
+    b = r.json()
+    assert b["n_teams"] == 48
+    assert len(b["teams"]) == 48
+
+
 def test_predict_match(client):
     r = client.post("/predict", json={"home": "T01", "away": "T02", "neutral": True})
     assert r.status_code == 200
@@ -58,10 +66,25 @@ def test_reload(client):
 
 
 def test_tournament(client):
-    r = client.get("/tournament?sims=1500&top=10")
+    r = client.get("/tournament?sims=1500&top=10&seed=99")
     assert r.status_code == 200
     b = r.json()
     assert b["n_sims"] == 1500
+    assert b["seed"] == 99
     assert len(b["teams"]) == 10
     for t in b["teams"]:
         assert 0.0 <= t["champion"] <= t["advance"] <= 1.0    # 嵌套单调
+
+
+def test_tournament_bounds_and_seed_cache(client):
+    r1 = client.get("/tournament?sims=0&top=999&seed=1")
+    r2 = client.get("/tournament?sims=0&top=999&seed=2")
+    assert r1.status_code == 200 and r2.status_code == 200
+    b1, b2 = r1.json(), r2.json()
+    assert b1["n_sims"] == 1
+    assert b1["seed"] == 1 and b2["seed"] == 2
+    assert len(b1["teams"]) == 48
+    # 两个 seed 应分别缓存，不应因为同 sims 复用同一结果对象。
+    version = client.app.state.loaded.version
+    assert (version, 1, 1) in client.app.state.tournament_cache
+    assert (version, 1, 2) in client.app.state.tournament_cache

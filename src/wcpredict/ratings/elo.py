@@ -97,16 +97,21 @@ class EloRating:
         显著压低"冷启动 + 弱洲际刷分"造成的虚高。passes=1 即退化为单趟（与原行为一致）。
         """
         passes = self.passes if passes is None else passes
+        if "date" in matches.columns:
+            matches = matches.sort_values("date", kind="stable")
         has_imp = bool(importance_col) and importance_col in matches.columns
         has_neu = bool(neutral_col) and neutral_col in matches.columns
         # 预抽成元组列表，多趟复用（避免每趟都 iterrows）
         rows = [
             (
-                r[home_col], r[away_col], int(r[hg_col]), int(r[ag_col]),
-                float(r[importance_col]) if has_imp else 1.0,
-                bool(r[neutral_col]) if has_neu else True,
+                getattr(r, home_col),
+                getattr(r, away_col),
+                int(getattr(r, hg_col)),
+                int(getattr(r, ag_col)),
+                float(getattr(r, importance_col)) if has_imp else 1.0,
+                bool(getattr(r, neutral_col)) if has_neu else True,
             )
-            for _, r in matches.iterrows()
+            for r in matches.itertuples(index=False)
         ]
         for _ in range(max(1, passes)):
             self.ratings = {}

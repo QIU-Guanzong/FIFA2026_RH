@@ -43,6 +43,7 @@ class TeamProb(BaseModel):
 
 class TournamentResponse(BaseModel):
     n_sims: int
+    seed: int
     teams: list[TeamProb]
 
 

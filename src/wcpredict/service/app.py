@@ -79,6 +79,7 @@ def create_app() -> FastAPI:
     def rankings(top: int = 20):
         ld = app.state.loaded
         p = ld.params
+        top = max(1, min(top, len(p.teams)))
         strength = p.attack - p.defence
         order = np.argsort(-strength)
         entries = [
@@ -120,20 +121,21 @@ def create_app() -> FastAPI:
                 "version": loaded.version, "n_teams": len(loaded.params.teams)}
 
     @app.get("/tournament", response_model=TournamentResponse)
-    def tournament(sims: int = 20000, top: int = 20):
+    def tournament(sims: int = 20000, top: int = 20, seed: int = 2026):
         sims = max(1, min(sims, 200_000))           # 防滥用：钳制模拟次数上限
         p = app.state.model.params
+        top = max(1, min(top, len(p.teams)))
         if len(p.teams) < 48:
             raise HTTPException(
                 400, f"当前模型仅 {len(p.teams)} 队，赛会模拟需要 ≥48 队（用 national 模型）"
             )
         cache = app.state.tournament_cache
-        key = (app.state.loaded.version, sims)
+        key = (app.state.loaded.version, sims, seed)
         if key not in cache:
             strength = {t: float(p.attack[i] - p.defence[i]) for i, t in enumerate(p.teams)}
             ranked = sorted(strength, key=strength.get, reverse=True)[:48]
             groups = snake_draw_groups(ranked)
-            res = TournamentSimulator(p, groups).run(n_sims=sims, seed=2026)
+            res = TournamentSimulator(p, groups).run(n_sims=sims, seed=seed)
             cache[key] = res.probs
         probs = cache[key].head(top)
         teams = [
@@ -144,7 +146,7 @@ def create_app() -> FastAPI:
             )
             for t, r in probs.iterrows()
         ]
-        return TournamentResponse(n_sims=sims, teams=teams)
+        return TournamentResponse(n_sims=sims, seed=seed, teams=teams)
 
     return app
 

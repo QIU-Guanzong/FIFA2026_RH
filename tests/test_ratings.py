@@ -20,6 +20,22 @@ def test_multipass_deterministic_and_complete():
     assert set(base) == {"A", "B", "C"}
 
 
+def test_fit_sorts_by_date_when_available():
+    sorted_rows = pd.DataFrame({
+        "date": pd.to_datetime(["2020-01-01", "2020-01-02", "2020-01-03"]),
+        "home": ["A", "B", "A"],
+        "away": ["B", "A", "B"],
+        "home_goals": [2, 0, 1],
+        "away_goals": [0, 3, 1],
+        "neutral": [True] * 3,
+        "importance": [1.0] * 3,
+    })
+    shuffled = sorted_rows.iloc[[2, 0, 1]].reset_index(drop=True)
+    expected = EloRating(passes=2).fit(sorted_rows).to_dict()
+    got = EloRating(passes=2).fit(shuffled).to_dict()
+    assert got == expected
+
+
 def _confederation_world():
     """构造两个'洲际'：强洲 A0-3、弱洲 B0-3，绝大多数比赛在洲内（冷启动看不出洲际差），
     仅末尾少量跨洲比赛揭示真实强弱。单趟 Elo 会低估洲际差；多趟应纠正。"""
