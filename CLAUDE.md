@@ -123,8 +123,12 @@ make demo-fit      # 走 MLE 拟合路径
    数据来源：Wikipedia 抽签页+knockout 页，分组另用搜索交叉验证。**严禁凭记忆改分组/赛程——必须重新核验来源。**
 5. **Part A ✅ 自建 shot-level xG**（2026-06-04 完成）：StatsBomb 开放数据 → 几何特征（门口张角，手算核验）→
    可解释逻辑回归。对**真实进球**校准 log loss 0.341→0.278、ECE 0.035，关闭"基线→statsbomb"差距 62%。
-   CLI `wcpredict xg`。**Part B（阵容/首发）= 数据门槛后置**（无可靠免费预测首发源，待 CEO 决策付费源）。
-   xG 尚未并入 wc2026（需广泛俱乐部样本）。
+   CLI `wcpredict xg`。xG 尚未并入 wc2026（需广泛俱乐部样本）。
+   **Part B（阵容/首发）已调研**（2026-06-04，`docs/5B_lineup_data_sources.md`）：唯一真数据门槛=**赛前*预测* XI**
+   （历史首发用在手 StatsBomb、球员强度用自家 xG、伤停免费抓取——都不必买）。市面仅 Sportmonks expected lineups
+   可买（Growth €99 + add-on €159–199，WC 国家队覆盖+提前量须试用坐实）；API-Football 只给确认首发(赛前 20–40min)。
+   建议**先证后买**：Phase 0 用 StatsBomb 真实 XI 做天花板检验（精确首发能否改善*我们自己*的预测，非比市场），
+   通过才买预测 XI。**待 CEO 决策 Phase 0 是否开工 + 是否批 ~€100–300/mo 订阅。**
 6. ✅ **修 Elo 洲际通胀**（2026-06-04 完成）：多趟暖启动迭代（`EloRating(passes=)`，上趟终值作下趟先验）。
    用国际赛无泄漏回测量化：OOS log loss 0.9118→0.8971（passes 1→5），单调下降；排名 Europe 上移、
    Japan/Morocco/Ecuador 下移（Top3 不变）。national 默认 passes=4。合成"双洲际"离线测试锁定机制。
