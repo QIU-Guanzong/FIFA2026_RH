@@ -370,6 +370,7 @@ def run_train(
 
     from wcpredict.data import add_days_ago, load_seasons
     from wcpredict.data.sources import InternationalResultsSource
+    from wcpredict.ratings import apply_offsets, derive_confederations, deployment_offsets
     from wcpredict.registry import ModelStore
 
     store = ModelStore()
@@ -377,17 +378,25 @@ def run_train(
 
     if model == "national":
         _section(f"训练 national 模型（martj42 国际赛 {since}→今，多趟暖启动 Elo）")
-        matches = InternationalResultsSource(since=since).fetch_matches()
+        src = InternationalResultsSource(since=since)
+        matches = src.fetch_matches()
         elo = EloRating(passes=4)
         elo.fit(matches)
-        ranked = [t for t, _ in elo.ranking()[:48]]
-        ratings = {t: elo.get(t) for t in ranked}
+        # #6b 洲际校正（与 wc2026 一致——否则服务模型与 wc2026 头条会在 NZ 上分歧，违背"单一真理源"）
+        ratings_all = elo.to_dict()
+        conf = derive_confederations(src.raw_results())
+        offsets = deployment_offsets(matches, ratings_all, conf)
+        ratings_all = apply_offsets(ratings_all, conf, offsets)
+        applied = {c: round(v, 1) for c, v in offsets.items() if abs(v) > 1e-6}
+        ranked = [t for t, _ in sorted(ratings_all.items(), key=lambda kv: kv[1], reverse=True)[:48]]
+        ratings = {t: ratings_all[t] for t in ranked}
+        print(f"  洲际校正(仅稳健洲): {applied or '无可应用'}")
         sd = float(np.std(list(ratings.values())))
         params = DixonColesParams.from_ratings(ratings, goals_scale=0.35 / (2 * sd) if sd else 0.0015)
         meta = {
             "source": "martj42-international-results", "method": "elo-prior",
             "elo_passes": 4, "since": since, "n_matches": int(len(matches)), "n_teams": 48,
-            "fit_time": fit_time, "top5": ranked[:5],
+            "confed_correction": applied, "fit_time": fit_time, "top5": ranked[:5],
         }
     elif model == "couk":
         _section(f"训练 couk 模型（英超 {', '.join(seasons)} MLE 拟合）")
