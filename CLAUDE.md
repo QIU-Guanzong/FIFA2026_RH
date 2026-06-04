@@ -94,6 +94,18 @@
   - 顺手核查：martj42 含 72 行未来 WC 占位赛程(无比分)，但 `fetch_matches` 经 validate 已丢弃（部署模型无污染，已验证）。
   - 测试 83 项全绿（+5 洲际：派生含会籍变更/offset 符号/部署只取稳健洲/洲内忽略）。
 
+## 线上展示页（已部署 2026-06-04）
+
+- **URL**：https://gavin.astock.top/AI4Future/FIFA2026/ （AI4Future 展示子页，noindex，非投注建议）
+- **服务器**：`ssh cfd`（47.236.141.79），nginx `root /var/www/gavin`、`server_name gavin.astock.top`、
+  `try_files $uri $uri/`，故 `/AI4Future/FIFA2026/index.html` 直接 serve，**无需改 nginx、无需 reload**。
+- **页面**：纯静态自包含 `site/index.html`（深色风格对齐既有 AI4Future 页）——夺冠 Top16 + 小组热门 +
+  可解释方法论 + 研发深度 + 诚实边界。**已预渲染为静态**（无 JS 依赖，curl 可验证渲染内容）。
+- **一键复部署**：`bash site/deploy.sh`（scp 到 cfd，自动验证 200）。数字刷新：重跑 `wcpredict wc2026`
+  → 更新 `site/index.html` 表格 → `bash site/deploy.sh`。
+- 坑：本机解析 astock.top 走本地代理(fake-IP 198.18.x.x)，curl 可达但**无头浏览器/直连不一定**；
+  部署与验证都走 `ssh cfd` 直连 + curl。
+
 ## 常用命令
 
 ```bash
