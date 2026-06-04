@@ -112,9 +112,9 @@
     <h1>2026 世界杯<br><span class="accent">AI 比分概率预测</span></h1>
     <p class="lead">一条<b style="color:var(--t1)">可解释</b>的预测主干，而非黑箱分类器：从国际赛 Elo 评分先验，到 Dixon‑Coles 比分矩阵，再由<b style="color:var(--t1)">同一个矩阵</b>统一派生所有盘口，最后对完整赛制做蒙特卡洛模拟。每个数字都能追溯到机理。</p>
     <div class="pills">
-      <span class="pill">📅 数据截至 <b>2026-06-04</b></span>
+      <span class="pill">📅 数据截至 <b>{{DATA_CUTOFF}}</b></span>
       <span class="pill">🌍 <b>48</b> 队 · 官方分组 A–L</span>
-      <span class="pill">🎲 <b>40,000</b> 届模拟</span>
+      <span class="pill">🎲 <b>{{SIMULATIONS}}</b> 届模拟</span>
       <span class="pill">✅ <b>85</b> 项测试 / 无泄漏回测</span>
     </div>
   </div>
@@ -134,22 +134,7 @@
         <th>出线</th>
       </tr></thead>
       <tbody>
-<tr class="top1"><td class="team"><span class="rank">1</span><b>Spain</b></td><td class="bar-cell"><div class="bar gold"><i style="width:100.0%"></i><span>14.4%</span></div></td><td class="num hide-sm">46.6%</td><td class="num hide-sm">22.0%</td><td class="num">96%</td></tr>
-<tr class=""><td class="team"><span class="rank">2</span><b>Argentina</b></td><td class="bar-cell"><div class="bar"><i style="width:68.8%"></i><span>9.9%</span></div></td><td class="num hide-sm">39.7%</td><td class="num hide-sm">16.5%</td><td class="num">92%</td></tr>
-<tr class=""><td class="team"><span class="rank">3</span><b>France</b></td><td class="bar-cell"><div class="bar"><i style="width:62.6%"></i><span>9.0%</span></div></td><td class="num hide-sm">39.2%</td><td class="num hide-sm">14.8%</td><td class="num">90%</td></tr>
-<tr class=""><td class="team"><span class="rank">4</span><b>England</b></td><td class="bar-cell"><div class="bar"><i style="width:39.1%"></i><span>5.6%</span></div></td><td class="num hide-sm">33.4%</td><td class="num hide-sm">10.6%</td><td class="num">91%</td></tr>
-<tr class=""><td class="team"><span class="rank">5</span><b>Brazil</b></td><td class="bar-cell"><div class="bar"><i style="width:30.7%"></i><span>4.4%</span></div></td><td class="num hide-sm">29.0%</td><td class="num hide-sm">8.5%</td><td class="num">87%</td></tr>
-<tr class=""><td class="team"><span class="rank">6</span><b>Portugal</b></td><td class="bar-cell"><div class="bar"><i style="width:29.6%"></i><span>4.3%</span></div></td><td class="num hide-sm">27.9%</td><td class="num hide-sm">8.3%</td><td class="num">84%</td></tr>
-<tr class=""><td class="team"><span class="rank">7</span><b>Colombia</b></td><td class="bar-cell"><div class="bar"><i style="width:27.8%"></i><span>4.0%</span></div></td><td class="num hide-sm">27.5%</td><td class="num hide-sm">8.1%</td><td class="num">83%</td></tr>
-<tr class=""><td class="team"><span class="rank">8</span><b>Netherlands</b></td><td class="bar-cell"><div class="bar"><i style="width:27.2%"></i><span>3.9%</span></div></td><td class="num hide-sm">28.3%</td><td class="num hide-sm">7.6%</td><td class="num">85%</td></tr>
-<tr class=""><td class="team"><span class="rank">9</span><b>Germany</b></td><td class="bar-cell"><div class="bar"><i style="width:26.6%"></i><span>3.8%</span></div></td><td class="num hide-sm">28.2%</td><td class="num hide-sm">7.8%</td><td class="num">89%</td></tr>
-<tr class=""><td class="team"><span class="rank">10</span><b>Ecuador</b></td><td class="bar-cell"><div class="bar"><i style="width:24.0%"></i><span>3.5%</span></div></td><td class="num hide-sm">26.9%</td><td class="num hide-sm">7.2%</td><td class="num">88%</td></tr>
-<tr class=""><td class="team"><span class="rank">11</span><b>Switzerland</b></td><td class="bar-cell"><div class="bar"><i style="width:22.1%"></i><span>3.2%</span></div></td><td class="num hide-sm">28.2%</td><td class="num hide-sm">6.7%</td><td class="num">90%</td></tr>
-<tr class=""><td class="team"><span class="rank">12</span><b>Norway</b></td><td class="bar-cell"><div class="bar"><i style="width:22.1%"></i><span>3.2%</span></div></td><td class="num hide-sm">25.2%</td><td class="num hide-sm">6.7%</td><td class="num">78%</td></tr>
-<tr class=""><td class="team"><span class="rank">13</span><b>Morocco</b></td><td class="bar-cell"><div class="bar"><i style="width:20.0%"></i><span>2.9%</span></div></td><td class="num hide-sm">24.4%</td><td class="num hide-sm">6.1%</td><td class="num">83%</td></tr>
-<tr class=""><td class="team"><span class="rank">14</span><b>Turkey</b></td><td class="bar-cell"><div class="bar"><i style="width:20.0%"></i><span>2.9%</span></div></td><td class="num hide-sm">24.7%</td><td class="num hide-sm">6.0%</td><td class="num">79%</td></tr>
-<tr class=""><td class="team"><span class="rank">15</span><b>Japan</b></td><td class="bar-cell"><div class="bar"><i style="width:19.2%"></i><span>2.8%</span></div></td><td class="num hide-sm">23.8%</td><td class="num hide-sm">5.8%</td><td class="num">80%</td></tr>
-<tr class=""><td class="team"><span class="rank">16</span><b>Belgium</b></td><td class="bar-cell"><div class="bar"><i style="width:18.6%"></i><span>2.7%</span></div></td><td class="num hide-sm">25.4%</td><td class="num hide-sm">5.8%</td><td class="num">87%</td></tr>
+{{CHAMPION_TABLE_ROWS}}
 </tbody>
     </table>
     <p class="dim" style="font-size:12px;margin-top:14px">注：概率为模型估计，非投注建议。强弱来自我们自建的 Elo 评分（非市场赔率）。</p>
@@ -162,18 +147,7 @@
     <h2 class="sec-h">各小组出线热门</h2>
     <p class="sec-sub">每组头名概率最高者（金色）与出线概率次高者（灰色）。东道主墨西哥/加拿大默认中立场，未额外加东道主主场（该假设无法严谨回测，默认关闭）。</p>
     <div class="grid">
-<div class="gcard"><div class="gl">组 A</div><div class="row"><span class="nm">Mexico</span><span class="pc">头名 39% · 出线 83%</span></div><div class="row second"><span class="nm">South Korea</span><span class="pc">出线 73%</span></div></div>
-<div class="gcard"><div class="gl">组 B</div><div class="row"><span class="nm">Switzerland</span><span class="pc">头名 49% · 出线 90%</span></div><div class="row second"><span class="nm">Canada</span><span class="pc">出线 84%</span></div></div>
-<div class="gcard"><div class="gl">组 C</div><div class="row"><span class="nm">Brazil</span><span class="pc">头名 43% · 出线 87%</span></div><div class="row second"><span class="nm">Morocco</span><span class="pc">出线 83%</span></div></div>
-<div class="gcard"><div class="gl">组 D</div><div class="row"><span class="nm">Turkey</span><span class="pc">头名 37% · 出线 79%</span></div><div class="row second"><span class="nm">Paraguay</span><span class="pc">出线 69%</span></div></div>
-<div class="gcard"><div class="gl">组 E</div><div class="row"><span class="nm">Germany</span><span class="pc">头名 42% · 出线 89%</span></div><div class="row second"><span class="nm">Ecuador</span><span class="pc">出线 88%</span></div></div>
-<div class="gcard"><div class="gl">组 F</div><div class="row"><span class="nm">Netherlands</span><span class="pc">头名 41% · 出线 85%</span></div><div class="row second"><span class="nm">Japan</span><span class="pc">出线 80%</span></div></div>
-<div class="gcard"><div class="gl">组 G</div><div class="row"><span class="nm">Belgium</span><span class="pc">头名 44% · 出线 87%</span></div><div class="row second"><span class="nm">Iran</span><span class="pc">出线 77%</span></div></div>
-<div class="gcard"><div class="gl">组 H</div><div class="row"><span class="nm">Spain</span><span class="pc">头名 68% · 出线 96%</span></div><div class="row second"><span class="nm">Uruguay</span><span class="pc">出线 79%</span></div></div>
-<div class="gcard"><div class="gl">组 I</div><div class="row"><span class="nm">France</span><span class="pc">头名 49% · 出线 90%</span></div><div class="row second"><span class="nm">Norway</span><span class="pc">出线 78%</span></div></div>
-<div class="gcard"><div class="gl">组 J</div><div class="row"><span class="nm">Argentina</span><span class="pc">头名 57% · 出线 92%</span></div><div class="row second"><span class="nm">Austria</span><span class="pc">出线 70%</span></div></div>
-<div class="gcard"><div class="gl">组 K</div><div class="row"><span class="nm">Portugal</span><span class="pc">头名 39% · 出线 84%</span></div><div class="row second"><span class="nm">Colombia</span><span class="pc">出线 83%</span></div></div>
-<div class="gcard"><div class="gl">组 L</div><div class="row"><span class="nm">England</span><span class="pc">头名 50% · 出线 91%</span></div><div class="row second"><span class="nm">Croatia</span><span class="pc">出线 82%</span></div></div>
+{{GROUP_CARDS}}
 </div>
   </div>
 </section>
@@ -227,7 +201,7 @@
     <div><b style="color:var(--t2)">2026 世界杯 AI 比分概率预测</b> · AI4Future 研究展示</div>
     <div>数据来源：martj42 国际赛结果（公开）、StatsBomb 开放数据（公开研究须注明来源）。</div>
     <div>模型输出为概率估计，仅供研究与演示，<b style="color:var(--t3)">非投注建议</b>。预测随评分迭代刷新。</div>
-    <div class="dim">生成于 2026-06-05 00:34 +0800 · 可解释比分概率主干 v0.1</div>
+    <div class="dim">生成于 {{GENERATED_AT}} · 可解释比分概率主干 v0.1</div>
     <a class="back" href="/AI4Future/">← 返回 AI4Future</a>
   </div>
 </footer>

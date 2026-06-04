@@ -29,6 +29,32 @@
 ./.venv/bin/python -m wcpredict.cli train --model national                  # 训练并注册模型到模型仓
 ./.venv/bin/python -m wcpredict.cli serve                                   # 起 FastAPI 推理服务 (/docs)
 # 或安装后直接： wcpredict demo / ingest / backtest / national / wc2026 / xg / train / serve
+
+## 本机数据目录（建议）
+export WCPREDICT_DATA_DIR="$HOME/FootballData/data"
+export WCPREDICT_ARTIFACTS_DIR="$HOME/FootballData/artifacts"
+mkdir -p "$WCPREDICT_DATA_DIR" "$WCPREDICT_ARTIFACTS_DIR"
+
+# 夜间连续优化：每 4 小时自动训练/重建/部署（你说的“连续高强度”）
+make train-wc2026                               # 先跑一次单轮
+bash scripts/run_wc2026_upgrade_loop.sh --once    # 单次完整一轮（训练+刷新+部署）
+make upgrade-loop                               # 持续每4小时一轮（无后台）
+make upgrade-daemon                             # 后台持续每4小时一轮（适合你睡觉时）
+make stop-upgrade                               # 停止后台循环
+```
+
+可调参数（都通过环境变量）：
+
+```
+MODEL_NAME（默认 default）
+TRAIN_SINCE（默认 2006-01-01）
+SIMS（默认 40000）
+SEED（默认 2026）
+SLEEP_SECONDS（默认 14400）
+SERVICE_URL（默认空）
+WCPREDICT_DATA_DIR（默认 `$PWD/data`）
+WCPREDICT_ARTIFACTS_DIR（默认 `$PWD/artifacts`）
+```
 ```
 
 **部署（#3）**：本机用 colima 作 Docker 运行时——先 `colima start`，再：
