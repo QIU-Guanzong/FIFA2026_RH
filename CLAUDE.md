@@ -7,6 +7,13 @@
 可解释的世界杯预测主干：**比分分布**优先，不做黑箱 1X2 分类器。
 链路：国际赛 rating 先验 → log-linear λ → Dixon-Coles 比分矩阵 → 统一派生所有盘口 → 全赛事 Monte Carlo。
 
+## 运维 / Git 推送（2026-06-05 踩坑实录，重要）
+
+- **GitHub 推送只走 SSH 别名 `github-new`（=QIU-Guanzong）**。remote 已设为 `git@github-new:QIU-Guanzong/FIFA2026_RH.git`。
+  HTTPS + osxkeychain 凭据会失效（`gh auth status` 两账号都 X、push 报 `Device not configured`）；默认 `git@github.com` SSH 指向**已封禁的 Gavin-Yau**，勿用。别名映射：`github-new`→QIU-Guanzong、`github-gavin`→Gavin-Yau(封)、`github-elena`→ElenaGe216。
+- **4h 自动升级守护进程**：`scripts/run_wc2026_upgrade_loop.sh`（start/stop_wc2026_upgrade_daemon.sh，PID 文件在 `logs/wc2026-upgrade/daemon.pid`）。每 4h 重训+刷新 `site/index.html`+commit；数据/产物写 repo 外 `~/FootballData/`。**当前已停（CEO 指示）**，重启用 start 脚本。它工作在 `codex/engineering-hardening` 分支，commit 不会自动 push（鉴权曾坏）。
+- **线上页**：loop 只刷新本地 `site/index.html`，**不自动 scp**；服务器更新仍需 `bash site/deploy.sh`（走 `ssh cfd`）。线上可能滞后于本地。
+
 ## 技术栈
 
 - Python 3.12（`.venv/`，homebrew python3.12）
