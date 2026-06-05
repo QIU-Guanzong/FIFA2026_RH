@@ -74,6 +74,27 @@
   .gcard .pc{color:var(--green);font-size:13px;font-variant-numeric:tabular-nums;font-weight:600}
   .gcard .row.second .pc{color:var(--t3)}
 
+  /* knockout path */
+  .path-shell{margin-top:18px;overflow-x:auto;padding:2px 0 14px;scrollbar-color:var(--hair3) transparent}
+  .path-shell::-webkit-scrollbar{height:8px}
+  .path-shell::-webkit-scrollbar-track{background:transparent}
+  .path-shell::-webkit-scrollbar-thumb{background:var(--hair3);border-radius:999px}
+  .bracket{display:grid;grid-template-columns:repeat(5,minmax(174px,1fr));gap:16px;min-width:1000px}
+  .br-round{min-width:0}
+  .br-title{font-size:11px;font-weight:700;color:var(--gold);letter-spacing:0;text-transform:uppercase;margin:0 0 10px}
+  .br-lane{display:grid;grid-template-rows:repeat(16,54px);gap:8px;position:relative}
+  .match-card{grid-row:var(--row) / span var(--span);align-self:center;position:relative;min-height:52px;
+    background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.012)),var(--panel);
+    border:1px solid var(--hair1);border-radius:8px;padding:8px 10px;box-shadow:0 14px 34px rgba(0,0,0,.16)}
+  .br-round:not(:last-child) .match-card::after{content:"";position:absolute;right:-17px;top:50%;width:17px;border-top:1px solid var(--hair3)}
+  .mno{font-size:11px;color:var(--blue);font-weight:700;letter-spacing:0;line-height:1.1;margin-bottom:5px}
+  .slot{font-size:12px;color:var(--t2);line-height:1.28;letter-spacing:0;white-space:normal}
+  .slot+.slot{margin-top:3px;color:var(--t3)}
+  .final-match{background:linear-gradient(180deg,rgba(255,214,10,.14),rgba(10,132,255,.04)),var(--panel);
+    border-color:rgba(255,214,10,.34)}
+  .final-match .mno{color:var(--gold)}
+  .path-note{font-size:12px;margin-top:10px;max-width:860px}
+
   /* pipeline */
   .pipe{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch}
   .step{flex:1;min-width:155px;background:var(--panel);border:1px solid var(--hair1);border-radius:12px;padding:16px}
@@ -149,6 +170,17 @@
     <div class="grid">
 {{GROUP_CARDS}}
 </div>
+  </div>
+</section>
+
+<section id="path">
+  <div class="wrap">
+    <div class="eyebrow">淘汰赛路径</div>
+    <h2 class="sec-h">从 32 强到决赛的官方路径图</h2>
+    <p class="sec-sub">这张树形图展示官方淘汰赛骨架：左侧是 R32 的入口槽位，向右逐轮汇入 M104 决赛。第三名入口不是单一球队，而是按官方约束从 8 个最好第三名中落位。</p>
+    <div class="path-shell">
+{{KNOCKOUT_BRACKET}}
+    </div>
   </div>
 </section>
 

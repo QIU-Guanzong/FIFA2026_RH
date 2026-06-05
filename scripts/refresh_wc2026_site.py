@@ -9,7 +9,16 @@ from pathlib import Path
 
 from wcpredict.registry import ModelStore
 from wcpredict.tournament import TournamentSimulator, snake_draw_groups
-from wcpredict.tournament.wc2026 import GROUPS_2026, OfficialWC2026Simulator
+from wcpredict.tournament.wc2026 import (
+    GROUPS_2026,
+    KNOCKOUT_TREE,
+    QF_MATCHES,
+    R16_MATCHES,
+    R32_MATCHES,
+    SF_MATCHES,
+    SLOT_ORDER,
+    OfficialWC2026Simulator,
+)
 
 
 def _escape_html(text: str) -> str:
@@ -71,6 +80,76 @@ def _build_group_cards(probs) -> str:
     return "\n".join(cards)
 
 
+def _slot_label(spec) -> str:
+    kind, arg = spec
+    if kind == "W":
+        return f"{arg} 组头名"
+    if kind == "R":
+        return f"{arg} 组次名"
+    groups = "/".join(sorted(arg))
+    return f"最佳第三 {groups}"
+
+
+def _build_match_card(match_no: int, title: str, entrants: tuple[str, str],
+                      row: int, span: int, final: bool = False) -> str:
+    final_cls = " final-match" if final else ""
+    return (
+        f'<article class="match-card{final_cls}" style="--row:{row};--span:{span}" '
+        f'aria-label="{_escape_html(title)}">'
+        f'<div class="mno">{_escape_html(title)}</div>'
+        f'<div class="slot">{_escape_html(entrants[0])}</div>'
+        f'<div class="slot">{_escape_html(entrants[1])}</div>'
+        "</article>"
+    )
+
+
+def _build_knockout_bracket() -> str:
+    rounds: list[tuple[str, list[int], int]] = [
+        ("R32", list(R32_MATCHES), 1),
+        ("R16", R16_MATCHES, 2),
+        ("QF", QF_MATCHES, 4),
+        ("SF", SF_MATCHES, 8),
+        ("Final", [104], 16),
+    ]
+    round_labels = {
+        "R32": "32 强",
+        "R16": "16 强",
+        "QF": "1/4 决赛",
+        "SF": "半决赛",
+        "Final": "决赛",
+    }
+
+    columns: list[str] = []
+    for round_key, matches, span in rounds:
+        cards: list[str] = []
+        for idx, match_no in enumerate(matches):
+            row = idx * span + 1
+            if round_key == "R32":
+                s1, s2 = R32_MATCHES[match_no]
+                entrants = (_slot_label(s1), _slot_label(s2))
+            else:
+                upstream = KNOCKOUT_TREE[match_no]
+                entrants = (f"胜 {upstream[0]}", f"胜 {upstream[1]}")
+            title = f"M{match_no}"
+            cards.append(_build_match_card(match_no, title, entrants, row, span, final=(match_no == 104)))
+
+        columns.append(
+            f'<div class="br-round">'
+            f'<div class="br-title">{_escape_html(round_labels[round_key])}</div>'
+            f'<div class="br-lane">{"".join(cards)}</div>'
+            f'</div>'
+        )
+
+    slot_hint = " / ".join(f"M{m}" for m in SLOT_ORDER)
+    return (
+        '<div class="bracket" role="img" aria-label="2026 世界杯官方淘汰赛树形路径图">'
+        + "".join(columns)
+        + "</div>"
+        + f'<p class="dim path-note">第三名槽位：{_escape_html(slot_hint)}。'
+        "卡片中的“最佳第三 A/B/…”表示该槽位允许接入的组集合，实际每届模拟按 8 个最好第三名做合法匹配。</p>"
+    )
+
+
 def _load_simulation(model_name: str, version: int | None, sims: int, seed: int):
     store = ModelStore()
     loaded = store.load(model_name, version)
@@ -126,6 +205,7 @@ def main() -> int:
     html = html.replace("{{GENERATED_AT}}", generated_at)
     html = html.replace("{{CHAMPION_TABLE_ROWS}}", _build_champion_rows(probs))
     html = html.replace("{{GROUP_CARDS}}", _build_group_cards(probs))
+    html = html.replace("{{KNOCKOUT_BRACKET}}", _build_knockout_bracket())
 
     out.write_text(html, encoding="utf-8")
     print(f"✓ 已更新 {out}（模型：{model.name} v{model.version}）")

@@ -52,8 +52,9 @@ SIMS（默认 40000）
 SEED（默认 2026）
 SLEEP_SECONDS（默认 14400）
 SERVICE_URL（默认空）
-WCPREDICT_DATA_DIR（默认 `$PWD/data`）
-WCPREDICT_ARTIFACTS_DIR（默认 `$PWD/artifacts`）
+WCPREDICT_DATA_DIR（连续循环默认 `$HOME/FootballData/data`）
+WCPREDICT_ARTIFACTS_DIR（连续循环默认 `$HOME/FootballData/artifacts`）
+WCPREDICT_LOCAL_ROOT（连续循环本机根目录，默认 `$HOME/FootballData`）
 ```
 ```
 

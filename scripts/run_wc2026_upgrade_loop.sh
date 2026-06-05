@@ -4,6 +4,9 @@ set -uo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PYTHON_BIN="${PYTHON_BIN:-$ROOT/.venv/bin/python}"
+LOCAL_STATE_ROOT="${WCPREDICT_LOCAL_ROOT:-$HOME/FootballData}"
+export WCPREDICT_DATA_DIR="${WCPREDICT_DATA_DIR:-$LOCAL_STATE_ROOT/data}"
+export WCPREDICT_ARTIFACTS_DIR="${WCPREDICT_ARTIFACTS_DIR:-$LOCAL_STATE_ROOT/artifacts}"
 MODEL_NAME="${MODEL_NAME:-default}"
 TRAIN_SINCE="${TRAIN_SINCE:-2006-01-01}"
 SIMS="${SIMS:-40000}"
@@ -20,7 +23,7 @@ if [[ "${1:-}" == "--once" ]]; then
   ONCE=1
 fi
 
-mkdir -p "$LOG_DIR"
+mkdir -p "$LOG_DIR" "$WCPREDICT_DATA_DIR" "$WCPREDICT_ARTIFACTS_DIR"
 
 run_cycle() {
   local cycle_no="$1"
@@ -32,6 +35,8 @@ run_cycle() {
   {
     echo "[${start_ts}] 第 ${cycle_no} 轮开始"
     echo "train model: ${MODEL_NAME}，since: ${TRAIN_SINCE}，sims: ${SIMS}，seed: ${SEED}"
+    echo "data dir: ${WCPREDICT_DATA_DIR}"
+    echo "artifacts dir: ${WCPREDICT_ARTIFACTS_DIR}"
 
     "$PYTHON_BIN" -m wcpredict.cli train --model wc2026 --name "$MODEL_NAME" --since "$TRAIN_SINCE" || rc=1
 
