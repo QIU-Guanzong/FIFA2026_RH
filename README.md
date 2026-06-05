@@ -1,7 +1,8 @@
-# wcpredict — 世界杯比分概率预测主干 (MVP)
+# wcpredict — 世界杯比分概率与盘口研究
 
-可解释、可回测、可本地部署的世界杯预测系统。遵循"先做比分概率系统、不做黑箱分类器"
-的主线：先预测两队进球强度与**比分分布**，再由比分矩阵**统一派生**所有市场与赛会概率。
+一个可解释、可回测、可本地部署的足球概率引擎。项目主线很简单：先预测两队进球强度与
+**比分分布**，再由同一张比分矩阵统一派生 1X2、大小球、让球、波胆、出线和夺冠概率。
+它更适合做赛前研究、盘口核对和风险过滤，不是自动下注器。
 
 ```
 国际赛 Elo rating 先验  ─┐
@@ -10,9 +11,9 @@
                                                                      └─→ 世界杯全赛事 Monte Carlo → 晋级率 / 夺冠率
 ```
 
-> **当前状态：分析主干已端到端跑通并测试通过（33 项）。** 部署层（FastAPI / Docker Compose /
-> MLflow）按建议后置到下一轮。数据层目前用**合成数据**驱动——它验证"机器算得对"，
-> 不代表预测准确度；真实校准结论需接入真实数据 + 严格 cutoff 回测后才能下。
+> 当前状态：比分概率主干、官方 2026 赛制、模型仓、FastAPI 服务、静态展示页、连续训练/部署循环均已跑通。
+> 回测结果也已经写入项目：主流 1X2 市场上，模型暂未跑赢 Pinnacle 这类锐盘，因此目前定位是
+> **辅助判断与分歧监控**，不是独立投注信号。
 
 ---
 
@@ -20,7 +21,7 @@
 
 ```bash
 # 依赖已装在 .venv（Python 3.12）
-./.venv/bin/python -m pytest -q                          # 跑 48 项正确性测试 (~6s)
+./.venv/bin/python -m pytest -q                          # 跑 90+ 项正确性测试
 ./.venv/bin/python -m wcpredict.cli demo --sims 50000    # 合成端到端 demo (~6s)
 ./.venv/bin/python -m wcpredict.cli ingest --league E0 --seasons 2223,2324  # 真实数据采集+拟合
 ./.venv/bin/python -m wcpredict.cli backtest --league E0 --predictor dc     # 无泄漏 walk-forward 回测
@@ -56,7 +57,6 @@ WCPREDICT_DATA_DIR（连续循环默认 `$HOME/FootballData/data`）
 WCPREDICT_ARTIFACTS_DIR（连续循环默认 `$HOME/FootballData/artifacts`）
 WCPREDICT_LOCAL_ROOT（连续循环本机根目录，默认 `$HOME/FootballData`）
 ```
-```
 
 **部署（#3）**：本机用 colima 作 Docker 运行时——先 `colima start`，再：
 
@@ -74,13 +74,11 @@ docker run -d -p 8000:8000 -v "$PWD/artifacts:/app/artifacts" wcpredict:0.1.0
 单场全盘口派生 → 赔率去水位与融合 → 5 万届世界杯模拟（夺冠 Top 10 + 自洽性校验）。
 加 `--fit-dc` 改走 MLE 拟合路径（较慢），默认走 rating 先验路径。
 
-`ingest` 在**真实数据**上跑通整条链路：从 football-data.co.uk 免授权拉取历史比赛+赔率 →
-归一化到规范 schema → 落 Parquet → Elo + DC 时间加权拟合 → 单场预测并与 Pinnacle closing
-去水位概率对比。（英超两季 Man City 主胜 46.7% vs 市场 46.9% —— 这是**样本内链路验证**，
-证明"机器算得对、量纲对、与锐盘同量级"，**不是无泄漏的准确度结论**；后者由 `backtest` 给出。）
+`ingest` 在真实数据上跑通整条链路：从 football-data.co.uk 拉取历史比赛和赔率，归一化到规范
+schema，落 Parquet，再用 Elo / Dixon-Coles 输出单场概率，并与 Pinnacle 等市场隐含概率对比。
 
-`backtest` 是**无泄漏 walk-forward 回测**：预测第 i 场只用日期严格早于该场的比赛拟合（同日也排除），
-模型与 Pinnacle 赛前去水位概率在同一持出集上比 log loss / Brier / reliability。实测英超三季 950 场持出：
+`backtest` 是严格的 walk-forward 回测：预测每场比赛时，只允许使用日期早于该场的历史比赛，同日比赛也排除。
+当前缓存结果来自英超 2021/22–2023/24，覆盖 950 场持出比赛，且每场都有 Pinnacle 赛前赔率：
 
 | predictor | log loss | Brier | vs 市场 |
 |---|---|---|---|
@@ -88,11 +86,19 @@ docker run -d -p 8000:8000 -v "$PWD/artifacts:/app/artifacts" wcpredict:0.1.0
 | Elo 先验 | 0.9587 | 0.5677 | −0.021 |
 | DC (MLE) | 0.9916 | 0.5852 | −0.054 |
 
-读法：模型**略逊于锐盘**才是健康信号（若简单模型样本外击败 Pinnacle，几乎一定是泄漏）。
-观察：原始 MLE DC 样本外反而不如带收缩性质的 Elo 先验。已排除优化器未收敛（SLSQP 在
-maxiter=80/200/400 下结果完全一致、success=True），故这是真实的泛化差距；**最可能的机制**
-是小样本下逐队 att/def 的 MLE 方差偏大（过拟合），而 Elo 先验天然带收缩——这与文档"花哨不等于
-更好"一致，也是国家队稀疏样本值得上分层贝叶斯/收缩的**待验证假设**（非已证结论）。
+读法：在高流动主流 1X2 市场上，当前模型没有超过 Pinnacle。这个结果反而有价值——它说明回测没有明显泄漏，
+也提醒我们不能把“模型与市场不同”直接理解成 edge。原始 MLE-DC 样本外不如 Elo，主要风险是小样本下逐队
+attack/defence 参数方差偏大；Elo 先验天然带收缩，更适合作为当前国家队稀疏样本的主干。
+
+### 投注辅助的正确用法
+
+当前版本适合作为**辅助投注研究工具**，而不是自动给买入建议：
+
+- 用模型概率和去水位市场概率做交叉检查，优先看双方分歧最大的比赛/球队。
+- 大分歧只进入人工复核清单：伤停、预计首发、赛程密度、天气、盘口流动性和消息时点都要再看。
+- 真正的优势要靠 CLV（下注时点概率/价格 vs closing line）长期验证；没有稳定 CLV 前，不应扩大仓位。
+- 主流夺冠盘和 EPL 1X2 通常很有效，直接硬碰锐盘并不现实；更值得找的是低流动、更新慢或信息反应滞后的子市场。
+- 输出应理解为概率参考和风险过滤，不构成投注建议。
 
 `national` 把链路搬到**真实国家队**层面（martj42 全量国际赛，免 token）：Elo 重要性加权 +
 **多趟暖启动** 评分 → DC 先验 → 单场预测 → 世界杯 Monte Carlo。实测（2006 至今）评分 Top5 =
