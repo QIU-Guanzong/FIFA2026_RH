@@ -571,6 +571,73 @@ def run_xg(competition: int = 43, season: int = 106, seed: int = 7, max_matches:
     print("    且国家队赛会样本稀疏；阵容/首发层(#5 B)受免费数据所限，单独评估。")
 
 
+def run_market(slug: str = "world-cup-winner", model: str = "default",
+               sims: int = 40000, seed: int = 2026, snapshot: bool = False, top: int = 16) -> None:
+    """P0 市场对比层：Polymarket 夺冠盘去水位 → 与模型对比分歧 +（可选）起 CLV/flow 采集。
+
+    诚实口径：独立≠edge。夺冠盘是 $15 亿成交的有效前沿，分歧大多=我们被市场修正而非 alpha；
+    本层用于量化差异、找局部错价、做校准记分牌。真 edge 证据=长期 CLV（--snapshot 从今天起积累）。
+    """
+    from datetime import datetime, timezone
+
+    from wcpredict.config import DATA_DIR
+    from wcpredict.markets.polymarket import PolymarketSource, compare_to_market, market_win_probs
+    from wcpredict.registry import ModelStore
+    from wcpredict.tournament.wc2026 import OfficialWC2026Simulator
+
+    _section("1. 拉取 Polymarket WC2026 夺冠盘（neg-risk 多结果，免鉴权读接口）")
+    try:
+        event = PolymarketSource(slug).fetch_event()
+    except Exception as e:  # noqa: BLE001
+        print(f"拉取失败：{e}\n（Polymarket Gamma API 需联网；读接口无需鉴权）")
+        return
+    parsed = PolymarketSource.parse_winner_market(event)
+    if parsed.empty:
+        print("未解析到任何带价格的市场。")
+        return
+    raw_sum = float(parsed["yes_price"].sum())
+    mkt = market_win_probs(parsed)                       # 全集去水位（含非我方 48 队）
+    print(f"市场 {len(parsed)} 队 | Σyes(去水位前)={raw_sum:.3f}=1+水位 → 归一化去水位")
+
+    _section("2. 载入官方模型，跑赛会 Monte Carlo")
+    loaded = ModelStore().load(model, None)
+    if str(loaded.metadata.get("format")) != "wc2026_official" or len(loaded.params.teams) < 48:
+        print(f"需官方 wc2026 模型（当前 format={loaded.metadata.get('format')}，{len(loaded.params.teams)} 队）。先 train。")
+        return
+    model_p = OfficialWC2026Simulator(loaded.params).run(n_sims=sims, seed=seed).probs["champion"]
+
+    _section("3. 模型 vs 市场：夺冠概率分歧（在共同的 48 队上，各自重归一化）")
+    common = [t for t in model_p.index if t in mkt.index]
+    coverage = float(mkt.loc[common].sum())              # 市场分配给我方 48 队的概率质量
+    mp = (model_p.loc[common] / model_p.loc[common].sum())
+    kp = (mkt.loc[common] / mkt.loc[common].sum())
+    cmp = compare_to_market(mp, kp)
+    print(f"{'队':<20}{'模型':>8}{'市场':>8}{'差(模−市)':>11}")
+    for t, row in cmp.head(top).iterrows():
+        print(f"{t:<20}{row['model']*100:>7.1f}%{row['market']*100:>7.1f}%{row['diff']*100:>+8.1f}pp")
+    print(f"\n对比 {len(cmp)} 队 | Σ|分歧|={cmp['abs_diff'].sum()*100:.0f}pp | "
+          f"市场给我方 48 队的概率质量={coverage:.1%}（其余在 Italy/Peru/附加赛等非参赛队）")
+
+    if snapshot:
+        ts = datetime.now(timezone.utc).isoformat(timespec="seconds")
+        snap = parsed[["team", "yes_price"]].copy()
+        snap["market_p"] = mkt.reindex(snap["team"]).to_numpy()
+        snap["model_p"] = model_p.reindex(snap["team"]).to_numpy()   # 非我方队为 NaN
+        snap.insert(0, "ts", ts)
+        dest = DATA_DIR / "market_snapshots.parquet"
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        if dest.exists():
+            snap = pd.concat([pd.read_parquet(dest), snap], ignore_index=True)
+        snap.to_parquet(dest)
+        print(f"\n  ✓ 已记录快照 @ {ts} → {dest}（累计 {len(snap)} 行，用于日后 CLV/flow 分析）")
+
+    _section("4. 诚实边界（务必读）")
+    print("  · 独立≠edge：夺冠盘是有效前沿，分歧大多=我们被市场修正，不是优势证据。")
+    print("  · 一阶对比：未校正时间价值衰减（资金锁到 2026 年中→价格系统性偏低）与 favorite-longshot 偏差。")
+    print("  · 真 edge 只能靠 CLV：从今天起 --snapshot 定期采集，用 T-24h 概率 vs closing 长期评估。")
+    print("  · 可挖的是陈旧/低流动子市场（小组出线、冷门 prop），不是这个夺冠盘。")
+
+
 def run_serve(host: str = "127.0.0.1", port: int = 8000) -> None:
     """启动 FastAPI 推理服务。"""
     import uvicorn
@@ -614,6 +681,11 @@ def main(argv: list[str] | None = None) -> int:
     x.add_argument("--season", type=int, default=106, help="season_id（106=2022）")
     x.add_argument("--seed", type=int, default=7, help="train/test 按比赛切分的随机种子")
     x.add_argument("--max-matches", type=int, default=None, help="限制比赛数（调试用）")
+    mk = sub.add_parser("market", help="P0 市场对比：Polymarket 夺冠盘去水位 vs 模型 +（--snapshot 起 CLV 采集）")
+    mk.add_argument("--slug", default="world-cup-winner", help="Polymarket 事件 slug")
+    mk.add_argument("--model", default="default")
+    mk.add_argument("--sims", type=int, default=40000)
+    mk.add_argument("--snapshot", action="store_true", help="把当前价格+模型概率追加到 CLV 快照库")
     sv = sub.add_parser("serve", help="启动 FastAPI 推理服务")
     sv.add_argument("--host", default="127.0.0.1")
     sv.add_argument("--port", type=int, default=8000)
@@ -642,6 +714,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "xg":
         run_xg(competition=args.competition, season=args.season,
                seed=args.seed, max_matches=args.max_matches)
+        return 0
+    if args.cmd == "market":
+        run_market(slug=args.slug, model=args.model, sims=args.sims, snapshot=args.snapshot)
         return 0
     if args.cmd == "serve":
         run_serve(host=args.host, port=args.port)

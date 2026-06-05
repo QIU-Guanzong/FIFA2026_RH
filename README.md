@@ -12,8 +12,8 @@
 ```
 
 > 当前状态：比分概率主干、官方 2026 赛制、模型仓、FastAPI 服务、静态展示页、连续训练/部署循环均已跑通。
-> 回测结果也已经写入项目：主流 1X2 市场上，模型暂未跑赢 Pinnacle 这类锐盘，因此目前定位是
-> **辅助判断与分歧监控**，不是独立投注信号。
+> 回测结果也已写入项目：主流 1X2 市场上模型暂未跑赢 Pinnacle 这类锐盘，所以它的定位是
+> 辅助判断和分歧监控，帮你过滤冲动注、找局部错价，而不是一个独立的投注信号。
 
 ---
 
@@ -27,9 +27,10 @@
 ./.venv/bin/python -m wcpredict.cli backtest --league E0 --predictor dc     # 无泄漏 walk-forward 回测
 ./.venv/bin/python -m wcpredict.cli national                                # 国家队链路（评分前48+蛇形分组）
 ./.venv/bin/python -m wcpredict.cli wc2026                                  # 正式 2026 预测（官方分组+官方赛程）
+./.venv/bin/python -m wcpredict.cli market --snapshot                       # 模型 vs Polymarket 夺冠盘 + 记一笔 CLV 快照
 ./.venv/bin/python -m wcpredict.cli train --model national                  # 训练并注册模型到模型仓
 ./.venv/bin/python -m wcpredict.cli serve                                   # 起 FastAPI 推理服务 (/docs)
-# 或安装后直接： wcpredict demo / ingest / backtest / national / wc2026 / xg / train / serve
+# 或安装后直接： wcpredict demo / ingest / backtest / national / wc2026 / xg / market / train / serve
 
 ## 本机数据目录（建议）
 export WCPREDICT_DATA_DIR="$HOME/FootballData/data"
@@ -86,19 +87,20 @@ schema，落 Parquet，再用 Elo / Dixon-Coles 输出单场概率，并与 Pinn
 | Elo 先验 | 0.9587 | 0.5677 | −0.021 |
 | DC (MLE) | 0.9916 | 0.5852 | −0.054 |
 
-读法：在高流动主流 1X2 市场上，当前模型没有超过 Pinnacle。这个结果反而有价值——它说明回测没有明显泄漏，
-也提醒我们不能把“模型与市场不同”直接理解成 edge。原始 MLE-DC 样本外不如 Elo，主要风险是小样本下逐队
-attack/defence 参数方差偏大；Elo 先验天然带收缩，更适合作为当前国家队稀疏样本的主干。
+怎么看这张表：高流动的主流 1X2 市场上，当前模型没跑赢 Pinnacle。这其实是个好信号。一个样本外能稳定跑赢
+锐盘的模型，多半是回测泄漏而不是真本事；这里命中率只差约 1pp、log loss 也和市场接近，加上 assert_leakfree()
+守卫，说明引擎可信、没偷看未来。它也提醒我们别把“模型和市场不一样”直接当成 edge。MLE-DC 样本外不如 Elo，主因是小样本下逐队 attack/defence 方差偏大；
+Elo 先验自带收缩，更适合现在国家队这种稀疏样本。
 
 ### 投注辅助的正确用法
 
-当前版本适合作为**辅助投注研究工具**，而不是自动给买入建议：
+先说最硬的一条：回测里模型 log loss 比 Pinnacle 差 0.054，直接拿它对赌主流锐盘长期是输钱的，你在和更准的钱对赌。所以它的定位是风险过滤和研究工具，不产生买入信号。现实用法：
 
-- 用模型概率和去水位市场概率做交叉检查，优先看双方分歧最大的比赛/球队。
-- 大分歧只进入人工复核清单：伤停、预计首发、赛程密度、天气、盘口流动性和消息时点都要再看。
-- 真正的优势要靠 CLV（下注时点概率/价格 vs closing line）长期验证；没有稳定 CLV 前，不应扩大仓位。
-- 主流夺冠盘和 EPL 1X2 通常很有效，直接硬碰锐盘并不现实；更值得找的是低流动、更新慢或信息反应滞后的子市场。
-- 输出应理解为概率参考和风险过滤，不构成投注建议。
+- `wcpredict market`：拉 Polymarket 夺冠盘去水位，与模型逐队对比，看分歧最大的几支队（已内置）。
+- 分歧大时先怀疑自己：用它否决冲动注，而不是触发注。大分歧多半是我们漏了伤停、首发或消息，不是盘口标错。
+- 先量 edge 再谈下注：`wcpredict market --snapshot` 从今天起记录“我们的概率 vs 市场价”，靠 CLV（下注时点 vs closing line）长期验证；没有稳定正 CLV 之前不加仓。
+- 主流盘别硬碰：夺冠盘、EPL 1X2 都很有效；真有 edge，也只在低流动、更新慢、信息滞后的子市场（具体小组出线、波胆、低级别联赛）。
+- 输出是概率参考和风险过滤，不构成投注建议。
 
 `national` 把链路搬到**真实国家队**层面（martj42 全量国际赛，免 token）：Elo 重要性加权 +
 **多趟暖启动** 评分 → DC 先验 → 单场预测 → 世界杯 Monte Carlo。实测（2006 至今）评分 Top5 =
