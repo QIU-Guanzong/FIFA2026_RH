@@ -29,6 +29,27 @@ def _pct(v: float) -> str:
     return f"{v:.0%}"
 
 
+def _modal_positions(probs) -> dict[str, dict[str, tuple[str, float]]]:
+    """每组的最可能头名/次名（两者取**不同**球队）。
+
+    头名 = argmax(win_group)；次名 = 头名之外 argmax(**advance**)——与"各小组出线热门"卡片
+    的 second 选取规则**完全一致**，保证同一页两处不会显示不同的次名球队（advisor 把关）；
+    且避免同一强队既占头名又占次名（如墨西哥 A 组 win_group/runner_up 同时最高）。
+    展示各自的边际概率（头名→win_group，次名→runner_up；诚实：是"最可能占用"而非"锁定"）。
+    """
+    out: dict[str, dict[str, tuple[str, float]]] = {}
+    for g, teams in GROUPS_2026.items():
+        sub = probs.loc[list(teams)]
+        w = sub["win_group"].idxmax()
+        rest = sub.drop(index=w)
+        r = rest["advance"].idxmax()        # 与组卡片同规则（advance），避免跨区块矛盾
+        out[g] = {
+            "W": (str(w), float(sub.loc[w, "win_group"])),
+            "R": (str(r), float(rest.loc[r, "runner_up"])),
+        }
+    return out
+
+
 def _build_champion_rows(probs) -> str:
     top = probs.sort_values("champion", ascending=False).head(16)
     if top.empty:
@@ -80,30 +101,35 @@ def _build_group_cards(probs) -> str:
     return "\n".join(cards)
 
 
-def _slot_label(spec) -> str:
+def _slot_label(spec, modal: dict | None = None) -> str:
+    """返回槽位的**安全 HTML**。W/R 槽附"最可能球队+概率"（金色 .pick）；最佳第三保持多组候选。"""
     kind, arg = spec
-    if kind == "W":
-        return f"{arg} 组头名"
-    if kind == "R":
-        return f"{arg} 组次名"
-    groups = "/".join(sorted(arg))
+    if kind in ("W", "R"):
+        base = f"{arg} 组{'头名' if kind == 'W' else '次名'}"
+        if modal and arg in modal:
+            team, p = modal[arg][kind]
+            return f'{base}<span class="pick">{_escape_html(team)} {_pct(p)}</span>'
+        return base
+    groups = "/".join(sorted(arg))                       # 最佳第三：多组候选，诚实不单列球队
     return f"最佳第三 {groups}"
 
 
 def _build_match_card(match_no: int, title: str, entrants: tuple[str, str],
                       row: int, span: int, final: bool = False) -> str:
+    # entrants 为已构建的安全 HTML（_slot_label 内部已对动态球队名转义；"胜 N"/官方槽位为静态）
     final_cls = " final-match" if final else ""
     return (
         f'<article class="match-card{final_cls}" style="--row:{row};--span:{span}" '
         f'aria-label="{_escape_html(title)}">'
         f'<div class="mno">{_escape_html(title)}</div>'
-        f'<div class="slot">{_escape_html(entrants[0])}</div>'
-        f'<div class="slot">{_escape_html(entrants[1])}</div>'
+        f'<div class="slot">{entrants[0]}</div>'
+        f'<div class="slot">{entrants[1]}</div>'
         "</article>"
     )
 
 
-def _build_knockout_bracket() -> str:
+def _build_knockout_bracket(probs=None) -> str:
+    modal = _modal_positions(probs) if probs is not None else None
     rounds: list[tuple[str, list[int], int]] = [
         ("R32", list(R32_MATCHES), 1),
         ("R16", R16_MATCHES, 2),
@@ -126,7 +152,7 @@ def _build_knockout_bracket() -> str:
             row = idx * span + 1
             if round_key == "R32":
                 s1, s2 = R32_MATCHES[match_no]
-                entrants = (_slot_label(s1), _slot_label(s2))
+                entrants = (_slot_label(s1, modal), _slot_label(s2, modal))
             else:
                 upstream = KNOCKOUT_TREE[match_no]
                 entrants = (f"胜 {upstream[0]}", f"胜 {upstream[1]}")
@@ -145,8 +171,10 @@ def _build_knockout_bracket() -> str:
         '<div class="bracket" role="img" aria-label="2026 世界杯官方淘汰赛树形路径图">'
         + "".join(columns)
         + "</div>"
-        + f'<p class="dim path-note">第三名槽位：{_escape_html(slot_hint)}。'
-        "卡片中的“最佳第三 A/B/…”表示该槽位允许接入的组集合，实际每届模拟按 8 个最好第三名做合法匹配。</p>"
+        + f'<p class="dim path-note">R32 入口的<b style="color:var(--gold)">金色</b>为该槽位<b>最可能</b>'
+        "占用的球队及其概率（来自 4 万届模拟，是最可能而非锁定落位）；16 强及之后保持「胜 N」结构，"
+        "因为越往后某条具体路径真实发生的概率越低，填死会假装确定。"
+        f'最佳第三槽位（{_escape_html(slot_hint)}）为多组候选，按官方约束从 8 个最好第三名合法匹配，故不单列球队。</p>'
     )
 
 
@@ -205,7 +233,7 @@ def main() -> int:
     html = html.replace("{{GENERATED_AT}}", generated_at)
     html = html.replace("{{CHAMPION_TABLE_ROWS}}", _build_champion_rows(probs))
     html = html.replace("{{GROUP_CARDS}}", _build_group_cards(probs))
-    html = html.replace("{{KNOCKOUT_BRACKET}}", _build_knockout_bracket())
+    html = html.replace("{{KNOCKOUT_BRACKET}}", _build_knockout_bracket(probs))
 
     out.write_text(html, encoding="utf-8")
     print(f"✓ 已更新 {out}（模型：{model.name} v{model.version}）")

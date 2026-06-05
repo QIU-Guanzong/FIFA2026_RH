@@ -12,6 +12,8 @@
 - **GitHub 推送只走 SSH 别名 `github-new`（=QIU-Guanzong）**。remote 已设为 `git@github-new:QIU-Guanzong/FIFA2026_RH.git`。
   HTTPS + osxkeychain 凭据会失效（`gh auth status` 两账号都 X、push 报 `Device not configured`）；默认 `git@github.com` SSH 指向**已封禁的 Gavin-Yau**，勿用。别名映射：`github-new`→QIU-Guanzong、`github-gavin`→Gavin-Yau(封)、`github-elena`→ElenaGe216。
 - **4h 自动升级守护进程**：`scripts/run_wc2026_upgrade_loop.sh`（start/stop_wc2026_upgrade_daemon.sh，PID 文件在 `logs/wc2026-upgrade/daemon.pid`）。每 4h 重训+刷新 `site/index.html`+commit；数据/产物写 repo 外 `~/FootballData/`。**当前已停（CEO 指示）**，重启用 start 脚本。它工作在 `codex/engineering-hardening` 分支，commit 不会自动 push（鉴权曾坏）。
+  **⚠️ 重启前必须先把 `main` 合并进 `codex/engineering-hardening`**——否则它会用旧分支的 `site/index.template.html`+`refresh_wc2026_site.py` 重生成**抽象版路径图**（无球队），覆盖掉 main 上已填入"最可能球队+概率"的 R32 入口版本。
+- **R32 路径图填球队**（2026-06-05）：`refresh_wc2026_site.py` 的 `_modal_positions` 给 R32 入口槽填"最可能球队+概率"（头名=argmax win_group，次名=头名外 argmax **advance**，与组卡片同规则保证不矛盾）；最佳第三槽保持多组候选、16 强后保持"胜 N"（只填入口层，下游填死=假装确定）。bracket 行高 100px（容纳每卡 5 行，避免叠压）。
 - **线上页**：loop 只刷新本地 `site/index.html`，**不自动 scp**；服务器更新仍需 `bash site/deploy.sh`（走 `ssh cfd`）。线上可能滞后于本地。
 
 ## 技术栈
