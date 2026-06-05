@@ -16,6 +16,8 @@ import urllib.request
 
 import pandas as pd
 
+from wcpredict.odds.devig import devig as _devig
+
 _GAMMA = "https://gamma-api.polymarket.com"
 _UA = "Mozilla/5.0 (wcpredict market ingestion)"
 WC_WINNER_SLUG = "world-cup-winner"
@@ -128,14 +130,22 @@ def devig_multiway(yes_prices: pd.Series) -> pd.Series:
     return s / total
 
 
-def market_win_probs(parsed: pd.DataFrame) -> pd.Series:
+def market_win_probs(parsed: pd.DataFrame, method: str = "multiplicative") -> pd.Series:
     """解析表 → 去水位后的市场隐含夺冠概率（index=canonical 队名）。
 
-    归一化分母用**全集**（含 Italy/Peru/Other/playoff 等非我方 48 队的真实价格），
-    才是正确的市场概率；之后调用方再取与模型队伍的交集对比。
+    默认 **multiplicative**（简单归一化）。**实测教训**：Shin 是为小盘口少结果（~5–15% 水位）
+    设计的 favorite-longshot 校正；本盘是 50+ 结果、Σyes≈2.0 的预测市场，Shin 超出适用域会过度
+    挤压冷门、把 Spain/France 抬到 ~23%（实际 ≈16%）→ **失真，故不用**。简单归一化保留各队相对
+    Yes 价（Spain≈16%，与原始价一致），是更忠实的去水位。时间价值衰减的一阶（均匀）折扣在归一化
+    中自动抵消。归一化分母用**全集**（含非我方 48 队真实价格），调用方再取交集对比。
+    （Shin 仍可经 method='shin' 调用，但已验证对本盘失真。）
     """
-    s = parsed.set_index("team")["yes_price"]
-    return devig_multiway(s)
+    s = parsed.set_index("team")["yes_price"].astype(float)
+    s = s[s > 0].clip(lower=1e-6, upper=1.0 - 1e-6)     # 夹到 (0,1)，保证赔率 1/yes > 1
+    if method == "multiplicative":
+        return devig_multiway(s)
+    p = _devig((1.0 / s).to_numpy(), method)            # Yes 价 → 赔率 → Shin/additive（已验证对本盘失真）
+    return pd.Series(p, index=s.index)
 
 
 def compare_to_market(model_probs: pd.Series, market_probs: pd.Series) -> pd.DataFrame:
