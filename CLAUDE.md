@@ -162,7 +162,8 @@ make demo-fit      # 走 MLE 拟合路径
 2. ✅ **walk-forward cutoff 回测框架**（2026-06-04 完成）：`backtest/`（predictors + walkforward）。
    铁律：预测第 i 场只用日期严格早于该场的比赛拟合（同日也排除），`BacktestResult.assert_leakfree()` 自检。
    模型 vs 市场（Pinnacle 赛前去水位）同集对比 + reliability/ECE。CLI `wcpredict backtest`。
-   实测英超三季 950 场持出：市场 0.938 < Elo先验 0.959 < MLE-DC 0.992（log loss）——模型略逊锐盘=健康。
+   实测英超三季 950 场持出：市场 0.938 < Elo先验 0.959 < MLE-DC 0.992（log loss，无正则）——模型略逊锐盘=健康。
+   **L2 正则化（B2）后**：DC l2=5 → log loss **0.9678**（ECE 0.0210），大幅改善（见 B2 记录）。
 3. ✅ **FastAPI 推理服务 + Docker**（2026-06-04 完成）：`registry.py`(模型仓 本地FS+metadata JSON)、
    `service/`(FastAPI: /health /rankings /predict /tournament)、CLI `train`/`serve`、Dockerfile+compose。
    服务启动载入模型仓 latest；仓库空则落合成兜底模型。已起活服务 curl 验证（Spain 24% 等）。
@@ -191,6 +192,19 @@ make demo-fit      # 走 MLE 拟合路径
 6b. ✅ **残留洲际通胀校正**（2026-06-04 完成）：`ratings/confederation.py`，数据驱动洲际归属 + 洲际间残差 offset。
    无泄漏增量 bootstrap 判定只有 OFC 稳健 → 部署只落地 OFC(−70.5)；NZ 出线 −6.4pp，其余 <0.3pp。
    东道主加成=假设项默认关闭(`--host-boost`)。**剩余后置**：分层贝叶斯收缩、东道主加成的可信验证、对齐验证/部署 λ-scale 小项。
+
+**B2 DC L2 正则化（2026-06-10 完成）**：`DixonColesModel.fit(l2=0.0)` 加 L2 惩罚（attack² + defence²），
+`DCFitPredictor(l2=)` 透传，CLI `--l2`。Grid search EPL 三赛季 950 场持出（`--predictor dc`）：
+  | l2 | log loss | ECE | 备注 |
+  |---|---|---|---|
+  | 0 | 0.9916 | 0.0416 | 基准 |
+  | 1 | 0.9732 | 0.0252 | 明显改善 |
+  | **5** | **0.9678** | **0.0210** | **最优（三指标全优）** |
+  | 20 | 0.9787 | 0.0598 | 过正则开始退化 |
+  | 80 | 1.0136 | 0.0759 | 严重退化 |
+机制：DC MLE 样本量有限时 attack/defence 方差大，l2 做 MAP 收缩，改善样本外泛化。
+**推荐**：`--l2 5`（`--predictor dc` 时加此旗标）；部署 national/wc2026 走 Elo 先验不受影响。
+默认保留 l2=0 避免静默改变行为；已加 `test_l2_shrinks_attack_defence`+`test_l2_zero_matches_default`，100 项全绿。
 
 **国际数据决策（2026-06-04，CEO 选"免费 WC token 试"）**：实际落地用 martj42 免 token 全量国际赛
 （比 football-data.org WC 决赛圈覆盖广得多、且无需 token、当场可跑），已实现"免费验证国家队链路"的意图。

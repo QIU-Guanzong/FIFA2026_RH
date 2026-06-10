@@ -97,3 +97,36 @@ def test_fit_raises_when_optimizer_fails(monkeypatch):
             [0, 1, 1],
             teams=["A", "B"],
         )
+
+
+def test_l2_shrinks_attack_defence():
+    """L2 正则化应使 attack/defence 向 0 收缩（‖θ‖ 变小）。"""
+    true_params, history = make_recovery_world(n_teams=8, n_matches=400, seed=7)
+    fit_no_l2 = DixonColesModel().fit(
+        history["home"], history["away"],
+        history["home_goals"], history["away_goals"],
+        neutral=history["neutral"], teams=true_params.teams,
+    ).params
+    fit_l2 = DixonColesModel().fit(
+        history["home"], history["away"],
+        history["home_goals"], history["away_goals"],
+        neutral=history["neutral"], teams=true_params.teams,
+        l2=20.0,
+    ).params
+    norm_no_l2 = float(np.sum(fit_no_l2.attack ** 2) + np.sum(fit_no_l2.defence ** 2))
+    norm_l2 = float(np.sum(fit_l2.attack ** 2) + np.sum(fit_l2.defence ** 2))
+    assert norm_l2 < norm_no_l2, f"L2 未收缩：‖θ‖ {norm_no_l2:.4f} → {norm_l2:.4f}"
+
+
+def test_l2_zero_matches_default():
+    """l2=0 应与不传 l2 的结果完全相同。"""
+    true_params, history = make_recovery_world(n_teams=6, n_matches=300, seed=11)
+    common = dict(
+        home_teams=history["home"], away_teams=history["away"],
+        home_goals=history["home_goals"], away_goals=history["away_goals"],
+        neutral=history["neutral"], teams=true_params.teams,
+    )
+    p_default = DixonColesModel().fit(**common).params
+    p_l2_zero = DixonColesModel().fit(**common, l2=0.0).params
+    assert np.allclose(p_default.attack, p_l2_zero.attack)
+    assert np.allclose(p_default.defence, p_l2_zero.defence)

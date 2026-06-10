@@ -186,6 +186,7 @@ def run_backtest(
     since: str = "2006-01-01",
     goals_scale: str | float = 0.0018,
     passes: int = 1,
+    l2: float = 0.0,
 ) -> None:
     """无泄漏 walk-forward 回测：模型 vs 市场（Pinnacle 赛前去水位），同一持出集对比。
 
@@ -238,7 +239,7 @@ def run_backtest(
 
     _section(f"2. Walk-forward 回测（predictor={predictor}, min_train={min_train}, refit_every={refit_every}）")
     if predictor == "dc":
-        pred = DCFitPredictor()
+        pred = DCFitPredictor(l2=l2)
     else:
         _gs = goals_scale if goals_scale != 0.0018 else 0.0018
         pred = EloPredictor(goals_scale=_gs, passes=passes)
@@ -706,6 +707,7 @@ def main(argv: list[str] | None = None) -> int:
     b.add_argument("--goals-scale", default="0.0018",
                    help="λ-mapping 灵敏度：数字(如0.0018) 或 'auto'（与部署路径对齐）")
     b.add_argument("--passes", type=int, default=1, help="Elo 多趟暖启动次数（source=international 时生效）")
+    b.add_argument("--l2", type=float, default=0.0, help="DC MLE L2 正则化强度（predictor=dc 时生效；0=无正则）")
     n = sub.add_parser("national", help="国家队链路：真实国际赛 → Elo → 世界杯 Monte Carlo（评分前 48 + 蛇形分组）")
     n.add_argument("--since", default="2006-01-01", help="只用该日期之后的国际赛（默认 2006，给 Elo 足够 burn-in）")
     n.add_argument("--sims", type=int, default=30000)
@@ -746,6 +748,7 @@ def main(argv: list[str] | None = None) -> int:
             league=args.league, seasons=tuple(args.seasons.split(",")),
             predictor=args.predictor, min_train=args.min_train, refit_every=args.refit_every,
             source=args.source, since=args.since, goals_scale=gs, passes=args.passes,
+            l2=args.l2,
         )
         return 0
     if args.cmd == "national":

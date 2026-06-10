@@ -60,9 +60,10 @@ class DCFitPredictor(Predictor):
 
     name = "dc-fit"
 
-    def __init__(self, max_goals: int = MAX_GOALS, maxiter: int = 80):
+    def __init__(self, max_goals: int = MAX_GOALS, maxiter: int = 80, l2: float = 0.0):
         self.max_goals = max_goals
         self.maxiter = maxiter
+        self.l2 = l2
         self.params: DixonColesParams | None = None
 
     def fit(self, train: pd.DataFrame) -> None:
@@ -73,6 +74,7 @@ class DCFitPredictor(Predictor):
         model = DixonColesModel(max_goals=self.max_goals).fit(
             train["home"], train["away"], train["home_goals"], train["away_goals"],
             neutral=train["neutral"], weights=weights, teams=teams, maxiter=self.maxiter,
+            l2=self.l2,
         )
         self.params = model.params
 

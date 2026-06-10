@@ -179,11 +179,13 @@ class DixonColesModel:
         weights: Sequence[float] | None = None,
         teams: Sequence[str] | None = None,
         maxiter: int = 200,
+        l2: float = 0.0,
     ) -> "DixonColesModel":
         """对一批比赛做时间加权极大似然估计。
 
         weights：每场样本权重（如 Dixon-Coles 的指数时间衰减 φ(t)），None 为等权。
         teams：显式指定球队全集与顺序（保证未在训练集出现的队也有参数位）。
+        l2：attack/defence 参数的 L2 惩罚强度（0 = 无正则；典型值 1–20）。
         """
         hg = np.asarray(home_goals, dtype=int)
         ag = np.asarray(away_goals, dtype=int)
@@ -231,7 +233,8 @@ class DixonColesModel:
             ll = poisson.logpmf(hg, lam) + poisson.logpmf(ag, mu)
             tau = dixon_coles_tau(hg, ag, lam, mu, rho)
             ll = ll + np.log(np.clip(tau, _TINY, None))
-            return -np.sum(w * ll)
+            penalty = l2 * (np.sum(att ** 2) + np.sum(de ** 2))
+            return -np.sum(w * ll) + penalty
 
         # 识别性：sum(att)=0, sum(def)=0
         constraints = [
