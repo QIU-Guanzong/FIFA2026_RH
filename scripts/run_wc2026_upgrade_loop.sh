@@ -46,6 +46,8 @@ run_cycle() {
 
     bash "$ROOT/site/deploy.sh" || rc=1
 
+    "$PYTHON_BIN" -m wcpredict.cli market --snapshot || true
+
     if [[ -n "$SERVICE_URL" ]]; then
       echo "尝试刷新服务缓存: ${SERVICE_URL}/reload"
       curl -sS -m 10 -X POST "$SERVICE_URL/reload" || {

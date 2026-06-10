@@ -9,6 +9,13 @@ RUN_SCRIPT="$ROOT/scripts/run_wc2026_upgrade_loop.sh"
 
 mkdir -p "$ROOT/logs/wc2026-upgrade"
 
+CURRENT_BRANCH="$(git -C "$ROOT" rev-parse --abbrev-ref HEAD 2>/dev/null || echo unknown)"
+if [[ "$CURRENT_BRANCH" != "main" ]]; then
+  echo "⚠️  当前分支=$CURRENT_BRANCH，切到 main 再启动 daemon（避免旧模板覆盖 R32 bracket）"
+  git -C "$ROOT" checkout main || { echo "切换失败"; exit 1; }
+  echo "已切换到 main"
+fi
+
 if [[ -f "$PID_FILE" ]]; then
   old_pid=$(cat "$PID_FILE")
   if ps -p "$old_pid" >/dev/null 2>&1; then
