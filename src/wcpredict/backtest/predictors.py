@@ -87,7 +87,7 @@ class EloPredictor(Predictor):
 
     name = "elo-prior"
 
-    def __init__(self, max_goals: int = MAX_GOALS, goals_scale: float = 0.0018,
+    def __init__(self, max_goals: int = MAX_GOALS, goals_scale: float | str = 0.0018,
                  rho: float = -0.05, passes: int = 1):
         self.max_goals = max_goals
         self.goals_scale = goals_scale

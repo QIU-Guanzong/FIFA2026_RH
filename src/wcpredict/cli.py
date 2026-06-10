@@ -182,11 +182,51 @@ def run_backtest(
     predictor: str = "dc",
     min_train: int = 190,
     refit_every: int = 40,
+    source: str = "couk",
+    since: str = "2006-01-01",
+    goals_scale: str | float = 0.0018,
+    passes: int = 1,
 ) -> None:
-    """无泄漏 walk-forward 回测：模型 vs 市场（Pinnacle 赛前去水位），同一持出集对比。"""
-    from wcpredict.backtest import DCFitPredictor, EloPredictor, WalkForwardBacktest
-    from wcpredict.data import load_seasons
+    """无泄漏 walk-forward 回测：模型 vs 市场（Pinnacle 赛前去水位），同一持出集对比。
 
+    source="international"：用 martj42 全量国际赛（无市场赔率），测 goals_scale 对 OOS log loss 的影响。
+    """
+    from wcpredict.backtest import DCFitPredictor, EloPredictor, WalkForwardBacktest
+
+    if source == "international":
+        from wcpredict.data.sources import InternationalResultsSource
+        _section(f"1. 数据 martj42 国际赛（{since} 至今）")
+        try:
+            matches = InternationalResultsSource(since=since).fetch_matches()
+        except Exception as e:  # noqa: BLE001
+            print(f"下载失败：{e}")
+            return
+        print(f"国际赛 {len(matches)} 场 | "
+              f"{matches['date'].min().date()} → {matches['date'].max().date()}")
+
+        _section(f"2. Walk-forward 回测（predictor=elo, goals_scale={goals_scale}, passes={passes}, "
+                 f"min_train={min_train}, refit_every={refit_every}）")
+        pred = EloPredictor(goals_scale=goals_scale, passes=passes)
+        bt = WalkForwardBacktest(matches, odds=None)
+        res = bt.run(pred, min_train=min_train, refit_every=refit_every)
+        tag = f"intl_gs{goals_scale}_p{passes}"
+        res.per_match.to_parquet(DATA_DIR / f"backtest_international_{tag}.parquet")
+        met = res.metrics()
+
+        print(f"无泄漏校验: {'✓ 通过' if met['leak_free'] else '✗ 失败'}")
+        print(f"持出预测 {met['n_predictions']} 场（国际赛无市场赔率，仅模型 log loss）")
+        print(f"  模型 log loss: {met['model_all']['log_loss']:.4f}  "
+              f"Brier: {met['model_all']['brier']:.4f}")
+
+        _section("3. 概率校准（模型主胜）")
+        rc = res.reliability("home", n_bins=10)
+        print(f"ECE(主胜) = {rc['ece']:.4f}")
+        for b in range(10):
+            if rc["count"][b] > 0:
+                print(f"  预测 {rc['mean_pred'][b]:.2f} | 实际 {rc['frac_pos'][b]:.2f} | n={rc['count'][b]}")
+        return
+
+    from wcpredict.data import load_seasons
     _section(f"1. 数据 football-data.co.uk [{league}] {', '.join(seasons)}")
     try:
         matches, odds = load_seasons(league, list(seasons))
@@ -197,7 +237,11 @@ def run_backtest(
           f"{matches['date'].min().date()} → {matches['date'].max().date()}")
 
     _section(f"2. Walk-forward 回测（predictor={predictor}, min_train={min_train}, refit_every={refit_every}）")
-    pred = DCFitPredictor() if predictor == "dc" else EloPredictor()
+    if predictor == "dc":
+        pred = DCFitPredictor()
+    else:
+        _gs = goals_scale if goals_scale != 0.0018 else 0.0018
+        pred = EloPredictor(goals_scale=_gs, passes=passes)
     bt = WalkForwardBacktest(matches, odds)
     res = bt.run(pred, min_train=min_train, refit_every=refit_every,
                  market_book="pinnacle", market_snapshot="prematch")
@@ -259,9 +303,7 @@ def run_national(since: str = "2006-01-01", n_teams: int = 48, sims: int = 30000
     _section("3. DC 先验 + 单场预测（评分前二）")
     top_teams = [t for t, _ in rank[:n_teams]]
     ratings = {t: elo.get(t) for t in top_teams}
-    sd = float(np.std(list(ratings.values())))
-    goals_scale = 0.35 / (2 * sd) if sd > 0 else 0.0015     # 自适配国际 Elo 跨度
-    params = DixonColesParams.from_ratings(ratings, goals_scale=goals_scale)
+    params = DixonColesParams.from_ratings(ratings, goals_scale="auto")
     model = DixonColesModel(params)
     a, b = rank[0][0], rank[1][0]
     lam, mu = params.lambdas(a, b, neutral=True)
@@ -327,8 +369,7 @@ def run_wc2026(
         for h in hosts_in:
             ratings[h] += host_boost
         print(f"  东道主加成(+{host_boost:.0f}，假设项·不可 OOS 验证): {hosts_in}")
-    sd = float(np.std(list(ratings.values())))
-    params = DixonColesParams.from_ratings(ratings, goals_scale=0.35 / (2 * sd) if sd else 0.0015)
+    params = DixonColesParams.from_ratings(ratings, goals_scale="auto")
 
     _section("2. 官方分组 + 官方淘汰赛树 Monte Carlo")
     sim = OfficialWC2026Simulator(params)
@@ -390,8 +431,7 @@ def run_train(
         ranked = [t for t, _ in sorted(ratings_all.items(), key=lambda kv: kv[1], reverse=True)[:48]]
         ratings = {t: ratings_all[t] for t in ranked}
         print(f"  洲际校正(仅稳健洲): {applied or '无可应用'}")
-        sd = float(np.std(list(ratings.values())))
-        params = DixonColesParams.from_ratings(ratings, goals_scale=0.35 / (2 * sd) if sd else 0.0015)
+        params = DixonColesParams.from_ratings(ratings, goals_scale="auto")
         meta = {
             "source": "martj42-international-results", "method": "elo-prior",
             "elo_passes": 4, "since": since, "n_matches": int(len(matches)), "n_teams": 48,
@@ -418,8 +458,7 @@ def run_train(
         if missing:
             raise SystemExit(f"官方球队在国际赛数据中无评分（名称未对齐）: {missing}")
         ratings = {t: ratings_all[t] for t in official}
-        sd = float(np.std(list(ratings.values())))
-        params = DixonColesParams.from_ratings(ratings, goals_scale=0.35 / (2 * sd) if sd else 0.0015)
+        params = DixonColesParams.from_ratings(ratings, goals_scale="auto")
         meta = {
             "source": "martj42-international-results", "method": "elo-prior",
             "format": "wc2026_official", "groups": "official_2026", "simulator": "OfficialWC2026Simulator",
@@ -661,6 +700,12 @@ def main(argv: list[str] | None = None) -> int:
     b.add_argument("--predictor", default="dc", choices=["dc", "elo"], help="dc=MLE拟合 / elo=评分先验")
     b.add_argument("--min-train", type=int, default=190)
     b.add_argument("--refit-every", type=int, default=40)
+    b.add_argument("--source", default="couk", choices=["couk", "international"],
+                   help="couk=football-data.co.uk俱乐部 / international=martj42全量国际赛")
+    b.add_argument("--since", default="2006-01-01", help="国际赛起始日期（source=international 时生效）")
+    b.add_argument("--goals-scale", default="0.0018",
+                   help="λ-mapping 灵敏度：数字(如0.0018) 或 'auto'（与部署路径对齐）")
+    b.add_argument("--passes", type=int, default=1, help="Elo 多趟暖启动次数（source=international 时生效）")
     n = sub.add_parser("national", help="国家队链路：真实国际赛 → Elo → 世界杯 Monte Carlo（评分前 48 + 蛇形分组）")
     n.add_argument("--since", default="2006-01-01", help="只用该日期之后的国际赛（默认 2006，给 Elo 足够 burn-in）")
     n.add_argument("--sims", type=int, default=30000)
@@ -695,9 +740,12 @@ def main(argv: list[str] | None = None) -> int:
         run_ingest(league=args.league, seasons=tuple(args.seasons.split(",")))
         return 0
     if args.cmd == "backtest":
+        gs_raw = args.goals_scale
+        gs: str | float = gs_raw if gs_raw == "auto" else float(gs_raw)
         run_backtest(
             league=args.league, seasons=tuple(args.seasons.split(",")),
             predictor=args.predictor, min_train=args.min_train, refit_every=args.refit_every,
+            source=args.source, since=args.since, goals_scale=gs, passes=args.passes,
         )
         return 0
     if args.cmd == "national":

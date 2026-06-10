@@ -65,13 +65,20 @@
     （容器成功加载真实 national 模型）；compose 文件已备好但需 `brew install docker-compose` 才能用。
   - Dockerfile 分层：requirements.txt 装依赖（缓存）→ `pip install --no-deps .` 装包（代码改动只重跑这步）。
 - **2026-06-04 #6 Elo 多趟暖启动**：`EloRating(passes=N)`，每趟从空计分起但用上趟终值做各队先验。
-  纪律：不眼测排名，用 #2 的国际赛 walk-forward 量化 OOS log loss（0.9118→0.8971）才算数。
+  纪律：不眼测排名，用 #2 的国际赛 walk-forward 量化 OOS log loss 才算数。
   national/train 默认 passes=4（club/synthetic 仍 passes=1）。default 模型已重训为 v2（多趟）。
   注意：跑 EloPredictor 回测时 `EloPredictor(passes=k)` 透传；CEO 数据问题选了 #6 而非 #4（#4 是数据关卡）。
-  - **口径坑（advisor 抓出）**：OOS 0.8971 来自 EloPredictor（固定 goals_scale=0.0018）；但 national 部署模型用
-    自适配 goals_scale=0.35/(2·sd)（多趟会放大 sd → scale 更小），是不同 λ 映射、未单独回测。改进可传递（更好评分单调更好），
-    但别把 0.8971 当成部署模型的端到端准确度。要端到端为真需对齐两处 scale（1 行改动，非调参项，暂不做）。
-  - 测试 48 项全绿，含无泄漏守卫（`train_max_date < date` 逐行）。
+  - **口径更新（2026-06-10 D1+B1，以数据为准）**：
+    - 旧 0.8971/0.9118 已作废（passes=1 或不同 min_train/refit_every）
+    - 最新无泄漏 walk-forward（~19,400 场持出, passes=4, min_train=200, refit_every=50）：
+      | goals_scale | log loss | ECE | 备注 |
+      |---|---|---|---|
+      | 固定 0.0018 | **0.9049** | 0.0213 | 最佳校准，诚实参照 |
+      | 固定 0.001（近似部署） | 0.9172 | 0.0597 | 全量319队，与部署top-48分布不同 |
+      | "auto"全量319队 | 0.9525 | 0.0951 | 不可比：sd=341→scale=0.00051，过平 |
+    - 部署 goals_scale ≈ 0.001（"auto"在 top-48，sd≈174）；全量回测 scale=0.001≠部署 scale（不同分布）
+    - 0.9049（固定0.0018）是最接近的诚实参照；部署精确端到端数字需在 top-48 子集上独立测（WC 场次稀疏）
+  - 测试 98 项全绿（含无泄漏守卫 `train_max_date < date` 逐行）。
 - **2026-06-04 #5 Part A 自建 shot-level xG**（CEO 选"#5 阵容/xG 层"）：`data/statsbomb.py`(开放数据采集器) +
   `xg/features.py`(几何) + `xg/model.py`(可解释逻辑回归 scipy，非 sklearn/黑箱)。CLI `wcpredict xg`。
   - **铁律：真值是进球，不是 statsbomb_xg**。模型在 WC2022 留出射门上对真实进球做校准（log loss 0.341→0.278、
@@ -177,8 +184,8 @@ make demo-fit      # 走 MLE 拟合路径
    导入其评分=黑箱违铁律）；且 shots-only 太稀疏(淘汰赛 XI 仅 ~4/11 可估)、上界还混入球队整体强弱(Elo 已含)。
    **结论：下一步先*建*球员价值层（扩展 #5A，用免费稠密俱乐部赛季数据测*增量*），暂不订阅 Sportmonks。**
    `parse_lineups`+射手 player 字段已加(测试覆盖)，85 项全绿。待 CEO 决策是否批"建价值层"。
-6. ✅ **修 Elo 洲际通胀**（2026-06-04 完成）：多趟暖启动迭代（`EloRating(passes=)`，上趟终值作下趟先验）。
-   用国际赛无泄漏回测量化：OOS log loss 0.9118→0.8971（passes 1→5），单调下降；排名 Europe 上移、
+6. ✅ **修 Elo 洲际通胀**（2026-06-04 完成，口径 2026-06-10 更新）：多趟暖启动迭代（`EloRating(passes=)`，上趟终值作下趟先验）。
+   用国际赛无泄漏回测量化（~19,400 场持出，passes=4，goals_scale=0.0018）：OOS log loss **0.9049**（ECE 0.0213），单调优于 passes=1；排名 Europe 上移、
    Japan/Morocco/Ecuador 下移（Top3 不变）。national 默认 passes=4。合成"双洲际"离线测试锁定机制。
    残留通胀需洲际标签/SOS 根治（→ #6b）。
 6b. ✅ **残留洲际通胀校正**（2026-06-04 完成）：`ratings/confederation.py`，数据驱动洲际归属 + 洲际间残差 offset。

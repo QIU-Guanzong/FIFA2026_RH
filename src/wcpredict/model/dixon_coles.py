@@ -120,7 +120,7 @@ class DixonColesParams:
         ratings: Mapping[str, float],
         *,
         base_goals: float = 1.35,
-        goals_scale: float = 0.0018,
+        goals_scale: float | str = 0.0018,
         rho: float = -0.05,
         home_adv: float = 0.25,
     ) -> "DixonColesParams":
@@ -128,12 +128,16 @@ class DixonColesParams:
 
         把单一实力评分映射成对称的 attack/defence：强队进得多、丢得少。
         log λ ≈ log(base_goals) ± goals_scale·(R − R̄)。goals_scale 控制评分差→进球强度的灵敏度。
+        goals_scale="auto"：自动用 0.35 / (2·sd(ratings))，与 cli.py 部署路径对齐。
         """
         teams = list(ratings.keys())
         r = np.array([ratings[t] for t in teams], dtype=float)
         r_centered = r - r.mean()
-        attack = goals_scale * r_centered          # 强队 attack 正
-        defence = -goals_scale * r_centered        # 强队 defence 负（压低对手）
+        if goals_scale == "auto":
+            sd = float(np.std(r))
+            goals_scale = 0.35 / (2 * sd) if sd > 0 else 0.0015
+        attack = float(goals_scale) * r_centered   # 强队 attack 正
+        defence = -float(goals_scale) * r_centered  # 强队 defence 负（压低对手）
         intercept = float(np.log(base_goals))
         return cls(
             teams=teams,
