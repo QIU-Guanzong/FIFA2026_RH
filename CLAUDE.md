@@ -103,6 +103,28 @@
   - 顺手核查：martj42 含 72 行未来 WC 占位赛程(无比分)，但 `fetch_matches` 经 validate 已丢弃（部署模型无污染，已验证）。
   - 测试 83 项全绿（+5 洲际：派生含会籍变更/offset 符号/部署只取稳健洲/洲内忽略）。
 
+## RedFootball 交互门户（site/portal/，2026-06-07）
+
+- **来源**：claude.ai/design 设计稿（项目 FIFA，`wcpredict.html`）的生产实现。6 tab：总览 / 赛程(104 场) /
+  单场预测(任选 48 队) / 晋级树(小组热门+官方 R32 树+模型路径树) / 下注建议 / 方法&回测。
+- **纯静态无运行时依赖**：JSX 预编译（`portal/src/*.jsx → portal/assets/*.js`，改 JSX 后跑 `portal/build.sh`，
+  需 node）；React 18.3.1 本地 vendor（不依赖 unpkg/Babel CDN）。**部署不需要 Node。**
+- **数据=真实引擎，单一真理源**：`PYTHONPATH=src python scripts/export_portal_data.py` 读 registry latest
+  （须 wc2026_official）→ 5 万届 MC(seed 2026) + 缓存国际赛 CSV 重算多趟 Elo + registry 历史版本逐版重模拟做
+  趋势线 + Polymarket gamma API 构建期快照 → 写 `portal/assets/engine.js`。**重训后刷新门户只跑这一个脚本。**
+- **兜底架构**：engine.js 最先加载；`data.js/bracket.js/fixtures.js` 均为 `window.X = window.X || …` 设计稿
+  快照兜底（engine.js 缺席页面不空白）。Polymarket 运行时 90s 轮询实时价，失败回退快照。`api.js` 预留 FastAPI
+  接缝（RF_API.enabled）。
+- **λ 跨语言同式**：`WC_PARAMS`（attack/defence/intercept/rho 原样导出）→ 前端 `λh=exp(intercept+att_h+def_a)`；
+  已断言 4 组对阵 JS=Python λ/1X2 逐位一致。computeDC 的 ρ 默认也读 WC_PARAMS。
+- **坑**：① 设计原型队表有 7 队与官方分组不符（真实含 Cape Verde/Iraq/DR Congo/Uzbekistan，且用 martj42 全名
+  Czech Republic/Bosnia and Herzegovina/Ivory Coast）——engine.js 以官方 48 队为准，原型表仅兜底；
+  ② Polymarket gamma API 裸 urllib 会 403，必须带浏览器 UA；③ 滚动揭示沿用设计稿守卫（默认 opacity:1，
+  rAF 确认时间线活着才启用动画），别改回 opacity:0 起始——后台/截图环境会整页隐形。
+- **部署**：`bash site/deploy.sh` 同时上传 index.html 与 portal/ 并验证两个 URL 200。
+  线上：https://gavin.astock.top/FIFA2026/portal/ 。老展示页 hero pills 已加门户入口（index.html 与
+  index.template.html 都加了——daemon 重生成不丢链接）。
+
 ## 线上展示页（已部署 2026-06-04）
 
 - **URL**：https://gavin.astock.top/FIFA2026/ （顶层路径，不挂在 AI4Future 下；noindex，非投注建议）

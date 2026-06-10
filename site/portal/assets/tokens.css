@@ -1,0 +1,363 @@
+/* ============================================================
+ *  A-Stock Design System · Tokens v2 (Quiet Modern)
+ *  Linear / Vercel inspired — restrained ink palette, generous
+ *  whitespace, soft borders, neutral surfaces, minimal motion.
+ * ============================================================ */
+
+/* Fonts: Saira (sporty grotesque) for headings + scoreboard numerics; system for body/CJK. */
+@import url('https://fonts.googleapis.com/css2?family=Saira:wght@500;600;700&family=Saira+Condensed:wght@600;700&display=swap');
+
+:root {
+  /* ---------- Surfaces ---------- */
+  --bg:           #FAFAF7;  /* off-white page, faint warmth */
+  --bg-shade:    #F2F2EE;  /* hover / divider band */
+  --bg-deeper:   #E9E9E3;  /* strong band */
+  --surface:     #FFFFFF;  /* card background */
+  --panel:       #FFFFFF;  /* alias — cards are uniformly white */
+  --panel-tint:  #FBFBF8;  /* slight off-white inside surfaces */
+
+  /* ---------- Ink ---------- */
+  --ink:         #171717;  /* primary text */
+  --ink-soft:    #404040;  /* secondary */
+  --muted:       #A3A3A3;  /* tertiary */
+  --muted-2:     #737373;  /* labels */
+  --hairline:        #E8E8E3;  /* solid soft border */
+  --hairline-strong: #D4D4CE;
+  --divider:     #F0F0EC;  /* inner row divider */
+
+  /* ---------- Brand accent (used sparingly) ---------- */
+  --accent:      #B8472D;  /* terracotta — used minimally for moments */
+  --accent-deep: #7A3019;
+  --accent-soft: #FBEFEA;  /* very light wash */
+  --accent-50:   #FEF8F5;
+
+  /* ---------- Pitch green (football identity · grass / advance / qualify) ---------- */
+  --pitch:       #1E874B;  /* grass green */
+  --pitch-deep:  #14613A;
+  --pitch-soft:  #E8F3EC;  /* light wash */
+  --pitch-50:    #F2F8F4;
+  --pitch-line:  rgba(30, 135, 75, 0.09);  /* pitch markings / mowed stripes */
+  --hero-glow:   radial-gradient(78% 62% at 80% -12%, color-mix(in srgb, var(--pitch) 9%, transparent), transparent 68%);  /* floodlight */
+
+  /* ---------- Semantic (Chinese market: red↑ green↓) ---------- */
+  --up:          #C0392B;  /* 涨 red */
+  --up-bg:       rgba(192, 57, 43, 0.08);
+  --up-soft:     #FBEEEB;
+  --down:        #2E8B57;  /* 跌 green */
+  --down-bg:     rgba(46, 139, 87, 0.08);
+  --down-soft:   #ECF5EF;
+  --neutral:     var(--muted);
+
+  --holding:     #5A7D3E;
+  --warn:        #D97706;
+  --warn-bg:     rgba(217, 119, 6, 0.10);
+  --info:        #2563A8;
+  --info-bg:     rgba(37, 99, 168, 0.08);
+  --live:        #2E8B57;  /* "实时" pulse uses subdued green */
+
+  /* ---------- Persona / strategy ---------- */
+  --p-gavin:     #1A1A1A;  /* G strategy — neutral ink */
+  --p-qwj:       #2E8B57;  /* Q strategy — sage green */
+  --p-tlq:       #B8472D;  /* T strategy — terracotta */
+
+  --ink-inverted: #FFFFFF;
+
+  /* ---------- Type families ---------- */
+  --serif:  ui-serif, Georgia, 'Songti SC', 'Noto Serif SC', serif;
+  --sans:   -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  --mono:   ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
+  /* Saira leads for Latin headings/numerals; CJK falls through to system. */
+  --font-head:    'Saira', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  --font-display: 'Saira Condensed', 'Saira', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+
+  /* ---------- Type scale ---------- */
+  --fs-11:  11px;
+  --fs-12:  12px;
+  --fs-13:  13px;
+  --fs-14:  14px;
+  --fs-15:  15px;
+  --fs-16:  16px;
+  --fs-18:  18px;
+  --fs-22:  22px;
+  --fs-28:  28px;
+  --fs-36:  36px;
+  --fs-48:  48px;
+  --fs-64:  64px;
+
+  /* ---------- Roles ---------- */
+  --display: 700 var(--fs-48)/1.02 var(--font-display);   /* hero numbers / page identity */
+  --h1: 600 var(--fs-28)/1.2 var(--font-head);
+  --h2: 600 var(--fs-22)/1.25 var(--font-head);
+  --h3: 600 var(--fs-18)/1.3 var(--font-head);
+  --h4: 600 var(--fs-15)/1.3 var(--font-head);
+  --eyebrow: 600 11px/1.2 var(--font-head);
+  --p:  400 var(--fs-14)/1.55 var(--sans);
+  --small: 400 var(--fs-13)/1.5 var(--sans);
+  --label: 500 var(--fs-12)/1.4 var(--sans);
+  --num: 500 var(--fs-14)/1.3 var(--mono);
+  --num-lg: 600 var(--fs-28)/1.1 var(--mono);
+  --num-xl: 600 var(--fs-48)/1.0 var(--mono);
+  --num-sport: 700 var(--fs-36)/1 var(--font-display);  /* scoreboard-style display numerals */
+  --code: 400 var(--fs-12)/1.5 var(--mono);
+
+  /* ---------- Spacing (generous — Linear-style) ---------- */
+  --s-1:  4px;
+  --s-2:  8px;
+  --s-3:  12px;
+  --s-4:  16px;
+  --s-5:  20px;
+  --s-6:  24px;
+  --s-7:  28px;
+  --s-8:  32px;
+  --s-10: 40px;
+  --s-12: 48px;
+  --s-16: 64px;
+
+  /* ---------- Radii (larger, softer) ---------- */
+  --r-2:  4px;
+  --r-4:  6px;
+  --r-6:  7px;   /* buttons, inputs */
+  --r-8:  10px;  /* small cards */
+  --r-10: 12px;  /* primary cards */
+  --r-14: 16px;  /* hero / modal */
+  --r-full: 999px;
+
+  /* ---------- Elevation — extremely restrained ---------- */
+  --shadow-1: 0 1px 2px rgba(23, 23, 23, 0.04);                  /* resting card */
+  --shadow-2: 0 1px 3px rgba(23, 23, 23, 0.04), 0 0 0 1px var(--hairline);
+  --shadow-3: 0 4px 12px rgba(23, 23, 23, 0.06), 0 0 0 1px var(--hairline);
+  --shadow-4: 0 12px 32px rgba(23, 23, 23, 0.08);
+  --shadow-pop: 0 24px 64px rgba(23, 23, 23, 0.16), 0 0 0 1px var(--hairline);
+  --focus: 0 0 0 3px rgba(23, 23, 23, 0.10);
+
+  /* ---------- Motion (Linear-style: short, subtle, ease-out) ---------- */
+  --ease:       cubic-bezier(0.2, 0.0, 0.0, 1.0);
+  --ease-out:   cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out:cubic-bezier(0.4, 0.0, 0.2, 1);
+  --dur-fast:   100ms;
+  --dur-base:   160ms;
+  --dur-slow:   260ms;
+
+  /* ---------- Layout ---------- */
+  --topbar-h:    52px;
+  --sidebar-w:  240px;
+}
+
+/* ---------- Element defaults ---------- */
+html, body {
+  background: var(--bg);
+  color: var(--ink);
+  font: var(--p);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+h1 { font: var(--h1); margin: 0; letter-spacing: -0.015em; }
+h2 { font: var(--h2); margin: 0; letter-spacing: -0.01em; }
+h3 { font: var(--h3); margin: 0; letter-spacing: -0.005em; }
+h4 { font: var(--h4); margin: 0; }
+p  { font: var(--p); margin: 0; }
+small { font: var(--small); color: var(--ink-soft); }
+code, kbd, samp { font: var(--code); }
+
+.num, td.num, [data-num] { font: var(--num); font-variant-numeric: tabular-nums; }
+.up   { color: var(--up); }
+.down { color: var(--down); }
+
+/* ---------- Quiet Modern motion primitives ---------- */
+@keyframes as-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.45; transform: scale(0.6); }
+}
+.as-pulse { animation: as-pulse 2s ease-in-out infinite; }
+
+@keyframes as-pulse-ring {
+  0%   { box-shadow: 0 0 0 0   rgba(46, 139, 87, 0.30); }
+  100% { box-shadow: 0 0 0 6px rgba(46, 139, 87, 0); }
+}
+.as-pulse-ring { animation: as-pulse-ring 1.6s ease-out infinite; }
+@keyframes as-fade-up {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.as-fade-up { animation: as-fade-up var(--dur-slow) var(--ease-out) both; }
+
+@keyframes as-flash-up {
+  0%   { background: var(--up-soft); }
+  100% { background: transparent; }
+}
+@keyframes as-flash-down {
+  0%   { background: var(--down-soft); }
+  100% { background: transparent; }
+}
+.as-flash-up   { animation: as-flash-up 1.2s ease-out; }
+.as-flash-down { animation: as-flash-down 1.2s ease-out; }
+
+@keyframes as-draw {
+  from { stroke-dashoffset: var(--draw-len, 500); }
+  to   { stroke-dashoffset: 0; }
+}
+.as-spark {
+  stroke-dasharray: var(--draw-len, 500);
+  stroke-dashoffset: var(--draw-len, 500);
+  animation: as-draw 1.2s var(--ease-out) forwards;
+}
+
+/* ============================================================
+ *  Dark mode — Vercel/Linear dark palette
+ *  Toggle: <html data-theme="dark">
+ * ============================================================ */
+[data-theme="dark"] {
+  --bg:           #090C0A;  /* night-stadium green-black */
+  --bg-shade:    #111611;
+  --bg-deeper:   #1A211A;
+  --surface:     #10150F;  /* green-tinted dark card */
+  --panel:       #10150F;
+  --panel-tint:  #141A13;
+
+  --ink:         #F3F6F2;
+  --ink-soft:    #CCD4CB;
+  --muted:       #6E7A6C;
+  --muted-2:     #9AA698;
+  --hairline:        #233022;
+  --hairline-strong: #3A4A38;
+  --divider:     #1A221A;
+
+  --accent:      #E8927C;  /* slightly lifted terracotta for dark */
+  --accent-deep: #B8472D;
+  --accent-soft: rgba(232, 146, 124, 0.10);
+  --accent-50:   rgba(232, 146, 124, 0.05);
+
+  --pitch:       #34C76A;  /* lifted grass for dark */
+  --pitch-deep:  #1E874B;
+  --pitch-soft:  rgba(52, 199, 106, 0.12);
+  --pitch-50:    rgba(52, 199, 106, 0.06);
+  --pitch-line:  rgba(52, 199, 106, 0.10);
+  --hero-glow:   radial-gradient(92% 72% at 50% -22%, rgba(52, 199, 106, 0.17), transparent 64%);  /* floodlight */
+
+  --up:          #FF6B5C;  /* lifted red for dark contrast */
+  --up-bg:       rgba(255, 107, 92, 0.12);
+  --up-soft:     rgba(255, 107, 92, 0.18);
+  --down:        #4ADE80;  /* lifted green */
+  --down-bg:     rgba(74, 222, 128, 0.12);
+  --down-soft:   rgba(74, 222, 128, 0.18);
+
+  --holding:     #4ADE80;
+  --warn:        #FCD34D;
+  --warn-bg:     rgba(252, 211, 77, 0.14);
+  --info:        #60A5FA;
+  --info-bg:     rgba(96, 165, 250, 0.12);
+  --live:        #4ADE80;
+
+  --p-gavin:     #FAFAFA;
+  --p-qwj:       #4ADE80;
+  --p-tlq:       #E8927C;
+
+  --ink-inverted: #0D0D0D;
+
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.30);
+  --shadow-2: 0 1px 3px rgba(0, 0, 0, 0.40), 0 0 0 1px var(--hairline);
+  --shadow-3: 0 4px 12px rgba(0, 0, 0, 0.40), 0 0 0 1px var(--hairline);
+  --shadow-4: 0 12px 32px rgba(0, 0, 0, 0.50);
+  --shadow-pop: 0 24px 64px rgba(0, 0, 0, 0.60), 0 0 0 1px var(--hairline);
+  --focus: 0 0 0 3px rgba(250, 250, 250, 0.15);
+}
+
+/* ============================================================
+ *  Mobile responsive  (≤ 768px)
+ * ============================================================ */
+@media (max-width: 768px) {
+  :root {
+    --topbar-h:    44px;
+    --sidebar-w:   0px;
+  }
+  /* compress font sizes for narrow screens */
+  h1 { font-size: 22px; }
+  h2 { font-size: 18px; }
+
+  /* hide tablet/desktop-only chrome — opt-in via class */
+  .hide-mobile { display: none !important; }
+  .only-mobile { display: block !important; }
+}
+@media (min-width: 769px) {
+  .only-mobile { display: none !important; }
+}
+
+[data-theme="dark"] img[src*="brand-mark"],
+[data-theme="dark"] img[src*="brand-lockup"] {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+/* ============================================================
+ *  Sidebar nav items — class-based active/hover state
+ *  (static here so React only toggles the `class` attribute)
+ * ============================================================ */
+.as-nav-item {
+  display: flex; align-items: center; gap: 11px;
+  padding: 9px 12px; margin: 0 10px 2px; border-radius: 8px;
+  cursor: pointer; text-decoration: none; color: var(--ink-soft);
+  background-color: transparent; transition: background-color 100ms var(--ease);
+}
+.as-nav-item:hover { background-color: var(--bg-shade); }
+.as-nav-item.is-active { background-color: var(--bg-shade); color: var(--ink); }
+.as-nav-ico {
+  width: 30px; height: 30px; border-radius: 7px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background-color: var(--surface); border: 1px solid var(--hairline);
+  color: var(--muted-2); transition: all 120ms var(--ease);
+}
+.as-nav-item.is-active .as-nav-ico {
+  background-color: var(--ink); border-color: var(--ink); color: var(--ink-inverted);
+}
+.as-nav-label { display: flex; align-items: center; gap: 6px; font: 500 13.5px/1.2 var(--sans); }
+.as-nav-item.is-active .as-nav-label { font-weight: 600; }
+.as-nav-desc {
+  display: block; font-size: 11px; color: var(--muted); margin-top: 2px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* ============================================================
+ *  Football / matchday identity layer
+ * ============================================================ */
+
+/* Saira numerals look sharp with tabular figures wherever Latin shows */
+h1, h2, h3, h4, .rf-head { font-feature-settings: "tnum" 1; letter-spacing: -0.012em; }
+
+/* Mowed-grass pitch stripes — faint vertical bands. Apply to a positioned layer. */
+.rf-pitch {
+  position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    repeating-linear-gradient(90deg,
+      var(--pitch-line) 0, var(--pitch-line) 1px,
+      transparent 1px, transparent 96px),
+    repeating-linear-gradient(90deg,
+      transparent 0, transparent 48px,
+      color-mix(in srgb, var(--pitch) 4%, transparent) 48px,
+      color-mix(in srgb, var(--pitch) 4%, transparent) 96px);
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, transparent 78%);
+  mask-image: linear-gradient(180deg, #000 0%, transparent 78%);
+}
+
+/* faint pitch center-circle + halfway line, dropped top-right behind hero card */
+.rf-pitch-circle {
+  position: absolute; pointer-events: none; z-index: 0;
+  border: 1.5px solid var(--pitch-line); border-radius: var(--r-full);
+}
+
+/* floodlight glow — subtle in light, night-match glow in dark */
+.rf-floodlight {
+  position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  background: var(--hero-glow);
+}
+
+/* qualify / advance pill — grass-green, the football-positive state */
+.rf-qualify {
+  display: inline-flex; align-items: center; gap: 5px;
+  font: 600 11px/1 var(--font-head); letter-spacing: 0.02em;
+  color: var(--pitch-deep); background: var(--pitch-soft);
+  padding: 4px 8px; border-radius: var(--r-full);
+}
+
+/* spinning ball on hover of brand */
+@keyframes rf-roll { to { transform: rotate(360deg); } }
+.rf-brand:hover .rf-ball { animation: rf-roll 2.4s linear infinite; }
+.rf-ball.rf-spin { animation: rf-roll 9s linear infinite; }

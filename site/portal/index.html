@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-Hans" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex" />
+<title>RedFootball · 2026 世界杯预测</title>
+<link rel="stylesheet" href="assets/tokens.css" />
+<style>
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; }
+  a { -webkit-tap-highlight-color: transparent; }
+  ::selection { background: var(--accent-soft); }
+  #root { min-height: 100vh; }
+
+  /* scroll reveal — only activates once rAF confirms the timeline runs (body.js-reveal).
+     Default state is fully visible, so content never gets stuck hidden. */
+  .reveal { opacity: 1; }
+  body.js-reveal .reveal { opacity: 0; transform: translateY(16px); transition: opacity 0.55s var(--ease-out), transform 0.55s var(--ease-out); }
+  body.js-reveal .reveal.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) { body.js-reveal .reveal { opacity: 1; transform: none; transition: none; } }
+
+  /* responsive collapse */
+  @media (max-width: 880px) {
+    .hero-grid, .board-grid, .bt-grid, .xg-grid, .foot-grid, .match-grid, .vb-grid { grid-template-columns: 1fr !important; }
+    .pipe-grid { grid-template-columns: 1fr 1fr !important; }
+    .mod-grid, .bound-grid { grid-template-columns: 1fr !important; }
+    .nav-links { display: none !important; }
+  }
+  @media (max-width: 560px) {
+    .pipe-grid { grid-template-columns: 1fr !important; }
+  }
+
+  /* bracket tree */
+  .bkt-col { display: flex; flex-direction: column; min-width: 176px; flex: 1; }
+  .bkt-col-body { flex: 1; display: flex; flex-direction: column; justify-content: space-around; gap: 10px; }
+  .bkt-match { position: relative; }
+  .bkt-clickable { transition: border-color var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease); }
+  .bkt-clickable:hover { border-color: var(--ink) !important; box-shadow: var(--shadow-2) !important; }
+
+  /* football logo roll */
+  @keyframes rf-roll { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+  .rf-spin { animation: rf-roll 9s linear infinite; transform-origin: 50% 50%; }
+  .rf-ball { transition: transform 0.7s var(--ease-out); transform-origin: 50% 50%; }
+  .rf-brand:hover .rf-ball { transform: rotate(360deg); }
+  @media (prefers-reduced-motion: reduce) { .rf-spin { animation: none; } }
+  .bkt-grid .bkt-col:not(:last-child) .bkt-match::after {
+    content: ''; position: absolute; top: 50%; right: calc(-1 * var(--s-5) / 2 - 1px);
+    width: calc(var(--s-5) / 2); height: 1px; background: var(--hairline-strong);
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<!-- 本地 vendor（不依赖外网 CDN）+ 预编译 JS（源 JSX 在 src/，改后跑 build.sh） -->
+<script src="vendor/react.production.min.js"></script>
+<script src="vendor/react-dom.production.min.js"></script>
+
+<script src="assets/engine.js"></script><!-- 引擎真实数据层（scripts/export_portal_data.py 生成）·先载入 -->
+<script src="assets/data.js"></script>
+<script src="assets/dc.js"></script>
+<script src="assets/fixtures.js"></script>
+<script src="assets/Charts.js"></script>
+<script src="assets/sections1.js"></script>
+<script src="assets/sections2.js"></script>
+<script src="assets/sections3.js"></script>
+<script src="assets/sections4.js"></script>
+<script src="assets/sections5.js"></script>
+<script src="assets/bracket.js"></script>
+<script src="assets/polymarket.js"></script>
+<script src="assets/api.js"></script>
+<script src="assets/sections6.js"></script>
+<script src="assets/sections7.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>
