@@ -49,6 +49,14 @@
     content: ''; position: absolute; top: 50%; right: calc(-1 * var(--s-5) / 2 - 1px);
     width: calc(var(--s-5) / 2); height: 1px; background: var(--hairline-strong);
   }
+
+  /* embedded sponsor (redhorsehk.ai) hover */
+  .rh-ad:hover { border-color: var(--accent) !important; box-shadow: var(--shadow-2); }
+  .rh-ad:hover .rh-cta { filter: brightness(0.94); }
+  @media (max-width: 560px) {
+    .rh-banner { flex-direction: column !important; align-items: flex-start !important; gap: 14px !important; }
+    .rh-banner .rh-cta { width: 100%; text-align: center; }
+  }
 </style>
 </head>
 <body>

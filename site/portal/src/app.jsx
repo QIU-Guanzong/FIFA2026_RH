@@ -1,5 +1,5 @@
   const { useState, useEffect } = React;
-  const { Nav, Hero, ChampionBoard, Pipeline, Backtest, XG, Modules, Boundaries, Footer, MatchPredictor, ValueBets, Bracket, Fixtures } = window;
+  const { Nav, Hero, ChampionBoard, Pipeline, Backtest, Boundaries, Footer, MatchPredictor, ValueBets, Bracket, Fixtures, RedHorseBanner } = window;
 
   function useReveal(dep) {
     useEffect(() => {
@@ -51,12 +51,12 @@
       <React.Fragment>
         <Nav tab={tab} setTab={setTab} />
         <main>
-          {tab === 'overview' && <React.Fragment><Hero setTab={setTab} /><ChampionBoard /></React.Fragment>}
+          {tab === 'overview' && <React.Fragment><Hero setTab={setTab} /><ChampionBoard /><RedHorseBanner /></React.Fragment>}
           {tab === 'schedule' && <Fixtures />}
           {tab === 'match' && <MatchPredictor />}
           {tab === 'tree' && <Bracket />}
-          {tab === 'bets' && <ValueBets />}
-          {tab === 'method' && <React.Fragment><Pipeline /><Backtest /><XG /><Modules /><Boundaries /></React.Fragment>}
+          {tab === 'bets' && <React.Fragment><RedHorseBanner /><ValueBets /></React.Fragment>}
+          {tab === 'method' && <React.Fragment><Pipeline /><Backtest /><Boundaries /></React.Fragment>}
         </main>
         <Footer />
       </React.Fragment>

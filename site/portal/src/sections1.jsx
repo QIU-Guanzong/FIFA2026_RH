@@ -74,7 +74,7 @@ const WC_TABS = [
   ['match', '单场预测'],
   ['tree', '晋级树'],
   ['bets', '下注建议'],
-  ['method', '方法 & 回测'],
+  ['method', '预测方法'],
 ];
 
 function Nav({ tab, setTab }) {
@@ -111,10 +111,10 @@ function Nav({ tab, setTab }) {
             background: 'var(--surface)', color: 'var(--ink-soft)', cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14,
           }}>{dark ? '☼' : '☾'}</button>
-          <a href="https://github.com/QIU-Guanzong/FIFA2026_RH" target="_blank" rel="noreferrer" style={{
-            font: '500 13px/1 var(--sans)', color: 'var(--ink-inverted)', background: 'var(--ink)',
+          <a href="https://redhorsehk.ai/" target="_blank" rel="noopener noreferrer" style={{
+            font: '600 13px/1 var(--sans)', color: '#fff', background: 'var(--accent)',
             textDecoration: 'none', padding: '9px 15px', borderRadius: 7, whiteSpace: 'nowrap',
-          }}>查看源码 →</a>
+          }}>赤兔AI redhorsehk.ai →</a>
         </div>
       </div>
     </nav>
@@ -133,21 +133,21 @@ function Hero({ setTab }) {
         <div>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '5px 12px 5px 6px', borderRadius: 999, border: '1px solid var(--accent-soft)', background: 'var(--accent-50)', marginBottom: 'var(--s-6)' }}>
             <BrandMark size={18} spin />
-            <span style={{ font: 'var(--label)', fontWeight: 600, color: 'var(--accent-deep)' }}>RedFootball · 2026 世界杯预测引擎</span>
+            <span style={{ font: 'var(--label)', fontWeight: 600, color: 'var(--accent-deep)' }}>RedFootball · 2026 世界杯免费预测</span>
           </div>
           <h1 style={{ font: '600 52px/1.05 var(--sans)', letterSpacing: '-0.03em', textWrap: 'balance' }}>
-            先算清<span style={{ color: 'var(--accent)' }}>比分分布</span>，<br/>再派生一切概率。
+            先算清<span style={{ color: 'var(--accent)' }}>每场比分</span>，<br/>再看清整届世界杯。
           </h1>
           <p style={{ color: 'var(--ink-soft)', fontSize: 'var(--fs-16)', lineHeight: 1.65, marginTop: 'var(--s-6)', maxWidth: 540 }}>
-            可解释、可回测、可本地部署的 2026 世界杯预测系统。从国际赛 Elo 先验到 Dixon-Coles 比分矩阵，
-            由同一矩阵统一派生 1X2 / 大小球 / 让球 / 波胆，再经 {RF_SIMS_WAN} 万届 Monte Carlo 得出晋级率与夺冠率。
+            覆盖 48 支球队、104 场比赛的 2026 世界杯预测。从每队的历史实力到每场的比分概率，
+            统一给出胜平负、大小球、让球与波胆，再经 {RF_SIMS_WAN} 万届赛事模拟算出每队的出线率与夺冠率。
           </p>
           <div style={{ display: 'flex', gap: 12, marginTop: 'var(--s-8)', flexWrap: 'wrap' }}>
             <button onClick={() => setTab('match')} style={{ font: '600 14px/1 var(--font-head)', color: '#fff', background: 'var(--pitch)', border: 'none', cursor: 'pointer', padding: '13px 22px', borderRadius: 8, boxShadow: '0 6px 18px color-mix(in srgb, var(--pitch) 32%, transparent)' }}>试用单场预测 →</button>
-            <button onClick={() => setTab('method')} style={{ font: '500 14px/1 var(--sans)', color: 'var(--ink)', background: 'var(--surface)', border: '1px solid var(--hairline-strong)', cursor: 'pointer', padding: '13px 22px', borderRadius: 8 }}>了解方法主干</button>
+            <button onClick={() => setTab('method')} style={{ font: '500 14px/1 var(--sans)', color: 'var(--ink)', background: 'var(--surface)', border: '1px solid var(--hairline-strong)', cursor: 'pointer', padding: '13px 22px', borderRadius: 8 }}>预测是怎么算出来的</button>
           </div>
           <div style={{ display: 'flex', gap: 'var(--s-8)', marginTop: 'var(--s-10)', flexWrap: 'wrap' }}>
-            {[['85', '正确性测试 · 无泄漏'], ['48', '官方参赛队 · 分组 A–L'], [RF_SIMS_WAN + '万', '届 Monte Carlo'], ['0.897', '国际赛 OOS log loss']].map(([n, l]) => (
+            {[['48', '官方参赛队'], ['12', '小组 A–L'], [RF_SIMS_WAN + '万', '届赛事模拟'], ['104', '场全覆盖']].map(([n, l]) => (
               <div key={l}>
                 <div style={{ font: 'var(--num-sport)', fontSize: 34, letterSpacing: '-0.01em', fontVariantNumeric: 'tabular-nums' }}>{n}</div>
                 <div style={{ font: 'var(--label)', color: 'var(--muted-2)', marginTop: 5 }}>{l}</div>
@@ -172,7 +172,7 @@ function HeroCard() {
           <div style={{ font: 'var(--eyebrow)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--muted-2)' }}>夺冠概率 · Top 8</div>
           <div style={{ font: 'var(--h3)', marginTop: 6 }}>2026 世界杯</div>
         </div>
-        <span style={{ font: 'var(--label)', color: 'var(--muted)', fontFamily: 'var(--mono)' }}>wc2026</span>
+        <span style={{ font: 'var(--label)', color: 'var(--muted)', fontFamily: 'var(--mono)' }}>6-04 更新</span>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s-5)' }}>
         {top.map((t, i) => (
@@ -192,11 +192,60 @@ function HeroCard() {
         ))}
       </div>
       <div style={{ marginTop: 'var(--s-6)', paddingTop: 'var(--s-5)', borderTop: '1px solid var(--divider)', display: 'flex', justifyContent: 'space-between', font: 'var(--label)', color: 'var(--muted-2)' }}>
-        <span>实力源 · 我们的 Elo 先验（非市场赔率）</span>
-        <span style={{ fontFamily: 'var(--mono)' }}>无东道主加成</span>
+        <span>基于每队历史实力评分</span>
+        <span style={{ fontFamily: 'var(--mono)' }}>40,000 届模拟</span>
       </div>
     </div>
   );
 }
 
-Object.assign(window, { BrandMark, Eyebrow, Section, SectionHead, CountUp, Nav, Hero });
+// ── RedHorse (红马) embedded sponsor mark — small accent letter tag, not the RedFootball ball
+function RHMark({ size = 34 }) {
+  return (
+    <span style={{
+      width: size, height: size, borderRadius: Math.round(size * 0.24), background: 'var(--accent)', color: '#fff',
+      display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+      font: `700 ${Math.round(size * 0.5)}px/1 var(--sans)`,
+    }}>赤</span>
+  );
+}
+
+// ── Full-width embedded sponsor banner → jumps to redhorsehk.ai (no popup)
+function RedHorseBanner() {
+  return (
+    <Section className="reveal" data-reveal style={{ paddingTop: 'var(--s-5)', paddingBottom: 'var(--s-5)' }}>
+      <a href="https://redhorsehk.ai/" target="_blank" rel="noopener noreferrer" className="rh-ad rh-banner" style={{
+        display: 'flex', alignItems: 'center', gap: 'var(--s-6)', textDecoration: 'none',
+        background: 'var(--accent-50)', border: '1px solid var(--accent-soft)', borderRadius: 'var(--r-14)',
+        padding: '18px 22px', transition: 'border-color var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease)',
+      }}>
+        <RHMark size={36} />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ font: 'var(--label)', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--muted-2)' }}>赞助 · 赤兔AI · RedHorse</div>
+          <div style={{ font: '600 17px/1.35 var(--sans)', color: 'var(--ink)', marginTop: 5 }}>香港赛马 AI 预测 · HKJC 实时赔率 · EV 量化</div>
+        </div>
+        <span className="rh-cta" style={{ flexShrink: 0, font: '600 14px/1 var(--sans)', color: '#fff', background: 'var(--accent)', padding: '12px 20px', borderRadius: 8, whiteSpace: 'nowrap' }}>前往 redhorsehk.ai →</span>
+      </a>
+    </Section>
+  );
+}
+
+// ── Compact embedded sponsor card (sidebar / footer) → jumps to redhorsehk.ai
+function RedHorseCard() {
+  return (
+    <a href="https://redhorsehk.ai/" target="_blank" rel="noopener noreferrer" className="rh-ad" style={{
+      display: 'block', textDecoration: 'none', background: 'var(--accent-50)', border: '1px solid var(--accent-soft)',
+      borderRadius: 'var(--r-10)', padding: 'var(--s-6)', transition: 'border-color var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease)',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+        <RHMark size={22} />
+        <span style={{ font: 'var(--label)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--muted-2)' }}>赞助 · 赤兔AI · RedHorse</span>
+      </div>
+      <div style={{ font: '600 15px/1.4 var(--sans)', color: 'var(--ink)' }}>想看香港赛马的 AI 预测？</div>
+      <p style={{ font: 'var(--small)', color: 'var(--muted-2)', lineHeight: 1.6, margin: '8px 0 14px' }}>赤兔AI（redhorsehk.ai）提供 HKJC 沙田・跑马地实时赔率、AI 预测与 EV 量化。</p>
+      <span className="rh-cta" style={{ display: 'inline-block', font: '600 13px/1 var(--sans)', color: '#fff', background: 'var(--accent)', padding: '10px 16px', borderRadius: 7 }}>前往 redhorsehk.ai →</span>
+    </a>
+  );
+}
+
+Object.assign(window, { BrandMark, Eyebrow, Section, SectionHead, CountUp, Nav, Hero, RHMark, RedHorseBanner, RedHorseCard });

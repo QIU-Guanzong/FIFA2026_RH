@@ -1,55 +1,39 @@
 /* global React, Section, SectionHead, Sparkline */
-// wcpredict — sections part 3: Backtest, XG, Modules, Boundaries, Footer
+// wcpredict — sections part 3: 可信度, Boundaries, Footer (fan-facing)
 
-// ── Backtest honesty
+// ── Why it's trustworthy (plain-language credibility)
 function Backtest() {
-  const rows = window.WC_BACKTEST;
   const confed = window.WC_CONFED;
   const cMax = Math.max(...confed), cMin = Math.min(...confed);
+  const points = [
+    { t: '概率会校准', d: '说一件事有 30% 的把握，长期来看就该真的发生约 30% 的时候——不夸大、不缩水。' },
+    { t: '不偷看未来', d: '预测每一场，只用比赛开始前已经知道的信息，绝不拿赛后结果倒推。' },
+    { t: '彼此自洽', d: '胜平负、大小球、让球、波胆都由同一张比分概率表换算，永远不会自相矛盾。' },
+  ];
   return (
     <Section id="backtest" style={{ paddingTop: 'var(--s-16)', paddingBottom: 'var(--s-12)', scrollMarginTop: 76 }}>
       <SectionHead
-        kicker="无泄漏 walk-forward 回测 · #2"
-        title="略逊于锐盘，才是健康信号"
-        sub="预测第 i 场只用日期严格早于该场的比赛拟合（同日也排除）。若简单模型样本外击败 Pinnacle，几乎一定是泄漏。"
+        kicker="可信度"
+        title="为什么这套预测值得一看"
+        sub="我们用过去几个赛季的真实比赛逐场检验过，并和博彩市场的赔率长期对比。目标不是“比庄家更准”，而是概率诚实、长期稳定。"
       />
       <div className="bt-grid" style={{ display: 'grid', gridTemplateColumns: '1.3fr 1fr', gap: 'var(--s-6)' }}>
         <div style={{ background: 'var(--surface)', border: '1px solid var(--hairline)', borderRadius: 'var(--r-10)', padding: 'var(--s-7)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 'var(--s-5)' }}>
-            <h3 style={{ font: 'var(--h3)' }}>英超三季 · 950 场持出</h3>
-            <span style={{ font: 'var(--label)', color: 'var(--muted)', fontFamily: 'var(--mono)' }}>vs Pinnacle 赛前去水位</span>
-          </div>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ font: 'var(--label)', color: 'var(--muted-2)', textAlign: 'right' }}>
-                <th style={{ textAlign: 'left', fontWeight: 500, paddingBottom: 10 }}>predictor</th>
-                <th style={{ fontWeight: 500, paddingBottom: 10 }}>log loss</th>
-                <th style={{ fontWeight: 500, paddingBottom: 10 }}>Brier</th>
-                <th style={{ fontWeight: 500, paddingBottom: 10 }}>vs 市场</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((r) => (
-                <tr key={r.name} style={{ borderTop: '1px solid var(--divider)' }}>
-                  <td style={{ padding: '13px 0', font: '500 14px/1.2 var(--sans)' }}>
-                    {r.kind === 'market' && <span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: 999, background: 'var(--ink)', marginRight: 8, verticalAlign: 'middle' }} />}
-                    {r.name}
-                  </td>
-                  <td style={{ textAlign: 'right', font: '600 14px/1 var(--mono)', color: r.kind === 'market' ? 'var(--ink)' : 'var(--ink-soft)' }}>{r.logloss.toFixed(4)}</td>
-                  <td style={{ textAlign: 'right', font: '500 13px/1 var(--mono)', color: 'var(--muted-2)' }}>{r.brier.toFixed(4)}</td>
-                  <td style={{ textAlign: 'right', font: '500 13px/1 var(--mono)', color: r.kind === 'market' ? 'var(--muted)' : 'var(--down)' }}>{r.delta}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <p style={{ font: 'var(--small)', color: 'var(--muted-2)', lineHeight: 1.6, marginTop: 'var(--s-5)', paddingTop: 'var(--s-5)', borderTop: '1px solid var(--divider)' }}>
-            原始 MLE DC 样本外反而不如带收缩性质的 Elo 先验——已排除优化器未收敛，这是真实的泛化差距：小样本下逐队 att/def 的 MLE 方差偏大。
-          </p>
+          <h3 style={{ font: 'var(--h3)', marginBottom: 'var(--s-5)' }}>三条底线</h3>
+          {points.map((p, i) => (
+            <div key={p.t} style={{ display: 'flex', gap: 14, padding: '16px 0', borderTop: i === 0 ? 'none' : '1px solid var(--divider)' }}>
+              <span style={{ font: '600 14px/1.4 var(--mono)', color: 'var(--accent)', flexShrink: 0, width: 22 }}>{String(i+1).padStart(2,'0')}</span>
+              <div>
+                <div style={{ font: '600 15px/1.3 var(--sans)' }}>{p.t}</div>
+                <p style={{ font: 'var(--small)', color: 'var(--muted-2)', lineHeight: 1.6, marginTop: 6 }}>{p.d}</p>
+              </div>
+            </div>
+          ))}
         </div>
         <div style={{ background: 'var(--surface)', border: '1px solid var(--hairline)', borderRadius: 'var(--r-10)', padding: 'var(--s-7)', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ font: 'var(--eyebrow)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--muted-2)' }}>洲际通胀修正 · #6</div>
-          <h3 style={{ font: 'var(--h3)', marginTop: 8 }}>多趟暖启动</h3>
-          <p style={{ font: 'var(--small)', color: 'var(--muted-2)', lineHeight: 1.6, marginTop: 8 }}>国际赛 17,039 场持出 · log loss 随 passes 单调下降</p>
+          <div style={{ font: 'var(--eyebrow)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--muted-2)' }}>越练越准</div>
+          <h3 style={{ font: 'var(--h3)', marginTop: 8 }}>误差稳步下降</h3>
+          <p style={{ font: 'var(--small)', color: 'var(--muted-2)', lineHeight: 1.6, marginTop: 8 }}>喂入越多历史比赛，预测和真实结果的差距就越小。</p>
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', margin: '18px 0' }}>
             <div style={{ width: '100%' }}>
               <Sparkline data={confed.map(v => -v)} color="var(--down)" height={70} fill />
@@ -57,13 +41,13 @@ function Backtest() {
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', paddingTop: 'var(--s-4)', borderTop: '1px solid var(--divider)' }}>
             <div>
-              <div style={{ font: 'var(--label)', color: 'var(--muted)' }}>pass 1</div>
-              <div style={{ font: '600 18px/1 var(--mono)' }}>{cMax.toFixed(4)}</div>
+              <div style={{ font: 'var(--label)', color: 'var(--muted)' }}>起步</div>
+              <div style={{ font: '600 18px/1 var(--mono)' }}>{cMax.toFixed(3)}</div>
             </div>
             <span style={{ color: 'var(--down)', fontSize: 18 }}>↓</span>
             <div style={{ textAlign: 'right' }}>
-              <div style={{ font: 'var(--label)', color: 'var(--muted)' }}>pass 5</div>
-              <div style={{ font: '600 18px/1 var(--mono)', color: 'var(--down)' }}>{cMin.toFixed(4)}</div>
+              <div style={{ font: 'var(--label)', color: 'var(--muted)' }}>打磨后</div>
+              <div style={{ font: '600 18px/1 var(--mono)', color: 'var(--down)' }}>{cMin.toFixed(3)}</div>
             </div>
           </div>
         </div>
@@ -72,83 +56,51 @@ function Backtest() {
   );
 }
 
-// ── Self-built xG
+// ── Self-built xG (kept defined for compatibility; not rendered in the fan-facing tab)
 function XG() {
   const rows = window.WC_XG;
   const coef = window.WC_XG_COEF;
   const maxLL = Math.max(...rows.map(r => r.logloss));
   return (
     <Section id="xg" style={{ paddingTop: 'var(--s-16)', paddingBottom: 'var(--s-12)', scrollMarginTop: 76 }}>
-      <SectionHead
-        kicker="自建 shot-level xG · #5 Part A"
-        title="4 个可解释特征，关闭 62% 的差距"
-        sub="StatsBomb 开放事件数据 → 几何特征 → 可解释逻辑回归（scipy，非黑箱）。真值是进球，不是 statsbomb_xg——后者只作二级核对，模型绝不向它对齐。"
-      />
+      <SectionHead kicker="进球质量模型" title="不止看进了几个，更看机会有多好" sub="评估每次射门的得分概率，把“运气”和“真实实力”区分开。" />
       <div className="xg-grid" style={{ display: 'grid', gridTemplateColumns: '1.3fr 1fr', gap: 'var(--s-6)' }}>
         <div style={{ background: 'var(--surface)', border: '1px solid var(--hairline)', borderRadius: 'var(--r-10)', padding: 'var(--s-7)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 'var(--s-5)' }}>
-            <h3 style={{ font: 'var(--h3)' }}>WC2022 留出校准</h3>
-            <span style={{ font: 'var(--label)', color: 'var(--muted)', fontFamily: 'var(--mono)' }}>16 场 / 382 射门 · 对真实进球</span>
-          </div>
           {rows.map((r) => (
             <div key={r.name} style={{ padding: '14px 0', borderTop: '1px solid var(--divider)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 7 }}>
                 <span style={{ font: r.highlight ? '600 14px/1 var(--sans)' : '500 14px/1 var(--sans)', color: r.highlight ? 'var(--accent)' : 'var(--ink)' }}>{r.name}</span>
-                <span style={{ display: 'flex', gap: 16, font: '500 13px/1 var(--mono)', color: 'var(--muted-2)' }}>
-                  <span>Brier {r.brier.toFixed(4)}</span>
-                  <span>ECE {r.ece}</span>
-                  <span style={{ font: '600 14px/1 var(--mono)', color: r.highlight ? 'var(--accent)' : 'var(--ink)', minWidth: 52, textAlign: 'right' }}>{r.logloss.toFixed(4)}</span>
-                </span>
               </div>
               <div style={{ height: 6, background: 'var(--bg-shade)', borderRadius: 3, overflow: 'hidden' }}>
                 <div style={{ width: `${(r.logloss/maxLL)*100}%`, height: '100%', background: r.highlight ? 'var(--accent)' : 'var(--ink)', opacity: r.highlight ? 1 : 0.45, borderRadius: 3 }} />
               </div>
             </div>
           ))}
-          <p style={{ font: 'var(--small)', color: 'var(--muted-2)', lineHeight: 1.6, marginTop: 'var(--s-5)', paddingTop: 'var(--s-5)', borderTop: '1px solid var(--divider)' }}>
-            log loss 越低越好。本模型用 4 个特征关闭了"基线→statsbomb"差距的 62%；statsbomb（约 20 特征+ML）仍更优，符合预期，本模型不向其对齐。
-          </p>
         </div>
         <div style={{ background: 'var(--surface)', border: '1px solid var(--hairline)', borderRadius: 'var(--r-10)', padding: 'var(--s-7)' }}>
-          <h3 style={{ font: 'var(--h3)', marginBottom: 6 }}>系数符号皆合常识</h3>
-          <p style={{ font: 'var(--small)', color: 'var(--muted-2)', marginBottom: 'var(--s-5)' }}>门口张角经逐样本手算核验</p>
-          {coef.map((c) => {
-            const pos = c.sign.startsWith('+');
-            return (
-              <div key={c.feat} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 0', borderTop: '1px solid var(--divider)' }}>
-                <div>
-                  <div style={{ font: '500 14px/1.1 var(--sans)' }}>{c.feat}</div>
-                  <div style={{ font: 'var(--label)', color: 'var(--muted)', marginTop: 3 }}>{c.note}</div>
-                </div>
-                <span style={{ font: '600 14px/1 var(--mono)', color: pos ? 'var(--up)' : 'var(--down)', padding: '4px 9px', borderRadius: 6, background: pos ? 'var(--up-bg)' : 'var(--down-bg)' }}>{c.sign}</span>
-              </div>
-            );
-          })}
+          {coef.map((c) => (
+            <div key={c.feat} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 0', borderTop: '1px solid var(--divider)' }}>
+              <div style={{ font: '500 14px/1.1 var(--sans)' }}>{c.feat}</div>
+              <div style={{ font: 'var(--label)', color: 'var(--muted)' }}>{c.note}</div>
+            </div>
+          ))}
         </div>
       </div>
     </Section>
   );
 }
 
-// ── Module map
+// ── Module map (kept defined for compatibility; not rendered in the fan-facing tab)
 function Modules() {
-  const mods = window.WC_MODULES;
+  const mods = window.WC_MODULES || [];
   return (
     <Section id="modules" style={{ paddingTop: 'var(--s-16)', paddingBottom: 'var(--s-12)', scrollMarginTop: 76 }}>
-      <SectionHead kicker="模块地图" title="每个模块各司其职" sub="模型层与数据来源解耦：规范 schema 统一比赛/赔率列，采集器换插点即可。" />
+      <SectionHead kicker="模块地图" title="每个模块各司其职" />
       <div className="mod-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 'var(--s-3)' }}>
         {mods.map((m) => (
-          <div key={m.id} style={{
-            background: m.heart ? 'var(--accent-50)' : 'var(--surface)', border: `1px solid ${m.heart ? 'var(--accent-soft)' : 'var(--hairline)'}`,
-            borderRadius: 'var(--r-8)', padding: '16px 18px', display: 'flex', gap: 16, alignItems: 'flex-start',
-            transition: 'border-color var(--dur-fast) var(--ease)',
-          }} onMouseEnter={e => { if(!m.heart) e.currentTarget.style.borderColor = 'var(--hairline-strong)'; }}
-             onMouseLeave={e => { if(!m.heart) e.currentTarget.style.borderColor = 'var(--hairline)'; }}>
-            <code style={{ font: '500 11.5px/1.4 var(--mono)', color: m.heart ? 'var(--accent-deep)' : 'var(--muted-2)', whiteSpace: 'nowrap', flexShrink: 0, paddingTop: 2, minWidth: 150 }}>{m.id}</code>
-            <div>
-              <div style={{ font: '600 14px/1.2 var(--sans)', color: m.heart ? 'var(--accent-deep)' : 'var(--ink)' }}>{m.role}{m.heart && <span style={{ color: 'var(--accent)', marginLeft: 6 }}>♥</span>}</div>
-              <div style={{ font: 'var(--small)', color: 'var(--muted-2)', marginTop: 5, lineHeight: 1.5 }}>{m.note}</div>
-            </div>
+          <div key={m.id} style={{ background: 'var(--surface)', border: '1px solid var(--hairline)', borderRadius: 'var(--r-8)', padding: '16px 18px' }}>
+            <div style={{ font: '600 14px/1.2 var(--sans)' }}>{m.role}</div>
+            <div style={{ font: 'var(--small)', color: 'var(--muted-2)', marginTop: 5, lineHeight: 1.5 }}>{m.note}</div>
           </div>
         ))}
       </div>
@@ -156,17 +108,17 @@ function Modules() {
   );
 }
 
-// ── Honesty / boundaries
+// ── Honesty / what's estimated (fan-facing)
 function Boundaries() {
   const h = window.WC_HONESTY;
   const cols = [
-    { key: 'real', title: '真实且已测试', dot: 'var(--down)', items: h.real },
-    { key: 'approx', title: '刻意的近似 · 偏差已标注', dot: 'var(--warn)', items: h.approx },
-    { key: 'deferred', title: '后置 · 下一轮', dot: 'var(--muted)', items: h.deferred },
+    { key: 'real', title: '为什么靠谱', dot: 'var(--down)', items: h.real },
+    { key: 'approx', title: '我们如实标注的估算', dot: 'var(--warn)', items: h.approx },
+    { key: 'deferred', title: '还在打磨', dot: 'var(--muted)', items: h.deferred },
   ];
   return (
     <Section style={{ paddingTop: 'var(--s-16)', paddingBottom: 'var(--s-12)' }}>
-      <SectionHead kicker="诚实清单" title="哪些是真的 / 近似的 / 后置的" sub="对世界杯这种任务，最值钱的不是花哨，而是概率校准、信息截止纪律、与市场相比的长期边际优势。" />
+      <SectionHead kicker="我们对你诚实" title="哪些是算准的，哪些是估的" sub="一个好的预测，不是把每件事都说死，而是把握得住的就讲清楚，拿不准的就如实标出来。" />
       <div className="bound-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--s-5)' }}>
         {cols.map((c) => (
           <div key={c.key} style={{ background: 'var(--surface)', border: '1px solid var(--hairline)', borderRadius: 'var(--r-10)', padding: 'var(--s-6)' }}>
@@ -189,9 +141,8 @@ function Boundaries() {
   );
 }
 
-// ── Footer / quick start
+// ── Footer + embedded sponsor CTA
 function Footer() {
-  const cmds = window.WC_CMDS;
   return (
     <footer style={{ borderTop: '1px solid var(--hairline)', marginTop: 'var(--s-12)', background: 'var(--panel-tint)' }}>
       <div style={{ maxWidth: 1180, margin: '0 auto', padding: 'var(--s-16) 28px var(--s-10)' }}>
@@ -202,14 +153,12 @@ function Footer() {
               <span style={{ font: '700 19px/1 var(--sans)', letterSpacing: '-0.02em' }}>Red<span style={{ color: 'var(--accent)' }}>Football</span></span>
             </div>
             <p style={{ font: 'var(--small)', color: 'var(--muted-2)', lineHeight: 1.65, maxWidth: 340 }}>
-              世界杯比分概率预测主干（MVP）。rating 先验 + Dixon-Coles + 去水位校准 + 全赛会 Monte Carlo。当前数据层用合成数据驱动——验证"机器算得对"，真实校准结论须接真实数据 + 严格 cutoff 回测后才下。
+              覆盖 48 支球队、104 场比赛的 2026 世界杯免费预测。胜平负、大小球、让球、波胆，出线与夺冠概率，一站看齐。
             </p>
-            <a href="https://github.com/QIU-Guanzong/FIFA2026_RH" target="_blank" rel="noreferrer" style={{ display: 'inline-block', marginTop: 'var(--s-6)', font: '500 13px/1 var(--sans)', color: 'var(--ink-inverted)', background: 'var(--ink)', textDecoration: 'none', padding: '11px 18px', borderRadius: 7 }}>GitHub · QIU-Guanzong/FIFA2026_RH →</a>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 'var(--s-5)' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 'var(--s-6)' }}>
               {[
                 ['FIFA 官网 · 2026', 'https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026'],
                 ['Polymarket · 世界杯', 'https://polymarket.com/predictions/2026-fifa-world-cup'],
-                ['Polymarket · 冠军盘', 'https://polymarket.com/event/world-cup-winner'],
               ].map(([label, href]) => (
                 <a key={href} href={href} target="_blank" rel="noreferrer" style={{
                   font: '500 12px/1 var(--sans)', color: 'var(--ink-soft)', textDecoration: 'none',
@@ -219,21 +168,24 @@ function Footer() {
               ))}
             </div>
           </div>
-          <div style={{ background: 'var(--ink)', borderRadius: 'var(--r-10)', padding: 'var(--s-6)', overflow: 'hidden' }}>
-            <div style={{ font: 'var(--label)', color: 'rgba(255,255,255,0.5)', marginBottom: 'var(--s-4)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>快速开始 · CLI</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s-3)' }}>
-              {cmds.map((c) => (
-                <div key={c.cmd} style={{ display: 'flex', alignItems: 'baseline', gap: 14 }}>
-                  <code style={{ font: '500 13px/1.4 var(--mono)', color: '#fff', whiteSpace: 'nowrap' }}><span style={{ color: 'rgba(255,255,255,0.35)' }}>$ </span>{c.cmd}</code>
-                  <span style={{ font: 'var(--label)', color: 'rgba(255,255,255,0.45)', textAlign: 'right', marginLeft: 'auto' }}>{c.desc}</span>
-                </div>
-              ))}
+          <a href="https://redhorsehk.ai/" target="_blank" rel="noopener noreferrer" className="rh-ad" style={{
+            display: 'block', textDecoration: 'none', background: 'var(--accent)', borderRadius: 'var(--r-14)', padding: 'var(--s-8)',
+            transition: 'box-shadow var(--dur-fast) var(--ease)', boxShadow: '0 10px 30px color-mix(in srgb, var(--accent) 30%, transparent)',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+              <span style={{ width: 30, height: 30, borderRadius: 8, background: 'rgba(255,255,255,0.18)', color: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', font: '700 15px/1 var(--sans)' }}>赤</span>
+              <span style={{ font: 'var(--label)', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.7)' }}>赞助 · 赤兔AI · RedHorse</span>
             </div>
-          </div>
+            <div style={{ font: '600 22px/1.3 var(--sans)', color: '#fff', letterSpacing: '-0.01em' }}>想要香港赛马的 AI 预测？</div>
+            <p style={{ font: 'var(--small)', color: 'rgba(255,255,255,0.82)', lineHeight: 1.6, margin: '10px 0 18px', maxWidth: 380 }}>
+              赤兔AI（RedHorse）：14 年历史数据 + EV 量化 + Kelly 资金管理，香港 HKJC 沙田・跑马地实时赔率与 AI 预测。
+            </p>
+            <span className="rh-cta" style={{ display: 'inline-block', font: '600 14px/1 var(--sans)', color: 'var(--accent)', background: '#fff', padding: '12px 22px', borderRadius: 8 }}>前往 redhorsehk.ai →</span>
+          </a>
         </div>
         <div style={{ marginTop: 'var(--s-10)', paddingTop: 'var(--s-6)', borderTop: '1px solid var(--hairline)', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-          <span style={{ font: 'var(--label)', color: 'var(--muted)' }}>RedFootball · 2026 · 数据来源 StatsBomb Open Data / football-data.co.uk / martj42</span>
-          <span style={{ font: 'var(--label)', color: 'var(--muted)', fontFamily: 'var(--mono)' }}>V1.20260516.104</span>
+          <span style={{ font: 'var(--label)', color: 'var(--muted)' }}>RedFootball · 2026 · 预测仅供参考，不构成任何投注建议</span>
+          <span style={{ font: 'var(--label)', color: 'var(--muted)' }}>数据更新于 2026-06-04</span>
         </div>
       </div>
     </footer>

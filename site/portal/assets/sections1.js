@@ -158,7 +158,7 @@ function SectionHead({
 }
 
 // ── Top navigation + tabs
-const WC_TABS = [['overview', '总览'], ['schedule', '赛程'], ['match', '单场预测'], ['tree', '晋级树'], ['bets', '下注建议'], ['method', '方法 & 回测']];
+const WC_TABS = [['overview', '总览'], ['schedule', '赛程'], ['match', '单场预测'], ['tree', '晋级树'], ['bets', '下注建议'], ['method', '预测方法']];
 function Nav({
   tab,
   setTab
@@ -255,19 +255,19 @@ function Nav({
       fontSize: 14
     }
   }, dark ? '☼' : '☾'), /*#__PURE__*/React.createElement("a", {
-    href: "https://github.com/QIU-Guanzong/FIFA2026_RH",
+    href: "https://redhorsehk.ai/",
     target: "_blank",
-    rel: "noreferrer",
+    rel: "noopener noreferrer",
     style: {
-      font: '500 13px/1 var(--sans)',
-      color: 'var(--ink-inverted)',
-      background: 'var(--ink)',
+      font: '600 13px/1 var(--sans)',
+      color: '#fff',
+      background: 'var(--accent)',
       textDecoration: 'none',
       padding: '9px 15px',
       borderRadius: 7,
       whiteSpace: 'nowrap'
     }
-  }, "\u67E5\u770B\u6E90\u7801 \u2192"))));
+  }, "\u8D64\u5154AI redhorsehk.ai \u2192"))));
 }
 
 // ── Hero
@@ -332,7 +332,7 @@ function Hero({
       fontWeight: 600,
       color: 'var(--accent-deep)'
     }
-  }, "RedFootball \xB7 2026 \u4E16\u754C\u676F\u9884\u6D4B\u5F15\u64CE")), /*#__PURE__*/React.createElement("h1", {
+  }, "RedFootball \xB7 2026 \u4E16\u754C\u676F\u514D\u8D39\u9884\u6D4B")), /*#__PURE__*/React.createElement("h1", {
     style: {
       font: '600 52px/1.05 var(--sans)',
       letterSpacing: '-0.03em',
@@ -342,7 +342,7 @@ function Hero({
     style: {
       color: 'var(--accent)'
     }
-  }, "\u6BD4\u5206\u5206\u5E03"), "\uFF0C", /*#__PURE__*/React.createElement("br", null), "\u518D\u6D3E\u751F\u4E00\u5207\u6982\u7387\u3002"), /*#__PURE__*/React.createElement("p", {
+  }, "\u6BCF\u573A\u6BD4\u5206"), "\uFF0C", /*#__PURE__*/React.createElement("br", null), "\u518D\u770B\u6E05\u6574\u5C4A\u4E16\u754C\u676F\u3002"), /*#__PURE__*/React.createElement("p", {
     style: {
       color: 'var(--ink-soft)',
       fontSize: 'var(--fs-16)',
@@ -350,7 +350,7 @@ function Hero({
       marginTop: 'var(--s-6)',
       maxWidth: 540
     }
-  }, "\u53EF\u89E3\u91CA\u3001\u53EF\u56DE\u6D4B\u3001\u53EF\u672C\u5730\u90E8\u7F72\u7684 2026 \u4E16\u754C\u676F\u9884\u6D4B\u7CFB\u7EDF\u3002\u4ECE\u56FD\u9645\u8D5B Elo \u5148\u9A8C\u5230 Dixon-Coles \u6BD4\u5206\u77E9\u9635\uFF0C \u7531\u540C\u4E00\u77E9\u9635\u7EDF\u4E00\u6D3E\u751F 1X2 / \u5927\u5C0F\u7403 / \u8BA9\u7403 / \u6CE2\u80C6\uFF0C\u518D\u7ECF ", RF_SIMS_WAN, " \u4E07\u5C4A Monte Carlo \u5F97\u51FA\u664B\u7EA7\u7387\u4E0E\u593A\u51A0\u7387\u3002"), /*#__PURE__*/React.createElement("div", {
+  }, "\u8986\u76D6 48 \u652F\u7403\u961F\u3001104 \u573A\u6BD4\u8D5B\u7684 2026 \u4E16\u754C\u676F\u9884\u6D4B\u3002\u4ECE\u6BCF\u961F\u7684\u5386\u53F2\u5B9E\u529B\u5230\u6BCF\u573A\u7684\u6BD4\u5206\u6982\u7387\uFF0C \u7EDF\u4E00\u7ED9\u51FA\u80DC\u5E73\u8D1F\u3001\u5927\u5C0F\u7403\u3001\u8BA9\u7403\u4E0E\u6CE2\u80C6\uFF0C\u518D\u7ECF ", RF_SIMS_WAN, " \u4E07\u5C4A\u8D5B\u4E8B\u6A21\u62DF\u7B97\u51FA\u6BCF\u961F\u7684\u51FA\u7EBF\u7387\u4E0E\u593A\u51A0\u7387\u3002"), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       gap: 12,
@@ -380,14 +380,14 @@ function Hero({
       padding: '13px 22px',
       borderRadius: 8
     }
-  }, "\u4E86\u89E3\u65B9\u6CD5\u4E3B\u5E72")), /*#__PURE__*/React.createElement("div", {
+  }, "\u9884\u6D4B\u662F\u600E\u4E48\u7B97\u51FA\u6765\u7684")), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       gap: 'var(--s-8)',
       marginTop: 'var(--s-10)',
       flexWrap: 'wrap'
     }
-  }, [['85', '正确性测试 · 无泄漏'], ['48', '官方参赛队 · 分组 A–L'], [RF_SIMS_WAN + '万', '届 Monte Carlo'], ['0.897', '国际赛 OOS log loss']].map(([n, l]) => /*#__PURE__*/React.createElement("div", {
+  }, [['48', '官方参赛队'], ['12', '小组 A–L'], [RF_SIMS_WAN + '万', '届赛事模拟'], ['104', '场全覆盖']].map(([n, l]) => /*#__PURE__*/React.createElement("div", {
     key: l
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -442,7 +442,7 @@ function HeroCard() {
       color: 'var(--muted)',
       fontFamily: 'var(--mono)'
     }
-  }, "wc2026")), /*#__PURE__*/React.createElement("div", {
+  }, "6-04 \u66F4\u65B0")), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       flexDirection: 'column',
@@ -512,11 +512,147 @@ function HeroCard() {
       font: 'var(--label)',
       color: 'var(--muted-2)'
     }
-  }, /*#__PURE__*/React.createElement("span", null, "\u5B9E\u529B\u6E90 \xB7 \u6211\u4EEC\u7684 Elo \u5148\u9A8C\uFF08\u975E\u5E02\u573A\u8D54\u7387\uFF09"), /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement("span", null, "\u57FA\u4E8E\u6BCF\u961F\u5386\u53F2\u5B9E\u529B\u8BC4\u5206"), /*#__PURE__*/React.createElement("span", {
     style: {
       fontFamily: 'var(--mono)'
     }
-  }, "\u65E0\u4E1C\u9053\u4E3B\u52A0\u6210")));
+  }, "40,000 \u5C4A\u6A21\u62DF")));
+}
+
+// ── RedHorse (红马) embedded sponsor mark — small accent letter tag, not the RedFootball ball
+function RHMark({
+  size = 34
+}) {
+  return /*#__PURE__*/React.createElement("span", {
+    style: {
+      width: size,
+      height: size,
+      borderRadius: Math.round(size * 0.24),
+      background: 'var(--accent)',
+      color: '#fff',
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexShrink: 0,
+      font: `700 ${Math.round(size * 0.5)}px/1 var(--sans)`
+    }
+  }, "\u8D64");
+}
+
+// ── Full-width embedded sponsor banner → jumps to redhorsehk.ai (no popup)
+function RedHorseBanner() {
+  return /*#__PURE__*/React.createElement(Section, {
+    className: "reveal",
+    "data-reveal": true,
+    style: {
+      paddingTop: 'var(--s-5)',
+      paddingBottom: 'var(--s-5)'
+    }
+  }, /*#__PURE__*/React.createElement("a", {
+    href: "https://redhorsehk.ai/",
+    target: "_blank",
+    rel: "noopener noreferrer",
+    className: "rh-ad rh-banner",
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 'var(--s-6)',
+      textDecoration: 'none',
+      background: 'var(--accent-50)',
+      border: '1px solid var(--accent-soft)',
+      borderRadius: 'var(--r-14)',
+      padding: '18px 22px',
+      transition: 'border-color var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease)'
+    }
+  }, /*#__PURE__*/React.createElement(RHMark, {
+    size: 36
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1,
+      minWidth: 0
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      font: 'var(--label)',
+      textTransform: 'uppercase',
+      letterSpacing: '0.12em',
+      color: 'var(--muted-2)'
+    }
+  }, "\u8D5E\u52A9 \xB7 \u8D64\u5154AI \xB7 RedHorse"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      font: '600 17px/1.35 var(--sans)',
+      color: 'var(--ink)',
+      marginTop: 5
+    }
+  }, "\u9999\u6E2F\u8D5B\u9A6C AI \u9884\u6D4B \xB7 HKJC \u5B9E\u65F6\u8D54\u7387 \xB7 EV \u91CF\u5316")), /*#__PURE__*/React.createElement("span", {
+    className: "rh-cta",
+    style: {
+      flexShrink: 0,
+      font: '600 14px/1 var(--sans)',
+      color: '#fff',
+      background: 'var(--accent)',
+      padding: '12px 20px',
+      borderRadius: 8,
+      whiteSpace: 'nowrap'
+    }
+  }, "\u524D\u5F80 redhorsehk.ai \u2192")));
+}
+
+// ── Compact embedded sponsor card (sidebar / footer) → jumps to redhorsehk.ai
+function RedHorseCard() {
+  return /*#__PURE__*/React.createElement("a", {
+    href: "https://redhorsehk.ai/",
+    target: "_blank",
+    rel: "noopener noreferrer",
+    className: "rh-ad",
+    style: {
+      display: 'block',
+      textDecoration: 'none',
+      background: 'var(--accent-50)',
+      border: '1px solid var(--accent-soft)',
+      borderRadius: 'var(--r-10)',
+      padding: 'var(--s-6)',
+      transition: 'border-color var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease)'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 8,
+      marginBottom: 10
+    }
+  }, /*#__PURE__*/React.createElement(RHMark, {
+    size: 22
+  }), /*#__PURE__*/React.createElement("span", {
+    style: {
+      font: 'var(--label)',
+      textTransform: 'uppercase',
+      letterSpacing: '0.1em',
+      color: 'var(--muted-2)'
+    }
+  }, "\u8D5E\u52A9 \xB7 \u8D64\u5154AI \xB7 RedHorse")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      font: '600 15px/1.4 var(--sans)',
+      color: 'var(--ink)'
+    }
+  }, "\u60F3\u770B\u9999\u6E2F\u8D5B\u9A6C\u7684 AI \u9884\u6D4B\uFF1F"), /*#__PURE__*/React.createElement("p", {
+    style: {
+      font: 'var(--small)',
+      color: 'var(--muted-2)',
+      lineHeight: 1.6,
+      margin: '8px 0 14px'
+    }
+  }, "\u8D64\u5154AI\uFF08redhorsehk.ai\uFF09\u63D0\u4F9B HKJC \u6C99\u7530\u30FB\u8DD1\u9A6C\u5730\u5B9E\u65F6\u8D54\u7387\u3001AI \u9884\u6D4B\u4E0E EV \u91CF\u5316\u3002"), /*#__PURE__*/React.createElement("span", {
+    className: "rh-cta",
+    style: {
+      display: 'inline-block',
+      font: '600 13px/1 var(--sans)',
+      color: '#fff',
+      background: 'var(--accent)',
+      padding: '10px 16px',
+      borderRadius: 7
+    }
+  }, "\u524D\u5F80 redhorsehk.ai \u2192"));
 }
 Object.assign(window, {
   BrandMark,
@@ -525,6 +661,9 @@ Object.assign(window, {
   SectionHead,
   CountUp,
   Nav,
-  Hero
+  Hero,
+  RHMark,
+  RedHorseBanner,
+  RedHorseCard
 });
 })();
