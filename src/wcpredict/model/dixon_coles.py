@@ -155,6 +155,7 @@ class DixonColesModel:
     def __init__(self, params: DixonColesParams | None = None, max_goals: int = MAX_GOALS):
         self.params = params
         self.max_goals = max_goals
+        self.fit_result_: object | None = None
 
     # ---- 预测 ----
     def predict_matrix(self, home: str, away: str, neutral: bool = True) -> np.ndarray:
@@ -243,14 +244,16 @@ class DixonColesModel:
         ]
         bounds = [(-3, 3)] * T + [(-3, 3)] * T + [(-2, 2), (-1, 1), (-0.2, 0.2)]
 
+        optimizer_options = {"maxiter": maxiter, "ftol": 1e-7}
         res = minimize(
             neg_log_lik,
             x0,
             method="SLSQP",
             bounds=bounds,
             constraints=constraints,
-            options={"maxiter": maxiter, "ftol": 1e-7},
+            options=optimizer_options,
         )
+        self.fit_result_ = res
         if not res.success:
             raise RuntimeError(
                 "Dixon-Coles 优化失败: "
@@ -266,7 +269,6 @@ class DixonColesModel:
             home_adv=float(home_adv),
             rho=float(rho),
         )
-        self.fit_result_ = res
         return self
 
 

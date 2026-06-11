@@ -16,6 +16,8 @@ import numpy as np
 import pandas as pd
 
 CONFEDERATIONS = ("UEFA", "CONMEBOL", "CONCACAF", "CAF", "AFC", "OFC")
+GRAM_COND_THRESHOLD = 1e8
+KAPPA_FLOOR = 1e-8
 
 # 洲际赛事名 → 洲（资格赛 / 洲锦 / 次区域；刻意排除友谊与客串，后者会污染归属）
 _CONF_PATTERNS = [
@@ -97,14 +99,18 @@ def estimate_confederation_offsets(
     gram = X.T @ X + ridge * np.eye(len(confs))
     rhs = X.T @ y
     cond = np.linalg.cond(gram)
-    if np.isfinite(cond) and cond < 1e8:
-        beta = np.linalg.solve(gram, rhs)
-    else:
+    use_lstsq = not np.isfinite(cond) or cond >= GRAM_COND_THRESHOLD
+    if use_lstsq:
         beta = np.linalg.lstsq(gram, rhs, rcond=None)[0]
+    else:
+        try:
+            beta = np.linalg.solve(gram, rhs)
+        except np.linalg.LinAlgError:
+            beta = np.linalg.lstsq(gram, rhs, rcond=None)[0]
     gamma = beta - beta.mean()                                   # sum-to-zero（仅相对可辨识）
     kappa = max(
         np.log(10) / scale * float(np.mean(ps * (1.0 - ps))),
-        1e-8,
+        KAPPA_FLOOR,
     )                                                            # 分数残差 → 评分点
     return {confs[i]: float(gamma[i] / kappa) for i in range(len(confs))}
 

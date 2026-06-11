@@ -549,7 +549,7 @@ function Bracket() {
   }), /*#__PURE__*/React.createElement(SectionHead, {
     kicker: "\u664B\u7EA7\u6811 \xB7 \u6A21\u578B\u8DEF\u5F84 + \u5E02\u573A\u5BF9\u6BD4",
     title: "\u4ECE 16 \u5F3A\u5230\u51A0\u519B\u7684\u6A21\u578B\u8DEF\u5F84",
-    sub: "\u6BCF\u652F\u7403\u961F\u6807\u6CE8\u6A21\u578B\u593A\u51A0\u6982\u7387\u4E0E Polymarket \u5B9E\u65F6\u9690\u542B\u8D54\u7387\uFF08\xA2 = \u7F8E\u5206\u9690\u542B\u6982\u7387\uFF09\u3002\u9AD8\u6A21\u578B\u6982\u7387\u8005\u664B\u7EA7\uFF0C\u7EA2\u8272\u8DEF\u5F84\u5373\u6A21\u578B\u9884\u6D4B\u7684\u593A\u51A0\u8DEF\u7EBF\u3002\u70B9\u51FB\u4EFB\u4E00\u5BF9\u9635\u67E5\u770B\u6BD4\u5206\u77E9\u9635\u4E0E\u664B\u7EA7\u6982\u7387\u3002"
+    sub: "\u6BCF\u652F\u7403\u968A\u6A19\u6CE8\u6A21\u578B\u596A\u51A0\u6982\u7387\u8207 Polymarket \u5E02\u5834\u96B1\u542B\u6982\u7387\uFF08\xA2 = \u7F8E\u5206\u96B1\u542B\u6982\u7387\uFF09\uFF0C\u7528\u4F86\u7814\u7A76\u5206\u6B67\uFF0C\u4E0D\u69CB\u6210\u6295\u6CE8\u5EFA\u8B70\u3002\u9AD8\u6A21\u578B\u6982\u7387\u8005\u6649\u7D1A\uFF0C\u7D05\u8272\u8DEF\u5F91\u70BA\u6A21\u578B\u63A8\u6F14\u7684\u51A0\u8ECD\u8DEF\u7DDA\u3002\u9EDE\u64CA\u4EFB\u4E00\u5C0D\u9663\u67E5\u770B\u6BD4\u5206\u77E9\u9663\u8207\u6649\u7D1A\u6982\u7387\u3002"
   }), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
@@ -679,7 +679,7 @@ function Bracket() {
     style: {
       font: 'var(--h3)'
     }
-  }, "\u6A21\u578B vs Polymarket \xB7 \u593A\u51A0\u6982\u7387"), /*#__PURE__*/React.createElement("div", {
+  }, "\u6A21\u578B vs Polymarket \xB7 \u5E02\u5834\u5206\u6B67\u7814\u7A76"), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       alignItems: 'center',
@@ -742,7 +742,7 @@ function Bracket() {
       fontFamily: 'var(--mono)',
       textDecoration: 'none'
     }
-  }, "Polymarket \u2197"))), /*#__PURE__*/React.createElement("div", {
+  }, "\u5E02\u5834\u50F9\u683C \u2197"))), /*#__PURE__*/React.createElement("div", {
     style: {
       background: 'var(--surface)',
       border: '1px solid var(--hairline)',

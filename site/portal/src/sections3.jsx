@@ -1,6 +1,10 @@
 /* global React, Section, SectionHead, Sparkline */
 // wcpredict — sections part 3: 可信度, Boundaries, Footer (fan-facing)
 
+const { useEffect: useEffect3 } = React;
+const RF_getSponsor = window.RF_getSponsor || (() => null);
+const RF_trackSponsor = window.RF_trackSponsor || (() => false);
+
 // ── Why it's trustworthy (plain-language credibility)
 function Backtest() {
   const confed = window.WC_CONFED;
@@ -143,6 +147,16 @@ function Boundaries() {
 
 // ── Footer + embedded sponsor CTA
 function Footer() {
+  const sponsor = RF_getSponsor('footer_banner') || {
+    href: 'https://redhorsehk.ai/',
+    kicker: '贊助 · RedHorse',
+    description: '香港賽馬 AI 預測 · HKJC 實時賠率 · EV 量化',
+    cta: '前往 redhorsehk.ai →',
+    id: 'redhorse',
+  };
+  useEffect3(() => {
+    if (sponsor && sponsor.id) RF_trackSponsor('impression', sponsor.id, 'footer_banner', { href: sponsor.href });
+  }, [sponsor.id, sponsor.href]);
   return (
     <footer style={{ borderTop: '1px solid var(--hairline)', marginTop: 'var(--s-12)', background: 'var(--panel-tint)' }}>
       <div style={{ maxWidth: 1180, margin: '0 auto', padding: 'var(--s-16) 28px var(--s-10)' }}>
@@ -168,19 +182,19 @@ function Footer() {
               ))}
             </div>
           </div>
-          <a href="https://redhorsehk.ai/" target="_blank" rel="noopener noreferrer" className="rh-ad" style={{
+          <a href={sponsor.href} target="_blank" rel="noopener noreferrer" className="rh-ad" style={{
             display: 'block', textDecoration: 'none', background: 'var(--accent)', borderRadius: 'var(--r-14)', padding: 'var(--s-8)',
             transition: 'box-shadow var(--dur-fast) var(--ease)', boxShadow: '0 10px 30px color-mix(in srgb, var(--accent) 30%, transparent)',
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
               <span style={{ width: 30, height: 30, borderRadius: 8, background: 'rgba(255,255,255,0.18)', color: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', font: '700 15px/1 var(--sans)' }}>赤</span>
-              <span style={{ font: 'var(--label)', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.7)' }}>赞助 · 赤兔AI · RedHorse</span>
+              <span style={{ font: 'var(--label)', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.7)' }}>{sponsor.kicker}</span>
             </div>
-            <div style={{ font: '600 22px/1.3 var(--sans)', color: '#fff', letterSpacing: '-0.01em' }}>想要香港赛马的 AI 预测？</div>
+            <div style={{ font: '600 22px/1.3 var(--sans)', color: '#fff', letterSpacing: '-0.01em' }}>{sponsor.description}</div>
             <p style={{ font: 'var(--small)', color: 'rgba(255,255,255,0.82)', lineHeight: 1.6, margin: '10px 0 18px', maxWidth: 380 }}>
-              赤兔AI（RedHorse）：14 年历史数据 + EV 量化 + Kelly 资金管理，香港 HKJC 沙田・跑马地实时赔率与 AI 预测。
+              查看分歧、赔率参考与 EV 解释。
             </p>
-            <span className="rh-cta" style={{ display: 'inline-block', font: '600 14px/1 var(--sans)', color: 'var(--accent)', background: '#fff', padding: '12px 22px', borderRadius: 8 }}>前往 redhorsehk.ai →</span>
+            <span className="rh-cta" style={{ display: 'inline-block', font: '600 14px/1 var(--sans)', color: 'var(--accent)', background: '#fff', padding: '12px 22px', borderRadius: 8 }}>{sponsor.cta}</span>
           </a>
         </div>
         <div style={{ marginTop: 'var(--s-10)', paddingTop: 'var(--s-6)', borderTop: '1px solid var(--hairline)', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>

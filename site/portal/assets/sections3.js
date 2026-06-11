@@ -2,6 +2,12 @@
 /* global React, Section, SectionHead, Sparkline */
 // wcpredict — sections part 3: 可信度, Boundaries, Footer (fan-facing)
 
+const {
+  useEffect: useEffect3
+} = React;
+const RF_getSponsor = window.RF_getSponsor || (() => null);
+const RF_trackSponsor = window.RF_trackSponsor || (() => false);
+
 // ── Why it's trustworthy (plain-language credibility)
 function Backtest() {
   const confed = window.WC_CONFED;
@@ -384,6 +390,18 @@ function Boundaries() {
 
 // ── Footer + embedded sponsor CTA
 function Footer() {
+  const sponsor = RF_getSponsor('footer_banner') || {
+    href: 'https://redhorsehk.ai/',
+    kicker: '贊助 · RedHorse',
+    description: '香港賽馬 AI 預測 · HKJC 實時賠率 · EV 量化',
+    cta: '前往 redhorsehk.ai →',
+    id: 'redhorse'
+  };
+  useEffect3(() => {
+    if (sponsor && sponsor.id) RF_trackSponsor('impression', sponsor.id, 'footer_banner', {
+      href: sponsor.href
+    });
+  }, [sponsor.id, sponsor.href]);
   return /*#__PURE__*/React.createElement("footer", {
     style: {
       borderTop: '1px solid var(--hairline)',
@@ -452,7 +470,7 @@ function Footer() {
       whiteSpace: 'nowrap'
     }
   }, label, " \u2197")))), /*#__PURE__*/React.createElement("a", {
-    href: "https://redhorsehk.ai/",
+    href: sponsor.href,
     target: "_blank",
     rel: "noopener noreferrer",
     className: "rh-ad",
@@ -491,13 +509,13 @@ function Footer() {
       letterSpacing: '0.12em',
       color: 'rgba(255,255,255,0.7)'
     }
-  }, "\u8D5E\u52A9 \xB7 \u8D64\u5154AI \xB7 RedHorse")), /*#__PURE__*/React.createElement("div", {
+  }, sponsor.kicker)), /*#__PURE__*/React.createElement("div", {
     style: {
       font: '600 22px/1.3 var(--sans)',
       color: '#fff',
       letterSpacing: '-0.01em'
     }
-  }, "\u60F3\u8981\u9999\u6E2F\u8D5B\u9A6C\u7684 AI \u9884\u6D4B\uFF1F"), /*#__PURE__*/React.createElement("p", {
+  }, sponsor.description), /*#__PURE__*/React.createElement("p", {
     style: {
       font: 'var(--small)',
       color: 'rgba(255,255,255,0.82)',
@@ -505,7 +523,7 @@ function Footer() {
       margin: '10px 0 18px',
       maxWidth: 380
     }
-  }, "\u8D64\u5154AI\uFF08RedHorse\uFF09\uFF1A14 \u5E74\u5386\u53F2\u6570\u636E + EV \u91CF\u5316 + Kelly \u8D44\u91D1\u7BA1\u7406\uFF0C\u9999\u6E2F HKJC \u6C99\u7530\u30FB\u8DD1\u9A6C\u5730\u5B9E\u65F6\u8D54\u7387\u4E0E AI \u9884\u6D4B\u3002"), /*#__PURE__*/React.createElement("span", {
+  }, "\u67E5\u770B\u5206\u6B67\u3001\u8D54\u7387\u53C2\u8003\u4E0E EV \u89E3\u91CA\u3002"), /*#__PURE__*/React.createElement("span", {
     className: "rh-cta",
     style: {
       display: 'inline-block',
@@ -515,7 +533,7 @@ function Footer() {
       padding: '12px 22px',
       borderRadius: 8
     }
-  }, "\u524D\u5F80 redhorsehk.ai \u2192"))), /*#__PURE__*/React.createElement("div", {
+  }, sponsor.cta))), /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 'var(--s-10)',
       paddingTop: 'var(--s-6)',

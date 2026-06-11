@@ -66,3 +66,27 @@ class HealthResponse(BaseModel):
     version: int
     n_teams: int
     metadata: dict
+
+
+class PortalMeta(BaseModel):
+    generated_at: str
+    model_name: str
+    version: int
+    n_teams: int
+    metadata: dict
+
+
+class PortalOddsEntry(BaseModel):
+    team: str
+    model: float
+    market: float | None = None
+    edge: float | None = None
+
+
+class PortalResponse(BaseModel):
+    meta: PortalMeta
+    rankings: RankingsResponse
+    tournament: TournamentResponse
+    featured_matches: list[MatchPrediction]
+    odds_cmp: list[PortalOddsEntry]
+    bracket: dict | None = None

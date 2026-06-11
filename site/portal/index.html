@@ -1,11 +1,24 @@
 <!DOCTYPE html>
-<html lang="zh-Hans" data-theme="light">
+<html lang="zh-Hant-HK" data-theme="light">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="robots" content="noindex" />
-<title>RedFootball · 2026 世界杯预测</title>
-<link rel="stylesheet" href="assets/tokens.css" />
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+<meta name="description" content="RedFootball 以模型概率、市場隱含概率與歷史回測為核心，提供 2026 世界盃賽程、單場預測、晉級樹與市場分歧研究。內容只供資訊與研究參考，不構成投注建議。" />
+<meta name="referrer" content="strict-origin-when-cross-origin" />
+<meta name="theme-color" content="#b8472d" />
+<link rel="canonical" href="https://gavin.astock.top/FIFA2026/portal/" />
+<meta property="og:type" content="website" />
+<meta property="og:locale" content="zh_HK" />
+<meta property="og:site_name" content="RedFootball" />
+<meta property="og:title" content="RedFootball | 2026 世界盃市場分歧研究" />
+<meta property="og:description" content="查看賽程、單場預測、晉級樹與模型對市場隱含概率的研究對照。內容只供資訊與研究參考，不構成投注建議。" />
+<meta property="og:url" content="https://gavin.astock.top/FIFA2026/portal/" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="RedFootball | 2026 世界盃市場分歧研究" />
+<meta name="twitter:description" content="查看賽程、單場預測、晉級樹與模型對市場隱含概率的研究對照。內容只供資訊與研究參考。" />
+<title>RedFootball · 2026 世界盃市場分歧研究</title>
+<link rel="stylesheet" href="assets/tokens.css?v=202606111136" />
 <style>
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
@@ -27,6 +40,9 @@
     .pipe-grid { grid-template-columns: 1fr 1fr !important; }
     .mod-grid, .bound-grid { grid-template-columns: 1fr !important; }
     .nav-links { display: none !important; }
+    .desktop-utility { display: none !important; }
+    body { padding-bottom: 78px; }
+    .mobile-tabbar { display: flex !important; }
   }
   @media (max-width: 560px) {
     .pipe-grid { grid-template-columns: 1fr !important; }
@@ -57,6 +73,8 @@
     .rh-banner { flex-direction: column !important; align-items: flex-start !important; gap: 14px !important; }
     .rh-banner .rh-cta { width: 100%; text-align: center; }
   }
+  .mobile-tabbar { display: none; scrollbar-width: none; }
+  .mobile-tabbar::-webkit-scrollbar { display: none; }
 </style>
 </head>
 <body>
@@ -66,21 +84,22 @@
 <script src="vendor/react.production.min.js"></script>
 <script src="vendor/react-dom.production.min.js"></script>
 
-<script src="assets/engine.js"></script><!-- 引擎真实数据层（scripts/export_portal_data.py 生成）·先载入 -->
-<script src="assets/data.js"></script>
-<script src="assets/dc.js"></script>
-<script src="assets/fixtures.js"></script>
-<script src="assets/Charts.js"></script>
-<script src="assets/sections1.js"></script>
-<script src="assets/sections2.js"></script>
-<script src="assets/sections3.js"></script>
-<script src="assets/sections4.js"></script>
-<script src="assets/sections5.js"></script>
-<script src="assets/bracket.js"></script>
-<script src="assets/polymarket.js"></script>
-<script src="assets/api.js"></script>
-<script src="assets/sections6.js"></script>
-<script src="assets/sections7.js"></script>
-<script src="assets/app.js"></script>
+<script src="assets/engine.js?v=202606111136"></script><!-- 引擎真实数据层（scripts/export_portal_data.py 生成）·先载入 -->
+<script src="assets/data.js?v=202606111136"></script>
+<script src="assets/dc.js?v=202606111136"></script>
+<script src="assets/fixtures.js?v=202606111136"></script>
+<script src="assets/Charts.js?v=202606111136"></script>
+<script src="assets/sponsors.js?v=202606111136"></script>
+<script src="assets/sections1.js?v=202606111136"></script>
+<script src="assets/sections2.js?v=202606111136"></script>
+<script src="assets/sections3.js?v=202606111136"></script>
+<script src="assets/sections4.js?v=202606111136"></script>
+<script src="assets/sections5.js?v=202606111136"></script>
+<script src="assets/bracket.js?v=202606111136"></script>
+<script src="assets/polymarket.js?v=202606111136"></script>
+<script src="assets/api.js?v=202606111136"></script>
+<script src="assets/sections6.js?v=202606111136"></script>
+<script src="assets/sections7.js?v=202606111136"></script>
+<script src="assets/app.js?v=202606111136"></script>
 </body>
 </html>

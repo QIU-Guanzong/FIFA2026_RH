@@ -1,7 +1,7 @@
 # RedFootball — 2026 世界杯预测交互门户
 
 `wcpredict` 引擎的可视化门户（claude.ai/design 设计稿 `fifa/wcpredict.html` 的生产实现）。
-6 个标签页：总览 · 赛程(104 场) · 单场预测 · 晋级树 · 下注建议 · 方法&回测。
+6 个标签页：总览 · 赛程(104 场) · 单场预测 · 晋级树 · 市场分歧研究 · 方法&回测。
 纯静态、无构建依赖，部署 = scp 整个目录（`bash ../deploy.sh`）。
 
 ## 数据流（单一真理源）
@@ -20,8 +20,9 @@ artifacts/models/default/latest (wc2026_official DC 参数)
   `window.X = window.X || …` 兜底（engine.js 缺席时页面退回设计稿快照，永不空白）。
 - **λ 与 Python 完全同式**：前端用 `WC_PARAMS`（attack/defence/intercept/rho 原样导出）算
   `λh = exp(intercept + att_h + def_a)`，已做跨语言一致性断言（4 组对阵 λ/1X2 逐位相等）。
-- Polymarket 赔率运行时由 `polymarket.js` 实时拉取（90s 轮询），失败回退构建期快照。
-- `api.js` 预留 FastAPI 接缝（`RF_API.enabled=true` + 填 adapt.* 即接 /tournament 等实时接口）。
+- Polymarket 价格运行时由 `polymarket.js` 实时拉取（90s 轮询），失败回退构建期快照；页面只做市场隐含概率对照，不构成投注建议。
+- `api.js` 支持 `window.RF_API_CONFIG` 接入 FastAPI `/portal` 聚合端点，失败时保留静态 fallback。
+- `sponsors.js` 负责赞助位配置、UTM 拼接和轻量曝光/点击追踪；无追踪后端时自动退回 console。
 
 ## 刷新 / 重编译 / 部署
 

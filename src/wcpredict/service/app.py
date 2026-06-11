@@ -6,9 +6,12 @@
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
+from datetime import UTC, datetime
+import os
+import time
 
 import numpy as np
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, Header, HTTPException, Request
 
 from wcpredict.markets import summarize_match
 from wcpredict.model.dixon_coles import DixonColesModel
@@ -17,6 +20,9 @@ from wcpredict.service.schemas import (
     HealthResponse,
     MatchPrediction,
     MatchRequest,
+    PortalMeta,
+    PortalOddsEntry,
+    PortalResponse,
     RankingEntry,
     RankingsResponse,
     TeamProb,
@@ -50,6 +56,7 @@ async def lifespan(app: FastAPI):
     app.state.loaded = loaded
     app.state.model = DixonColesModel(loaded.params)
     app.state.tournament_cache = {}
+    app.state.rate_limit = {}
     yield
 
 
@@ -65,19 +72,10 @@ def create_app() -> FastAPI:
     def root():
         return {
             "service": "wcpredict",
-            "endpoints": ["/health", "/rankings", "POST /predict", "/tournament", "/docs"],
+            "endpoints": ["/health", "/rankings", "POST /predict", "/tournament", "/portal", "/docs"],
         }
 
-    @app.get("/health", response_model=HealthResponse)
-    def health():
-        ld = app.state.loaded
-        return HealthResponse(
-            status="ok", model_name=ld.name, version=ld.version,
-            n_teams=len(ld.params.teams), metadata=ld.metadata,
-        )
-
-    @app.get("/rankings", response_model=RankingsResponse)
-    def rankings(top: int = 20):
+    def _rankings_response(top: int = 20) -> RankingsResponse:
         ld = app.state.loaded
         p = ld.params
         top = max(1, min(top, len(p.teams)))
@@ -91,18 +89,17 @@ def create_app() -> FastAPI:
             model_name=ld.name, version=ld.version, n_teams=len(p.teams), teams=entries
         )
 
-    @app.post("/predict", response_model=MatchPrediction)
-    def predict(req: MatchRequest):
+    def _predict_match(home: str, away: str, *, neutral: bool = True) -> MatchPrediction:
         p = app.state.model.params
-        for t in (req.home, req.away):
+        for t in (home, away):
             if t not in p.index:
                 raise HTTPException(404, f"未知球队 '{t}'，可用球队见 /rankings?top=999")
-        lam, mu = p.lambdas(req.home, req.away, neutral=req.neutral)
-        M = app.state.model.predict_matrix(req.home, req.away, neutral=req.neutral)
+        lam, mu = p.lambdas(home, away, neutral=neutral)
+        M = app.state.model.predict_matrix(home, away, neutral=neutral)
         s = summarize_match(M)
         o = s["1x2"]
         return MatchPrediction(
-            home=req.home, away=req.away, neutral=req.neutral,
+            home=home, away=away, neutral=neutral,
             lambda_home=round(lam, 4), lambda_away=round(mu, 4),
             prob_home=o["home"], prob_draw=o["draw"], prob_away=o["away"],
             over_2_5=s["over_under"][2.5]["over"], under_2_5=s["over_under"][2.5]["under"],
@@ -111,18 +108,19 @@ def create_app() -> FastAPI:
             xg_home=s["expected_goals"]["home"], xg_away=s["expected_goals"]["away"],
         )
 
-    @app.post("/reload")
-    def reload_model():
-        """热加载模型仓 latest（train 注册新版本后无需重启服务）。"""
-        loaded = _ensure_model(app.state.store)
-        app.state.loaded = loaded
-        app.state.model = DixonColesModel(loaded.params)
-        app.state.tournament_cache = {}
-        return {"status": "reloaded", "model_name": loaded.name,
-                "version": loaded.version, "n_teams": len(loaded.params.teams)}
+    def _check_tournament_rate_limit(request: Request, sims: int) -> None:
+        """Small abuse guard for public demos; normal cached reads stay untouched."""
+        if sims < 50_000:
+            return
+        host = request.client.host if request.client else "unknown"
+        now = time.monotonic()
+        bucket = [t for t in app.state.rate_limit.get(host, []) if now - t < 60]
+        if len(bucket) >= 12:
+            raise HTTPException(429, "赛会模拟请求过于频繁，请稍后再试")
+        bucket.append(now)
+        app.state.rate_limit[host] = bucket
 
-    @app.get("/tournament", response_model=TournamentResponse)
-    def tournament(sims: int = 20000, top: int = 20, seed: int = 2026):
+    def _tournament_response(sims: int = 20000, top: int = 20, seed: int = 2026) -> TournamentResponse:
         sims = max(1, min(sims, 200_000))           # 防滥用：钳制模拟次数上限
         loaded = app.state.loaded
         p = app.state.model.params
@@ -153,6 +151,72 @@ def create_app() -> FastAPI:
             for t, r in probs.iterrows()
         ]
         return TournamentResponse(n_sims=sims, seed=seed, teams=teams)
+
+    def _featured_matches(rankings: RankingsResponse, limit: int = 3) -> list[MatchPrediction]:
+        teams = [x.team for x in rankings.teams]
+        pairs = [(teams[i], teams[i + 1]) for i in range(0, min(len(teams) - 1, limit * 2), 2)]
+        return [_predict_match(home, away, neutral=True) for home, away in pairs]
+
+    @app.get("/health", response_model=HealthResponse)
+    def health():
+        ld = app.state.loaded
+        return HealthResponse(
+            status="ok", model_name=ld.name, version=ld.version,
+            n_teams=len(ld.params.teams), metadata=ld.metadata,
+        )
+
+    @app.get("/rankings", response_model=RankingsResponse)
+    def rankings(top: int = 20):
+        return _rankings_response(top=top)
+
+    @app.post("/predict", response_model=MatchPrediction)
+    def predict(req: MatchRequest):
+        return _predict_match(req.home, req.away, neutral=req.neutral)
+
+    @app.post("/reload")
+    def reload_model(x_reload_token: str | None = Header(default=None)):
+        """热加载模型仓 latest（train 注册新版本后无需重启服务）。"""
+        expected = os.getenv("WCPREDICT_RELOAD_TOKEN")
+        if expected and x_reload_token != expected:
+            raise HTTPException(403, "reload token missing or invalid")
+        loaded = _ensure_model(app.state.store)
+        app.state.loaded = loaded
+        app.state.model = DixonColesModel(loaded.params)
+        app.state.tournament_cache = {}
+        return {"status": "reloaded", "model_name": loaded.name,
+                "version": loaded.version, "n_teams": len(loaded.params.teams)}
+
+    @app.get("/tournament", response_model=TournamentResponse)
+    def tournament(request: Request, sims: int = 20000, top: int = 20, seed: int = 2026):
+        sims = max(1, min(sims, 200_000))
+        _check_tournament_rate_limit(request, sims)
+        return _tournament_response(sims=sims, top=top, seed=seed)
+
+    @app.get("/portal", response_model=PortalResponse)
+    def portal(sims: int = 20000, top: int = 48, seed: int = 2026):
+        """Aggregate endpoint for the static portal live-hydration layer."""
+        loaded = app.state.loaded
+        rankings_body = _rankings_response(top=top)
+        tournament_body = _tournament_response(sims=sims, top=top, seed=seed)
+        model_probs = {t.team: t.champion for t in tournament_body.teams}
+        odds_cmp = [
+            PortalOddsEntry(team=team, model=prob, market=None, edge=None)
+            for team, prob in model_probs.items()
+        ]
+        return PortalResponse(
+            meta=PortalMeta(
+                generated_at=datetime.now(UTC).isoformat(),
+                model_name=loaded.name,
+                version=loaded.version,
+                n_teams=len(loaded.params.teams),
+                metadata=loaded.metadata,
+            ),
+            rankings=rankings_body,
+            tournament=tournament_body,
+            featured_matches=_featured_matches(rankings_body),
+            odds_cmp=odds_cmp,
+            bracket=None,
+        )
 
     return app
 

@@ -7,6 +7,8 @@ const {
   useEffect: useEffect1
 } = React;
 const RF_SIMS_WAN = Math.round(((window.RF_ENGINE || {}).sims || 40000) / 10000); // 引擎模拟届数（万）
+const RF_getSponsor = window.RF_getSponsor || (() => null);
+const RF_trackSponsor = window.RF_trackSponsor || (() => false);
 
 // ── Brand mark: RedFootball — red soccer ball with white classic panels
 function BrandMark({
@@ -156,18 +158,35 @@ function SectionHead({
     }
   }, sub));
 }
+function sharePortal() {
+  const payload = {
+    title: 'RedFootball · 2026 世界盃預測',
+    text: '模型路徑、市場分歧、單場概率與誠實邊界。',
+    url: window.location.href
+  };
+  if (navigator.share) {
+    navigator.share(payload).catch(() => {});
+    return;
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(payload.url).then(() => {
+      console.info('[RedFootball] 分享連結已複製');
+    }).catch(() => {});
+  }
+}
 
 // ── Top navigation + tabs
-const WC_TABS = [['overview', '总览'], ['schedule', '赛程'], ['match', '单场预测'], ['tree', '晋级树'], ['bets', '下注建议'], ['method', '预测方法']];
+const WC_TABS = [['overview', '總覽'], ['schedule', '賽程'], ['match', '單場'], ['tree', '晉級樹'], ['bets', '分歧研究'], ['method', '方法']];
 function Nav({
   tab,
   setTab
 }) {
   const [dark, setDark] = useState1(false);
+  const sponsor = RF_getSponsor('nav') || {};
   useEffect1(() => {
     document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
   }, [dark]);
-  return /*#__PURE__*/React.createElement("nav", {
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("nav", {
     style: {
       position: 'sticky',
       top: 0,
@@ -255,7 +274,10 @@ function Nav({
       fontSize: 14
     }
   }, dark ? '☼' : '☾'), /*#__PURE__*/React.createElement("a", {
-    href: "https://redhorsehk.ai/",
+    href: sponsor.href || 'https://redhorsehk.ai/',
+    onClick: () => sponsor.id && RF_trackSponsor('click', sponsor.id, 'nav', {
+      href: sponsor.href
+    }),
     target: "_blank",
     rel: "noopener noreferrer",
     style: {
@@ -267,7 +289,52 @@ function Nav({
       borderRadius: 7,
       whiteSpace: 'nowrap'
     }
-  }, "\u8D64\u5154AI redhorsehk.ai \u2192"))));
+  }, sponsor.cta || '赤兔AI redhorsehk.ai →'), /*#__PURE__*/React.createElement("button", {
+    onClick: sharePortal,
+    title: "\u5206\u4EAB\u6216\u8907\u88FD\u9023\u7D50",
+    style: {
+      width: 34,
+      height: 34,
+      borderRadius: 8,
+      border: '1px solid var(--hairline-strong)',
+      background: 'var(--surface)',
+      color: 'var(--ink-soft)',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: 14
+    }
+  }, "\u21AA")))), /*#__PURE__*/React.createElement("div", {
+    className: "mobile-tabbar",
+    style: {
+      position: 'fixed',
+      left: 0,
+      right: 0,
+      bottom: 0,
+      zIndex: 70,
+      gridTemplateColumns: 'repeat(6, 1fr)',
+      gap: 2,
+      padding: '8px 10px max(8px, env(safe-area-inset-bottom))',
+      background: 'color-mix(in srgb, var(--bg) 92%, transparent)',
+      backdropFilter: 'saturate(180%) blur(14px)',
+      WebkitBackdropFilter: 'saturate(180%) blur(14px)',
+      borderTop: '1px solid var(--hairline)'
+    }
+  }, WC_TABS.map(([key, label]) => /*#__PURE__*/React.createElement("button", {
+    key: key,
+    onClick: () => setTab(key),
+    style: {
+      minHeight: 42,
+      font: tab === key ? '600 11px/1.1 var(--sans)' : '500 11px/1.1 var(--sans)',
+      color: tab === key ? 'var(--accent)' : 'var(--muted-2)',
+      background: tab === key ? 'var(--accent-50)' : 'transparent',
+      border: 'none',
+      borderRadius: 7,
+      cursor: 'pointer',
+      padding: '6px 3px'
+    }
+  }, label))));
 }
 
 // ── Hero
@@ -538,9 +605,22 @@ function RHMark({
     }
   }, "\u8D64");
 }
+function SponsorImpression({
+  slot,
+  sponsor
+}) {
+  useEffect1(() => {
+    if (sponsor && sponsor.id) RF_trackSponsor('impression', sponsor.id, slot, {
+      href: sponsor.href
+    });
+  }, [slot, sponsor && sponsor.id, sponsor && sponsor.href]);
+  return null;
+}
 
-// ── Full-width embedded sponsor banner → jumps to redhorsehk.ai (no popup)
+// ── Full-width embedded sponsor banner → jumps to configured sponsor (no popup)
 function RedHorseBanner() {
+  const sponsor = RF_getSponsor('overview_banner');
+  if (!sponsor) return null;
   return /*#__PURE__*/React.createElement(Section, {
     className: "reveal",
     "data-reveal": true,
@@ -549,7 +629,7 @@ function RedHorseBanner() {
       paddingBottom: 'var(--s-5)'
     }
   }, /*#__PURE__*/React.createElement("a", {
-    href: "https://redhorsehk.ai/",
+    href: sponsor.href,
     target: "_blank",
     rel: "noopener noreferrer",
     className: "rh-ad rh-banner",
@@ -564,7 +644,10 @@ function RedHorseBanner() {
       padding: '18px 22px',
       transition: 'border-color var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease)'
     }
-  }, /*#__PURE__*/React.createElement(RHMark, {
+  }, /*#__PURE__*/React.createElement(SponsorImpression, {
+    slot: "overview_banner",
+    sponsor: sponsor
+  }), /*#__PURE__*/React.createElement(RHMark, {
     size: 36
   }), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -578,13 +661,13 @@ function RedHorseBanner() {
       letterSpacing: '0.12em',
       color: 'var(--muted-2)'
     }
-  }, "\u8D5E\u52A9 \xB7 \u8D64\u5154AI \xB7 RedHorse"), /*#__PURE__*/React.createElement("div", {
+  }, sponsor.kicker), /*#__PURE__*/React.createElement("div", {
     style: {
       font: '600 17px/1.35 var(--sans)',
       color: 'var(--ink)',
       marginTop: 5
     }
-  }, "\u9999\u6E2F\u8D5B\u9A6C AI \u9884\u6D4B \xB7 HKJC \u5B9E\u65F6\u8D54\u7387 \xB7 EV \u91CF\u5316")), /*#__PURE__*/React.createElement("span", {
+  }, sponsor.description)), /*#__PURE__*/React.createElement("span", {
     className: "rh-cta",
     style: {
       flexShrink: 0,
@@ -595,13 +678,15 @@ function RedHorseBanner() {
       borderRadius: 8,
       whiteSpace: 'nowrap'
     }
-  }, "\u524D\u5F80 redhorsehk.ai \u2192")));
+  }, sponsor.cta)));
 }
 
-// ── Compact embedded sponsor card (sidebar / footer) → jumps to redhorsehk.ai
+// ── Compact embedded sponsor card (sidebar / footer)
 function RedHorseCard() {
+  const sponsor = RF_getSponsor('footer_card');
+  if (!sponsor) return null;
   return /*#__PURE__*/React.createElement("a", {
-    href: "https://redhorsehk.ai/",
+    href: sponsor.href,
     target: "_blank",
     rel: "noopener noreferrer",
     className: "rh-ad",
@@ -614,7 +699,10 @@ function RedHorseCard() {
       padding: 'var(--s-6)',
       transition: 'border-color var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease)'
     }
-  }, /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(SponsorImpression, {
+    slot: "footer_card",
+    sponsor: sponsor
+  }), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       alignItems: 'center',
@@ -630,19 +718,19 @@ function RedHorseCard() {
       letterSpacing: '0.1em',
       color: 'var(--muted-2)'
     }
-  }, "\u8D5E\u52A9 \xB7 \u8D64\u5154AI \xB7 RedHorse")), /*#__PURE__*/React.createElement("div", {
+  }, sponsor.kicker)), /*#__PURE__*/React.createElement("div", {
     style: {
       font: '600 15px/1.4 var(--sans)',
       color: 'var(--ink)'
     }
-  }, "\u60F3\u770B\u9999\u6E2F\u8D5B\u9A6C\u7684 AI \u9884\u6D4B\uFF1F"), /*#__PURE__*/React.createElement("p", {
+  }, sponsor.description), /*#__PURE__*/React.createElement("p", {
     style: {
       font: 'var(--small)',
       color: 'var(--muted-2)',
       lineHeight: 1.6,
       margin: '8px 0 14px'
     }
-  }, "\u8D64\u5154AI\uFF08redhorsehk.ai\uFF09\u63D0\u4F9B HKJC \u6C99\u7530\u30FB\u8DD1\u9A6C\u5730\u5B9E\u65F6\u8D54\u7387\u3001AI \u9884\u6D4B\u4E0E EV \u91CF\u5316\u3002"), /*#__PURE__*/React.createElement("span", {
+  }, sponsor.description), /*#__PURE__*/React.createElement("span", {
     className: "rh-cta",
     style: {
       display: 'inline-block',
@@ -652,7 +740,7 @@ function RedHorseCard() {
       padding: '10px 16px',
       borderRadius: 7
     }
-  }, "\u524D\u5F80 redhorsehk.ai \u2192"));
+  }, sponsor.cta));
 }
 Object.assign(window, {
   BrandMark,

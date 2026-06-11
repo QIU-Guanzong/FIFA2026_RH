@@ -1,5 +1,5 @@
 /* global React, Section, SectionHead, computeDC, deriveMarkets */
-// wcpredict — sections part 5: ValueBets (model vs market edge + 下注建议)
+// wcpredict — sections part 5: market disagreement research
 
 const { useMemo: useMemo5 } = React;
 
@@ -33,9 +33,9 @@ function ValueBets() {
   return (
     <Section style={{ paddingTop: 'var(--s-12)', paddingBottom: 'var(--s-12)' }}>
       <SectionHead
-        kicker="下注建议 · 模型 vs 市场价值分析"
-        title="只在模型与市场分歧时出手"
-        sub="赔率去水位后，用模型概率减去市场隐含概率得到 edge。正 edge 才有价值；建议仓位按 1/4 Kelly 给出。长期边际优势来自纪律，而非单场命中。"
+        kicker="市場分歧研究 · 模型 vs 市場價格"
+        title="先看分歧，再判斷是否值得研究"
+        sub="去水位後，用模型概率與市場隱含概率對照。edge 只是分歧度，不等於可交易優勢；Kelly 僅作風險量級參考，不構成投注或資金配置建議。"
       />
 
       {/* disclaimer */}
@@ -46,16 +46,16 @@ function ValueBets() {
 
       {/* top value picks */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--s-5)', flexWrap: 'wrap', gap: 10 }}>
-        <h3 style={{ font: 'var(--h3)' }}>价值机会 · 按 edge 排序</h3>
+        <h3 style={{ font: 'var(--h3)' }}>分歧清單 · 按 edge 排序</h3>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <span style={{ font: 'var(--label)', color: 'var(--muted)', fontFamily: 'var(--mono)' }}>{value.length} 个 · edge ≥ +2.0pp</span>
-          <a href="https://polymarket.com/sports/world-cup/games" target="_blank" rel="noreferrer" style={{ font: '500 12px/1 var(--sans)', color: 'var(--ink-inverted)', background: 'var(--ink)', textDecoration: 'none', padding: '9px 14px', borderRadius: 7, whiteSpace: 'nowrap' }}>在 Polymarket 下注 ↗</a>
+          <a href="https://polymarket.com/sports/world-cup/games" target="_blank" rel="noreferrer" style={{ font: '500 12px/1 var(--sans)', color: 'var(--ink-inverted)', background: 'var(--ink)', textDecoration: 'none', padding: '9px 14px', borderRadius: 7, whiteSpace: 'nowrap' }}>查看市場價格 ↗</a>
         </div>
       </div>
 
       <div style={{ background: 'var(--surface)', border: '1px solid var(--hairline)', borderRadius: 'var(--r-10)', overflow: 'hidden', marginBottom: 'var(--s-8)' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr 0.8fr 0.8fr 0.9fr 1.1fr', padding: '13px 20px', font: 'var(--label)', color: 'var(--muted-2)', background: 'var(--panel-tint)', borderBottom: '1px solid var(--hairline)' }}>
-          <span>对阵 / 选项</span><span>市场</span><span style={{ textAlign: 'right' }}>模型</span><span style={{ textAlign: 'right' }}>市场</span><span style={{ textAlign: 'right' }}>edge</span><span style={{ textAlign: 'right' }}>建议仓位 ¼K</span>
+          <span>对阵 / 选项</span><span>市场</span><span style={{ textAlign: 'right' }}>模型</span><span style={{ textAlign: 'right' }}>市场</span><span style={{ textAlign: 'right' }}>edge</span><span style={{ textAlign: 'right' }}>風險量級 ¼K</span>
         </div>
         {value.map((o, i) => {
           const stake = Math.max(0, o.kelly * 0.25);

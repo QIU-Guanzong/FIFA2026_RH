@@ -97,3 +97,35 @@ def test_offset_solver_falls_back_on_ill_conditioned_gram(monkeypatch):
     off = estimate_confederation_offsets(m, ratings, conf)
     assert calls["lstsq"] == 1
     assert off["AFC"] < 0 < off["UEFA"]
+
+
+def test_offset_solver_falls_back_when_solve_raises(monkeypatch):
+    from wcpredict.ratings import confederation as confed
+
+    calls = {"lstsq": 0}
+    original_lstsq = confed.np.linalg.lstsq
+
+    def fake_lstsq(*args, **kwargs):
+        calls["lstsq"] += 1
+        return original_lstsq(*args, **kwargs)
+
+    monkeypatch.setattr(confed.np.linalg, "cond", lambda _: 1.0)
+    monkeypatch.setattr(confed.np.linalg, "solve", lambda *args, **kwargs: (_ for _ in ()).throw(np.linalg.LinAlgError("singular")))
+    monkeypatch.setattr(confed.np.linalg, "lstsq", fake_lstsq)
+
+    m = _lopsided_matches("UEFA", "AFC", n=20)
+    conf = {"UEFA_h": "UEFA", "AFC_a": "AFC"}
+    ratings = {"UEFA_h": 1500.0, "AFC_a": 1500.0}
+    off = estimate_confederation_offsets(m, ratings, conf)
+    assert calls["lstsq"] == 1
+    assert off["AFC"] < 0 < off["UEFA"]
+
+
+def test_offset_kappa_floor_keeps_extreme_inputs_bounded():
+    m = _lopsided_matches("UEFA", "AFC", n=20)
+    conf = {"UEFA_h": "UEFA", "AFC_a": "AFC"}
+    ratings = {"UEFA_h": 1500.0, "AFC_a": 1500.0}
+    off = estimate_confederation_offsets(m, ratings, conf, scale=1e12)
+    assert np.isfinite(list(off.values())).all()
+    assert off["AFC"] < 0 < off["UEFA"]
+    assert max(abs(v) for v in off.values()) < 1e8

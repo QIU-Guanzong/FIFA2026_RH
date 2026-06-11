@@ -83,6 +83,14 @@ def test_reload(client):
     assert b["version"] >= 1
 
 
+def test_reload_requires_token_when_configured(client, monkeypatch):
+    monkeypatch.setenv("WCPREDICT_RELOAD_TOKEN", "secret")
+    assert client.post("/reload").status_code == 403
+    r = client.post("/reload", headers={"x-reload-token": "secret"})
+    assert r.status_code == 200
+    assert r.json()["status"] == "reloaded"
+
+
 def test_tournament(client):
     r = client.get("/tournament?sims=1500&top=10&seed=99")
     assert r.status_code == 200
@@ -121,3 +129,20 @@ def test_tournament_uses_official_format_when_model_metadata_says_wc2026(officia
     champion_sum = sum(t["champion"] for t in b["teams"])
     assert advance_sum == pytest.approx(32.0)
     assert champion_sum == pytest.approx(1.0)
+
+
+def test_portal_aggregate_contract(client):
+    r = client.get("/portal?sims=25&top=12&seed=11")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["meta"]["model_name"] == "default"
+    assert body["meta"]["n_teams"] == 48
+    assert body["rankings"]["n_teams"] == 48
+    assert len(body["rankings"]["teams"]) == 12
+    assert body["tournament"]["n_sims"] == 25
+    assert body["tournament"]["seed"] == 11
+    assert len(body["tournament"]["teams"]) == 12
+    assert len(body["featured_matches"]) >= 1
+    assert {"home", "away", "lambda_home", "prob_home"} <= set(body["featured_matches"][0])
+    assert len(body["odds_cmp"]) == 12
+    assert {"team", "model", "market", "edge"} <= set(body["odds_cmp"][0])

@@ -214,8 +214,24 @@ def test_shot_xg_raises_when_optimizer_fails(monkeypatch):
 
     monkeypatch.setattr(xg_model, "minimize", fail_minimize)
     X, y, _ = _synth(100, seed=10)
-    with pytest.raises(RuntimeError, match="xG 优化失败"):
-        ShotXGModel().fit(X, y)
+    model = ShotXGModel()
+    with pytest.raises(RuntimeError, match=r"xG 优化失败: status=2, nit=5, fun=9.9, message=bad curvature"):
+        model.fit(X, y)
+    assert model.fit_result_ is not None
+    assert model.fit_result_.message == "bad curvature"
+
+
+def test_predict_proba_uses_stable_sigmoid_for_extreme_logits():
+    model = ShotXGModel(
+        intercept_=0.0,
+        coef_=np.array([-1000.0]),
+        mean_=np.array([0.0]),
+        std_=np.array([1.0]),
+        feature_names=("distance",),
+    )
+    with np.errstate(over="raise"):
+        p = model.predict_proba(np.array([[1000.0]]))
+    assert p[0] == pytest.approx(0.0)
 
 
 def test_assign_xg_all_penalties():

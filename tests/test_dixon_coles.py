@@ -89,14 +89,18 @@ def test_fit_raises_when_optimizer_fails(monkeypatch):
         return SimpleNamespace(success=False, status=9, nit=3, fun=123.4, message="iteration limit")
 
     monkeypatch.setattr(dc, "minimize", fail_minimize)
-    with pytest.raises(RuntimeError, match="Dixon-Coles 优化失败"):
-        DixonColesModel().fit(
+    model = DixonColesModel()
+    with pytest.raises(RuntimeError, match="status=9.*nit=3.*fun=123.4.*iteration limit"):
+        model.fit(
             ["A", "B", "A"],
             ["B", "A", "B"],
             [1, 0, 2],
             [0, 1, 1],
             teams=["A", "B"],
         )
+    assert model.params is None
+    assert model.fit_result_.success is False
+    assert model.fit_result_.status == 9
 
 
 def test_l2_shrinks_attack_defence():

@@ -202,7 +202,7 @@ function Bracket() {
       <SectionHead
         kicker="晋级树 · 模型路径 + 市场对比"
         title="从 16 强到冠军的模型路径"
-        sub="每支球队标注模型夺冠概率与 Polymarket 实时隐含赔率（¢ = 美分隐含概率）。高模型概率者晋级，红色路径即模型预测的夺冠路线。点击任一对阵查看比分矩阵与晋级概率。"
+        sub="每支球隊標注模型奪冠概率與 Polymarket 市場隱含概率（¢ = 美分隱含概率），用來研究分歧，不構成投注建議。高模型概率者晉級，紅色路徑為模型推演的冠軍路線。點擊任一對陣查看比分矩陣與晉級概率。"
       />
 
       {/* legend */}
@@ -231,7 +231,7 @@ function Bracket() {
       {/* model vs polymarket comparison — LIVE */}
       <div style={{ marginTop: 'var(--s-10)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--s-5)', gap: 12, flexWrap: 'wrap' }}>
-          <h3 style={{ font: 'var(--h3)' }}>模型 vs Polymarket · 夺冠概率</h3>
+          <h3 style={{ font: 'var(--h3)' }}>模型 vs Polymarket · 市場分歧研究</h3>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             {live ? (
               <span style={{ display: 'flex', alignItems: 'center', gap: 7, font: 'var(--label)', color: 'var(--pitch-deep)' }}>
@@ -249,7 +249,7 @@ function Bracket() {
               border: '1px solid var(--hairline-strong)', borderRadius: 7, padding: '6px 11px', cursor: 'pointer',
               opacity: (poly.status === 'loading' || poly.status === 'refreshing') ? 0.5 : 1,
             }}>{poly.status === 'refreshing' ? '刷新中…' : '↻ 刷新'}</button>
-            <a href={(poly.url) || 'https://polymarket.com/event/world-cup-winner'} target="_blank" rel="noreferrer" style={{ font: 'var(--label)', color: 'var(--accent)', fontFamily: 'var(--mono)', textDecoration: 'none' }}>Polymarket ↗</a>
+            <a href={(poly.url) || 'https://polymarket.com/event/world-cup-winner'} target="_blank" rel="noreferrer" style={{ font: 'var(--label)', color: 'var(--accent)', fontFamily: 'var(--mono)', textDecoration: 'none' }}>市場價格 ↗</a>
           </div>
         </div>
         <div style={{ background: 'var(--surface)', border: '1px solid var(--hairline)', borderRadius: 'var(--r-10)', padding: 'var(--s-7)' }}>

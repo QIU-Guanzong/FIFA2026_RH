@@ -1,6 +1,6 @@
 ;(function () {
 /* global React, Section, SectionHead, computeDC, deriveMarkets */
-// wcpredict — sections part 5: ValueBets (model vs market edge + 下注建议)
+// wcpredict — sections part 5: market disagreement research
 
 const {
   useMemo: useMemo5
@@ -66,9 +66,9 @@ function ValueBets() {
       paddingBottom: 'var(--s-12)'
     }
   }, /*#__PURE__*/React.createElement(SectionHead, {
-    kicker: "\u4E0B\u6CE8\u5EFA\u8BAE \xB7 \u6A21\u578B vs \u5E02\u573A\u4EF7\u503C\u5206\u6790",
-    title: "\u53EA\u5728\u6A21\u578B\u4E0E\u5E02\u573A\u5206\u6B67\u65F6\u51FA\u624B",
-    sub: "\u8D54\u7387\u53BB\u6C34\u4F4D\u540E\uFF0C\u7528\u6A21\u578B\u6982\u7387\u51CF\u53BB\u5E02\u573A\u9690\u542B\u6982\u7387\u5F97\u5230 edge\u3002\u6B63 edge \u624D\u6709\u4EF7\u503C\uFF1B\u5EFA\u8BAE\u4ED3\u4F4D\u6309 1/4 Kelly \u7ED9\u51FA\u3002\u957F\u671F\u8FB9\u9645\u4F18\u52BF\u6765\u81EA\u7EAA\u5F8B\uFF0C\u800C\u975E\u5355\u573A\u547D\u4E2D\u3002"
+    kicker: "\u5E02\u5834\u5206\u6B67\u7814\u7A76 \xB7 \u6A21\u578B vs \u5E02\u5834\u50F9\u683C",
+    title: "\u5148\u770B\u5206\u6B67\uFF0C\u518D\u5224\u65B7\u662F\u5426\u503C\u5F97\u7814\u7A76",
+    sub: "\u53BB\u6C34\u4F4D\u5F8C\uFF0C\u7528\u6A21\u578B\u6982\u7387\u8207\u5E02\u5834\u96B1\u542B\u6982\u7387\u5C0D\u7167\u3002edge \u53EA\u662F\u5206\u6B67\u5EA6\uFF0C\u4E0D\u7B49\u65BC\u53EF\u4EA4\u6613\u512A\u52E2\uFF1BKelly \u50C5\u4F5C\u98A8\u96AA\u91CF\u7D1A\u53C3\u8003\uFF0C\u4E0D\u69CB\u6210\u6295\u6CE8\u6216\u8CC7\u91D1\u914D\u7F6E\u5EFA\u8B70\u3002"
   }), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
@@ -106,7 +106,7 @@ function ValueBets() {
     style: {
       font: 'var(--h3)'
     }
-  }, "\u4EF7\u503C\u673A\u4F1A \xB7 \u6309 edge \u6392\u5E8F"), /*#__PURE__*/React.createElement("div", {
+  }, "\u5206\u6B67\u6E05\u55AE \xB7 \u6309 edge \u6392\u5E8F"), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       alignItems: 'center',
@@ -131,7 +131,7 @@ function ValueBets() {
       borderRadius: 7,
       whiteSpace: 'nowrap'
     }
-  }, "\u5728 Polymarket \u4E0B\u6CE8 \u2197"))), /*#__PURE__*/React.createElement("div", {
+  }, "\u67E5\u770B\u5E02\u5834\u50F9\u683C \u2197"))), /*#__PURE__*/React.createElement("div", {
     style: {
       background: 'var(--surface)',
       border: '1px solid var(--hairline)',
@@ -165,7 +165,7 @@ function ValueBets() {
     style: {
       textAlign: 'right'
     }
-  }, "\u5EFA\u8BAE\u4ED3\u4F4D \xBCK")), value.map((o, i) => {
+  }, "\u98A8\u96AA\u91CF\u7D1A \xBCK")), value.map((o, i) => {
     const stake = Math.max(0, o.kelly * 0.25);
     return /*#__PURE__*/React.createElement("div", {
       key: i,

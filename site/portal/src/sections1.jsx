@@ -3,6 +3,8 @@
 
 const { useState: useState1, useEffect: useEffect1 } = React;
 const RF_SIMS_WAN = Math.round((((window.RF_ENGINE || {}).sims) || 40000) / 10000);  // 引擎模拟届数（万）
+const RF_getSponsor = window.RF_getSponsor || (() => null);
+const RF_trackSponsor = window.RF_trackSponsor || (() => false);
 
 // ── Brand mark: RedFootball — red soccer ball with white classic panels
 function BrandMark({ size = 30, spin = false }) {
@@ -67,57 +69,100 @@ function SectionHead({ kicker, title, sub }) {
   );
 }
 
+function sharePortal() {
+  const payload = {
+    title: 'RedFootball · 2026 世界盃預測',
+    text: '模型路徑、市場分歧、單場概率與誠實邊界。',
+    url: window.location.href,
+  };
+  if (navigator.share) {
+    navigator.share(payload).catch(() => {});
+    return;
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(payload.url).then(() => {
+      console.info('[RedFootball] 分享連結已複製');
+    }).catch(() => {});
+  }
+}
+
 // ── Top navigation + tabs
 const WC_TABS = [
-  ['overview', '总览'],
-  ['schedule', '赛程'],
-  ['match', '单场预测'],
-  ['tree', '晋级树'],
-  ['bets', '下注建议'],
-  ['method', '预测方法'],
+  ['overview', '總覽'],
+  ['schedule', '賽程'],
+  ['match', '單場'],
+  ['tree', '晉級樹'],
+  ['bets', '分歧研究'],
+  ['method', '方法'],
 ];
 
 function Nav({ tab, setTab }) {
   const [dark, setDark] = useState1(false);
+  const sponsor = RF_getSponsor('nav') || {};
   useEffect1(() => {
     document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
   }, [dark]);
   return (
-    <nav style={{
-      position: 'sticky', top: 0, zIndex: 50,
-      background: 'color-mix(in srgb, var(--bg) 85%, transparent)',
-      backdropFilter: 'saturate(180%) blur(12px)', WebkitBackdropFilter: 'saturate(180%) blur(12px)',
-      borderBottom: '1px solid var(--hairline)',
-    }}>
-      <div style={{ maxWidth: 1180, margin: '0 auto', padding: '0 28px', height: 60, display: 'flex', alignItems: 'center', gap: 'var(--s-6)' }}>
-        <button onClick={() => setTab('overview')} className="rf-brand" style={{ display: 'flex', alignItems: 'center', gap: 9, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ink)', padding: 0 }}>
-          <BrandMark size={26} />
-          <span style={{ font: '700 17px/1 var(--sans)', letterSpacing: '-0.02em' }}>Red<span style={{ color: 'var(--accent)' }}>Football</span></span>
-        </button>
-        <div className="nav-links" style={{ display: 'flex', gap: 2, marginLeft: 'var(--s-4)' }}>
-          {WC_TABS.map(([key, label]) => (
-            <button key={key} onClick={() => setTab(key)} style={{
-              font: tab === key ? '600 13.5px/1 var(--sans)' : '500 13.5px/1 var(--sans)',
-              color: tab === key ? 'var(--ink)' : 'var(--muted-2)',
-              background: tab === key ? 'var(--bg-shade)' : 'transparent',
-              border: 'none', cursor: 'pointer', padding: '8px 13px', borderRadius: 7,
-              transition: 'all var(--dur-fast) var(--ease)',
-            }}>{label}</button>
-          ))}
+    <>
+      <nav style={{
+        position: 'sticky', top: 0, zIndex: 50,
+        background: 'color-mix(in srgb, var(--bg) 85%, transparent)',
+        backdropFilter: 'saturate(180%) blur(12px)', WebkitBackdropFilter: 'saturate(180%) blur(12px)',
+        borderBottom: '1px solid var(--hairline)',
+      }}>
+        <div style={{ maxWidth: 1180, margin: '0 auto', padding: '0 28px', height: 60, display: 'flex', alignItems: 'center', gap: 'var(--s-6)' }}>
+          <button onClick={() => setTab('overview')} className="rf-brand" style={{ display: 'flex', alignItems: 'center', gap: 9, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ink)', padding: 0 }}>
+            <BrandMark size={26} />
+            <span style={{ font: '700 17px/1 var(--sans)', letterSpacing: '-0.02em' }}>Red<span style={{ color: 'var(--accent)' }}>Football</span></span>
+          </button>
+          <div className="nav-links" style={{ display: 'flex', gap: 2, marginLeft: 'var(--s-4)' }}>
+            {WC_TABS.map(([key, label]) => (
+              <button key={key} onClick={() => setTab(key)} style={{
+                font: tab === key ? '600 13.5px/1 var(--sans)' : '500 13.5px/1 var(--sans)',
+                color: tab === key ? 'var(--ink)' : 'var(--muted-2)',
+                background: tab === key ? 'var(--bg-shade)' : 'transparent',
+                border: 'none', cursor: 'pointer', padding: '8px 13px', borderRadius: 7,
+                transition: 'all var(--dur-fast) var(--ease)',
+              }}>{label}</button>
+            ))}
+          </div>
+          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10 }}>
+            <button onClick={() => setDark(d => !d)} title="切换主题" style={{
+              width: 34, height: 34, borderRadius: 8, border: '1px solid var(--hairline-strong)',
+              background: 'var(--surface)', color: 'var(--ink-soft)', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14,
+            }}>{dark ? '☼' : '☾'}</button>
+            <a href={sponsor.href || 'https://redhorsehk.ai/'} onClick={() => sponsor.id && RF_trackSponsor('click', sponsor.id, 'nav', { href: sponsor.href })} target="_blank" rel="noopener noreferrer" style={{
+              font: '600 13px/1 var(--sans)', color: '#fff', background: 'var(--accent)',
+              textDecoration: 'none', padding: '9px 15px', borderRadius: 7, whiteSpace: 'nowrap',
+            }}>{sponsor.cta || '赤兔AI redhorsehk.ai →'}</a>
+            <button onClick={sharePortal} title="分享或複製連結" style={{
+              width: 34, height: 34, borderRadius: 8, border: '1px solid var(--hairline-strong)',
+              background: 'var(--surface)', color: 'var(--ink-soft)', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14,
+            }}>↪</button>
+          </div>
         </div>
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10 }}>
-          <button onClick={() => setDark(d => !d)} title="切换主题" style={{
-            width: 34, height: 34, borderRadius: 8, border: '1px solid var(--hairline-strong)',
-            background: 'var(--surface)', color: 'var(--ink-soft)', cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14,
-          }}>{dark ? '☼' : '☾'}</button>
-          <a href="https://redhorsehk.ai/" target="_blank" rel="noopener noreferrer" style={{
-            font: '600 13px/1 var(--sans)', color: '#fff', background: 'var(--accent)',
-            textDecoration: 'none', padding: '9px 15px', borderRadius: 7, whiteSpace: 'nowrap',
-          }}>赤兔AI redhorsehk.ai →</a>
-        </div>
+      </nav>
+      <div className="mobile-tabbar" style={{
+        position: 'fixed', left: 0, right: 0, bottom: 0, zIndex: 70,
+        gridTemplateColumns: 'repeat(6, 1fr)', gap: 2,
+        padding: '8px 10px max(8px, env(safe-area-inset-bottom))',
+        background: 'color-mix(in srgb, var(--bg) 92%, transparent)',
+        backdropFilter: 'saturate(180%) blur(14px)', WebkitBackdropFilter: 'saturate(180%) blur(14px)',
+        borderTop: '1px solid var(--hairline)',
+      }}>
+        {WC_TABS.map(([key, label]) => (
+          <button key={key} onClick={() => setTab(key)} style={{
+            minHeight: 42,
+            font: tab === key ? '600 11px/1.1 var(--sans)' : '500 11px/1.1 var(--sans)',
+            color: tab === key ? 'var(--accent)' : 'var(--muted-2)',
+            background: tab === key ? 'var(--accent-50)' : 'transparent',
+            border: 'none', borderRadius: 7, cursor: 'pointer', padding: '6px 3px',
+          }}>{label}</button>
+        ))}
       </div>
-    </nav>
+    </>
   );
 }
 
@@ -210,40 +255,53 @@ function RHMark({ size = 34 }) {
   );
 }
 
-// ── Full-width embedded sponsor banner → jumps to redhorsehk.ai (no popup)
+function SponsorImpression({ slot, sponsor }) {
+  useEffect1(() => {
+    if (sponsor && sponsor.id) RF_trackSponsor('impression', sponsor.id, slot, { href: sponsor.href });
+  }, [slot, sponsor && sponsor.id, sponsor && sponsor.href]);
+  return null;
+}
+
+// ── Full-width embedded sponsor banner → jumps to configured sponsor (no popup)
 function RedHorseBanner() {
+  const sponsor = RF_getSponsor('overview_banner');
+  if (!sponsor) return null;
   return (
     <Section className="reveal" data-reveal style={{ paddingTop: 'var(--s-5)', paddingBottom: 'var(--s-5)' }}>
-      <a href="https://redhorsehk.ai/" target="_blank" rel="noopener noreferrer" className="rh-ad rh-banner" style={{
+      <a href={sponsor.href} target="_blank" rel="noopener noreferrer" className="rh-ad rh-banner" style={{
         display: 'flex', alignItems: 'center', gap: 'var(--s-6)', textDecoration: 'none',
         background: 'var(--accent-50)', border: '1px solid var(--accent-soft)', borderRadius: 'var(--r-14)',
         padding: '18px 22px', transition: 'border-color var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease)',
       }}>
+        <SponsorImpression slot="overview_banner" sponsor={sponsor} />
         <RHMark size={36} />
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ font: 'var(--label)', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--muted-2)' }}>赞助 · 赤兔AI · RedHorse</div>
-          <div style={{ font: '600 17px/1.35 var(--sans)', color: 'var(--ink)', marginTop: 5 }}>香港赛马 AI 预测 · HKJC 实时赔率 · EV 量化</div>
+          <div style={{ font: 'var(--label)', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--muted-2)' }}>{sponsor.kicker}</div>
+          <div style={{ font: '600 17px/1.35 var(--sans)', color: 'var(--ink)', marginTop: 5 }}>{sponsor.description}</div>
         </div>
-        <span className="rh-cta" style={{ flexShrink: 0, font: '600 14px/1 var(--sans)', color: '#fff', background: 'var(--accent)', padding: '12px 20px', borderRadius: 8, whiteSpace: 'nowrap' }}>前往 redhorsehk.ai →</span>
+        <span className="rh-cta" style={{ flexShrink: 0, font: '600 14px/1 var(--sans)', color: '#fff', background: 'var(--accent)', padding: '12px 20px', borderRadius: 8, whiteSpace: 'nowrap' }}>{sponsor.cta}</span>
       </a>
     </Section>
   );
 }
 
-// ── Compact embedded sponsor card (sidebar / footer) → jumps to redhorsehk.ai
+// ── Compact embedded sponsor card (sidebar / footer)
 function RedHorseCard() {
+  const sponsor = RF_getSponsor('footer_card');
+  if (!sponsor) return null;
   return (
-    <a href="https://redhorsehk.ai/" target="_blank" rel="noopener noreferrer" className="rh-ad" style={{
+    <a href={sponsor.href} target="_blank" rel="noopener noreferrer" className="rh-ad" style={{
       display: 'block', textDecoration: 'none', background: 'var(--accent-50)', border: '1px solid var(--accent-soft)',
       borderRadius: 'var(--r-10)', padding: 'var(--s-6)', transition: 'border-color var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease)',
     }}>
+      <SponsorImpression slot="footer_card" sponsor={sponsor} />
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
         <RHMark size={22} />
-        <span style={{ font: 'var(--label)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--muted-2)' }}>赞助 · 赤兔AI · RedHorse</span>
+        <span style={{ font: 'var(--label)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--muted-2)' }}>{sponsor.kicker}</span>
       </div>
-      <div style={{ font: '600 15px/1.4 var(--sans)', color: 'var(--ink)' }}>想看香港赛马的 AI 预测？</div>
-      <p style={{ font: 'var(--small)', color: 'var(--muted-2)', lineHeight: 1.6, margin: '8px 0 14px' }}>赤兔AI（redhorsehk.ai）提供 HKJC 沙田・跑马地实时赔率、AI 预测与 EV 量化。</p>
-      <span className="rh-cta" style={{ display: 'inline-block', font: '600 13px/1 var(--sans)', color: '#fff', background: 'var(--accent)', padding: '10px 16px', borderRadius: 7 }}>前往 redhorsehk.ai →</span>
+      <div style={{ font: '600 15px/1.4 var(--sans)', color: 'var(--ink)' }}>{sponsor.description}</div>
+      <p style={{ font: 'var(--small)', color: 'var(--muted-2)', lineHeight: 1.6, margin: '8px 0 14px' }}>{sponsor.description}</p>
+      <span className="rh-cta" style={{ display: 'inline-block', font: '600 13px/1 var(--sans)', color: '#fff', background: 'var(--accent)', padding: '10px 16px', borderRadius: 7 }}>{sponsor.cta}</span>
     </a>
   );
 }
