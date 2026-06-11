@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 import os
 import time
 
@@ -205,7 +205,7 @@ def create_app() -> FastAPI:
         ]
         return PortalResponse(
             meta=PortalMeta(
-                generated_at=datetime.now(UTC).isoformat(),
+                generated_at=datetime.now(timezone.utc).isoformat(),
                 model_name=loaded.name,
                 version=loaded.version,
                 n_teams=len(loaded.params.teams),
