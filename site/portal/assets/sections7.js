@@ -259,11 +259,17 @@ function FixturePopover({
 }) {
   const d = useMemo7(() => fxMarkets(f), [f.id]);
   useEffect7(() => {
+    const prevFocus = document.activeElement; // a11y: return focus to trigger on close
     const onKey = e => {
       if (e.key === 'Escape') onClose();
     };
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    const dlg = document.getElementById('fx-modal');
+    if (dlg) dlg.focus(); // move focus into the dialog on open
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      if (prevFocus && prevFocus.focus) prevFocus.focus();
+    };
   }, []);
   const cap = Math.min(d.N, 5);
   let mx = 0;
@@ -284,13 +290,19 @@ function FixturePopover({
     }
   }, /*#__PURE__*/React.createElement("div", {
     onClick: e => e.stopPropagation(),
+    id: "fx-modal",
+    role: "dialog",
+    "aria-modal": true,
+    "aria-labelledby": "fx-modal-title",
+    tabIndex: -1,
     style: {
       width: 'min(480px, 96vw)',
       maxHeight: '90vh',
       overflowY: 'auto',
       background: 'var(--surface)',
       borderRadius: 'var(--r-14)',
-      boxShadow: 'var(--shadow-pop)'
+      boxShadow: 'var(--shadow-pop)',
+      outline: 'none'
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -307,6 +319,7 @@ function FixturePopover({
       color: 'var(--muted-2)'
     }
   }, "\u7EC4 ", f.group, " \xB7 ", f.date, " ", f.time), /*#__PURE__*/React.createElement("div", {
+    id: "fx-modal-title",
     style: {
       font: 'var(--h3)',
       marginTop: 6,
@@ -322,6 +335,7 @@ function FixturePopover({
     }
   }, "vs"), /*#__PURE__*/React.createElement("span", null, flagOf(f.away.en), " ", f.away.zh))), /*#__PURE__*/React.createElement("button", {
     onClick: onClose,
+    "aria-label": "关闭",
     style: {
       width: 28,
       height: 28,
