@@ -9,3 +9,4 @@
 - 2026-06-14 07:00 | A2b 布局(移动 tabbar 等宽) | done(部署延后) | repeat(6,1fr) 在 flex 下失效致 7 标签左挤右侧死区~114px；.mobile-tabbar button{flex:1 1 0;min-width:0} 后各 49px 铺满，375 单行无横滚 0 error；距上次部署仅 4min 触发节流，commit 已留，下轮随部署上线。
 - 2026-06-14 07:20 | A2c aria-controls+tabpanel | done | <main>→id=wc-tabpanel role=tabpanel aria-labelledby=nav-tab-{active}(随切换)；14 tab aria-controls 全解析到该 panel；0 error；已部署。roving 拆 A2d。
 - 2026-06-14 07:25 | 战况更新 6/13两场 | done | Qatar 1-1 Switzerland + Brazil 1-1 Morocco(FOX/FIFA/Yahoo 核验)经 manual-bridge 入库；4→6 场；top-pick 2/6、log-loss 1.162(小样本略逊floor)、精确比分 2/6(两平局命中modal 1-1)；Haiti-Scotland/Australia-Turkey(01:00UTC)未终场待daemon。已部署 accuracy.js v202606140700。
+- 2026-06-14 07:29 | A2d tab roving + 方向键 | done(部署延后) | 活动 tab tabIndex=0 余 -1；wcTabKeyNav 处理 Arrow/Home/End 移焦+激活；实测 ArrowRight 總覽→戰報 聚焦+激活+面板 labelledby 更新+键盘环；0 error；距上次部署 4min 节流，下轮随部署上线。至此 tablist A1→A2d 完整 APG 模式。

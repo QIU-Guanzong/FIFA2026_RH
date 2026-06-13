@@ -34,7 +34,7 @@ CEO Gavin 2026-06-13 夜间授权：自主持续升级，不必逐次询问，AI
 - [x] A2 Tab 语义：导航 tab 加 `role=tablist/tab`、`aria-selected`、`aria-controls`（sections1.js:~240 + mobile-tabbar）。
 - [x] A2b(布局) 移动 tabbar 7 标签等宽均分(flex:1)——已修
 - [x] A2c aria-controls→tabpanel(main=wc-tabpanel role=tabpanel aria-labelledby) ——已修
-- [ ] A2d tab 方向键 roving tabindex(键盘左右切换)——交互向,单列
+- [x] A2d tab 方向键 roving tabindex(Arrow/Home/End 切换+激活)——已修，tablist APG 模式完整
 - [ ] A3 弹窗 a11y：`role=dialog` `aria-modal` `aria-labelledby` + 关闭后焦点归还（sections4.js:296、sections7.js:272）。
 - [ ] A4 可点卡片 → `<button>`/`role=button`+`onKeyDown`(Enter/Space)+`tabIndex`（sections4.js:79、sections7.js:167）。
 - [ ] A5 晋级树 `minWidth:920` 移动端改为横向滚动容器内可读（已有 overflow，确认 375 不撑破页面+加滚动提示）（sections6.js:625）。
