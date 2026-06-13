@@ -175,6 +175,15 @@ function FixtureCard({
   const favIdx = probs.indexOf(Math.max(...probs));
   return /*#__PURE__*/React.createElement("div", {
     onClick: () => onOpen(f),
+    role: "button",
+    tabIndex: 0,
+    "aria-label": f.home.zh + " 对 " + f.away.zh + " · 查看预测详情",
+    onKeyDown: e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        onOpen(f);
+      }
+    },
     className: "grp-card",
     style: {
       background: 'var(--surface)',
