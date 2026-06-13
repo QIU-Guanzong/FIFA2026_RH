@@ -31,6 +31,11 @@
   ::selection { background: var(--accent-soft); }
   #root { min-height: 100vh; }
 
+  /* a11y: visible keyboard focus ring (replaces weak default outline:auto;
+     mouse focus stays clean via :focus:not(:focus-visible)) */
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+  :focus:not(:focus-visible) { outline: none; }
+
   /* scroll reveal — only activates once rAF confirms the timeline runs (body.js-reveal).
      Default state is fully visible, so content never gets stuck hidden. */
   .reveal { opacity: 1; }
