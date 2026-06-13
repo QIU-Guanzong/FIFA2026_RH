@@ -7,6 +7,7 @@
 <meta name="description" content="RedFootball 以模型概率、市場隱含概率與歷史回測為核心，提供 2026 世界盃賽程、單場預測、晉級樹與市場分歧研究。內容只供資訊與研究參考，不構成投注建議。" />
 <meta name="referrer" content="strict-origin-when-cross-origin" />
 <meta name="theme-color" content="#b8472d" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23B8472D'/%3E%3Ctext x='16' y='23' font-size='20' font-family='Saira,Arial,sans-serif' font-weight='700' fill='%23FAFAF7' text-anchor='middle'%3ER%3C/text%3E%3C/svg%3E" />
 <link rel="canonical" href="https://gavin.astock.top/FIFA2026/portal/" />
 <meta property="og:type" content="website" />
 <meta property="og:locale" content="zh_HK" />
@@ -18,11 +19,14 @@
 <meta name="twitter:title" content="RedFootball | 2026 世界盃市場分歧研究" />
 <meta name="twitter:description" content="查看賽程、單場預測、晉級樹與模型對市場隱含概率的研究對照。內容只供資訊與研究參考。" />
 <title>RedFootball · 2026 世界盃市場分歧研究</title>
-<link rel="stylesheet" href="assets/tokens.css?v=202606111136" />
+<link rel="stylesheet" href="assets/tokens.css?v=202606140100" />
 <style>
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
-  body { margin: 0; }
+  /* overflow-x: clip kills horizontal scroll from decorative absolute layers
+     (.rf-pitch-circle 540px etc.) on mobile WITHOUT breaking position:sticky. */
+  html, body { overflow-x: clip; }
+  body { margin: 0; max-width: 100%; }
   a { -webkit-tap-highlight-color: transparent; }
   ::selection { background: var(--accent-soft); }
   #root { min-height: 100vh; }
@@ -66,9 +70,19 @@
     width: calc(var(--s-5) / 2); height: 1px; background: var(--hairline-strong);
   }
 
-  /* embedded sponsor (redhorsehk.ai) hover */
+  /* embedded sponsor (redhorsehk.ai) — inherit ink, not default link-blue (#0000EE clashed with warm palette) */
+  .rh-ad, .rh-ad:visited { color: var(--ink); text-decoration: none; }
   .rh-ad:hover { border-color: var(--accent) !important; box-shadow: var(--shadow-2); }
   .rh-ad:hover .rh-cta { filter: brightness(0.94); }
+
+  /* responsive type: H1 hero scales down on phones (was fixed 52px → overflowed/oversized) */
+  @media (max-width: 640px) {
+    h1 { font-size: clamp(30px, 8.2vw, 44px) !important; line-height: 1.12 !important; }
+  }
+  /* touch targets: lift icon buttons + mobile tab items toward the 44px minimum */
+  @media (max-width: 880px) {
+    .mobile-tabbar button, .mobile-tabbar a { min-height: 44px; }
+  }
   @media (max-width: 560px) {
     .rh-banner { flex-direction: column !important; align-items: flex-start !important; gap: 14px !important; }
     .rh-banner .rh-cta { width: 100%; text-align: center; }
