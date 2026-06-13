@@ -177,6 +177,22 @@ function sharePortal() {
 
 // ── Top navigation + tabs
 const WC_TABS = [['overview', '總覽'], ['report', '戰報'], ['schedule', '賽程'], ['match', '單場'], ['tree', '晉級樹'], ['bets', '分歧研究'], ['method', '方法']];
+// a11y: APG tablist roving — Arrow/Home/End move focus between tabs (+ activate).
+function wcTabKeyNav(e, key, prefix, setTab) {
+  const keys = WC_TABS.map(t => t[0]);
+  const i = keys.indexOf(key);
+  let ni = -1;
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') ni = (i + 1) % keys.length;
+  else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') ni = (i - 1 + keys.length) % keys.length;
+  else if (e.key === 'Home') ni = 0;
+  else if (e.key === 'End') ni = keys.length - 1;
+  else return;
+  e.preventDefault();
+  const nk = keys[ni];
+  setTab(nk);
+  const el = document.getElementById(prefix + nk);
+  if (el) el.focus();
+}
 function Nav({
   tab,
   setTab
@@ -245,6 +261,8 @@ function Nav({
     id: "nav-tab-" + key,
     "aria-selected": tab === key,
     "aria-controls": "wc-tabpanel",
+    tabIndex: tab === key ? 0 : -1,
+    onKeyDown: e => wcTabKeyNav(e, key, 'nav-tab-', setTab),
     onClick: () => setTab(key),
     style: {
       font: tab === key ? '600 13.5px/1 var(--sans)' : '500 13.5px/1 var(--sans)',
@@ -335,6 +353,8 @@ function Nav({
     id: "m-tab-" + key,
     "aria-selected": tab === key,
     "aria-controls": "wc-tabpanel",
+    tabIndex: tab === key ? 0 : -1,
+    onKeyDown: e => wcTabKeyNav(e, key, 'm-tab-', setTab),
     onClick: () => setTab(key),
     style: {
       minHeight: 44,
