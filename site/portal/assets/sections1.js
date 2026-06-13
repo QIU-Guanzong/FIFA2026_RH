@@ -244,6 +244,7 @@ function Nav({
     role: "tab",
     id: "nav-tab-" + key,
     "aria-selected": tab === key,
+    "aria-controls": "wc-tabpanel",
     onClick: () => setTab(key),
     style: {
       font: tab === key ? '600 13.5px/1 var(--sans)' : '500 13.5px/1 var(--sans)',
@@ -333,6 +334,7 @@ function Nav({
     role: "tab",
     id: "m-tab-" + key,
     "aria-selected": tab === key,
+    "aria-controls": "wc-tabpanel",
     onClick: () => setTab(key),
     style: {
       minHeight: 44,

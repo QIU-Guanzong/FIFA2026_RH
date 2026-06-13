@@ -82,7 +82,11 @@ function App() {
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Nav, {
     tab: tab,
     setTab: setTab
-  }), /*#__PURE__*/React.createElement("main", null, tab === 'overview' && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Hero, {
+  }), /*#__PURE__*/React.createElement("main", {
+    id: "wc-tabpanel",
+    role: "tabpanel",
+    "aria-labelledby": "nav-tab-" + tab
+  }, tab === 'overview' && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Hero, {
     setTab: setTab
   }), /*#__PURE__*/React.createElement(ChampionBoard, null), /*#__PURE__*/React.createElement(RedHorseBanner, null)), tab === 'report' && /*#__PURE__*/React.createElement(LiveReport, null), tab === 'schedule' && /*#__PURE__*/React.createElement(Fixtures, null), tab === 'match' && /*#__PURE__*/React.createElement(MatchPredictor, null), tab === 'tree' && /*#__PURE__*/React.createElement(Bracket, null), tab === 'bets' && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(RedHorseBanner, null), /*#__PURE__*/React.createElement(MarketScan, null), /*#__PURE__*/React.createElement(ValueBets, null)), tab === 'method' && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Pipeline, null), /*#__PURE__*/React.createElement(Backtest, null), /*#__PURE__*/React.createElement(Boundaries, null))), /*#__PURE__*/React.createElement(Footer, null));
 }
