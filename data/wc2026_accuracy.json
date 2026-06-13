@@ -1,6 +1,6 @@
 {
   "meta": {
-    "as_of": "2026-06-13T10:51:59+00:00",
+    "as_of": "2026-06-13T23:25:13+00:00",
     "model_version": 17,
     "model_fit_time": "2026-06-04T16:34:53+00:00",
     "data_cutoff": "2026-06-02",
@@ -8,28 +8,30 @@
     "small_n_threshold": 16,
     "scope": "group stage",
     "result_sources": [
+      "FIFA.com / Yahoo (Saibari 21', Vini Jr 32')",
+      "FOX Sports (Embolo 17' pen, Khoukhi 90+4')",
       "martj42"
     ],
     "unmatched_results": []
   },
   "summary": {
-    "n": 4,
+    "n": 6,
     "indicative": true,
-    "pick_accuracy": 0.5,
-    "log_loss": 1.0064,
-    "brier": 0.6055,
+    "pick_accuracy": 0.3333,
+    "log_loss": 1.162,
+    "brier": 0.7254,
     "log_loss_uniform": 1.0986,
     "brier_uniform": 0.6667,
-    "skill_vs_uniform_ll": 0.0922,
-    "exact_score_hits": 1,
-    "exact_score_rate": 0.25,
-    "top3_hits": 3,
-    "top3_rate": 0.75,
+    "skill_vs_uniform_ll": -0.0634,
+    "exact_score_hits": 2,
+    "exact_score_rate": 0.3333,
+    "top3_hits": 4,
+    "top3_rate": 0.6667,
     "exact_ceiling": 0.12,
-    "ou25_accuracy": 0.5,
-    "btts_accuracy": 0.75,
-    "total_goals_mae": 1.048,
-    "mean_prob_on_actual": 0.3825
+    "ou25_accuracy": 0.3333,
+    "btts_accuracy": 0.8333,
+    "total_goals_mae": 0.987,
+    "mean_prob_on_actual": 0.3324
   },
   "matches": [
     {
@@ -279,6 +281,130 @@
       "btts_correct": true,
       "surprisal": 1.135,
       "source": "martj42"
+    },
+    {
+      "date": "2026-06-13",
+      "group": "C",
+      "home": "Brazil",
+      "away": "Morocco",
+      "home_zh": "巴西",
+      "away_zh": "摩洛哥",
+      "home_flag": "🇧🇷",
+      "away_flag": "🇲🇦",
+      "p_home": 0.3977,
+      "p_draw": 0.2694,
+      "p_away": 0.3328,
+      "pick": "home",
+      "pick_conf": 0.3977,
+      "modal_score": [
+        1,
+        1
+      ],
+      "exp_total": 2.704,
+      "exp_home": 1.422,
+      "exp_away": 1.281,
+      "pred_score": [
+        1,
+        0
+      ],
+      "top3": [
+        [
+          [
+            1,
+            1
+          ],
+          0.1281
+        ],
+        [
+          [
+            1,
+            0
+          ],
+          0.0891
+        ],
+        [
+          [
+            2,
+            1
+          ],
+          0.0868
+        ]
+      ],
+      "in_top3": true,
+      "over25": 0.5073,
+      "btts_pred": 0.5542,
+      "home_goals": 1,
+      "away_goals": 1,
+      "outcome": "draw",
+      "prob_actual": 0.2694,
+      "pick_correct": false,
+      "exact_correct": true,
+      "ou_correct": false,
+      "btts_correct": true,
+      "surprisal": 1.312,
+      "source": "FIFA.com / Yahoo (Saibari 21', Vini Jr 32')"
+    },
+    {
+      "date": "2026-06-13",
+      "group": "B",
+      "home": "Qatar",
+      "away": "Switzerland",
+      "home_zh": "卡塔尔",
+      "away_zh": "瑞士",
+      "home_flag": "🇶🇦",
+      "away_flag": "🇨🇭",
+      "p_home": 0.1235,
+      "p_draw": 0.195,
+      "p_away": 0.6816,
+      "pick": "away",
+      "pick_conf": 0.6816,
+      "modal_score": [
+        0,
+        2
+      ],
+      "exp_total": 3.027,
+      "exp_home": 0.829,
+      "exp_away": 2.198,
+      "pred_score": [
+        0,
+        2
+      ],
+      "top3": [
+        [
+          [
+            0,
+            2
+          ],
+          0.117
+        ],
+        [
+          [
+            0,
+            1
+          ],
+          0.1021
+        ],
+        [
+          [
+            1,
+            2
+          ],
+          0.097
+        ]
+      ],
+      "in_top3": false,
+      "over25": 0.5829,
+      "btts_pred": 0.5054,
+      "home_goals": 1,
+      "away_goals": 1,
+      "outcome": "draw",
+      "prob_actual": 0.195,
+      "pick_correct": false,
+      "exact_correct": false,
+      "ou_correct": false,
+      "btts_correct": true,
+      "surprisal": 1.635,
+      "source": "FOX Sports (Embolo 17' pen, Khoukhi 90+4')"
     }
   ]
 }

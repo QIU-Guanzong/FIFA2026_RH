@@ -3,6 +3,8 @@
   "_sources": "CBS Sports / Yahoo Sports / ESPN / FIFA.com（2026-06-13 核验，交叉一致）",
   "results": [
     {"date": "2026-06-12", "home": "United States", "away": "Paraguay", "home_goals": 4, "away_goals": 1, "source": "CBS Sports"},
-    {"date": "2026-06-12", "home": "Canada", "away": "Bosnia and Herzegovina", "home_goals": 1, "away_goals": 1, "source": "CBS Sports / Yahoo"}
+    {"date": "2026-06-12", "home": "Canada", "away": "Bosnia and Herzegovina", "home_goals": 1, "away_goals": 1, "source": "CBS Sports / Yahoo"},
+    {"date": "2026-06-13", "home": "Qatar", "away": "Switzerland", "home_goals": 1, "away_goals": 1, "source": "FOX Sports (Embolo 17' pen, Khoukhi 90+4')"},
+    {"date": "2026-06-13", "home": "Brazil", "away": "Morocco", "home_goals": 1, "away_goals": 1, "source": "FIFA.com / Yahoo (Saibari 21', Vini Jr 32')"}
   ]
 }
