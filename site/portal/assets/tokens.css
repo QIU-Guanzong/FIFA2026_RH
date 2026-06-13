@@ -19,8 +19,8 @@
   /* ---------- Ink ---------- */
   --ink:         #171717;  /* primary text */
   --ink-soft:    #404040;  /* secondary */
-  --muted:       #A3A3A3;  /* tertiary */
-  --muted-2:     #737373;  /* labels */
+  --muted:       #6F6F6F;  /* tertiary — darkened to WCAG AA ~4.7:1 on --bg (was #A3A3A3=2.41, failed) */
+  --muted-2:     #5E5E5E;  /* labels — kept darker than --muted for hierarchy, ~6.2:1 */
   --hairline:        #E8E8E3;  /* solid soft border */
   --hairline-strong: #D4D4CE;
   --divider:     #F0F0EC;  /* inner row divider */
