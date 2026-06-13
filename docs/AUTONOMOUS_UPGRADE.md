@@ -31,7 +31,8 @@ CEO Gavin 2026-06-13 夜间授权：自主持续升级，不必逐次询问，AI
 ## Backlog（优先级从高到低）
 
 - [x] A1 全局 `:focus-visible` 环（tokens.css：`outline:2px solid var(--accent);outline-offset:2px`，去掉依赖默认 outline:auto）。CSS，安全。
-- [ ] A2 Tab 语义：导航 tab 加 `role=tablist/tab`、`aria-selected`、`aria-controls`（sections1.js:~240 + mobile-tabbar）。
+- [x] A2 Tab 语义：导航 tab 加 `role=tablist/tab`、`aria-selected`、`aria-controls`（sections1.js:~240 + mobile-tabbar）。
+- [ ] A2b tab 补全：aria-controls→tabpanel(app.js 内容容器加 id/role=tabpanel) + 方向键 roving tabindex；移动 tabbar 7 标签 flex 均分(当前 repeat(6) 失效)
 - [ ] A3 弹窗 a11y：`role=dialog` `aria-modal` `aria-labelledby` + 关闭后焦点归还（sections4.js:296、sections7.js:272）。
 - [ ] A4 可点卡片 → `<button>`/`role=button`+`onKeyDown`(Enter/Space)+`tabIndex`（sections4.js:79、sections7.js:167）。
 - [ ] A5 晋级树 `minWidth:920` 移动端改为横向滚动容器内可读（已有 overflow，确认 375 不撑破页面+加滚动提示）（sections6.js:625）。
