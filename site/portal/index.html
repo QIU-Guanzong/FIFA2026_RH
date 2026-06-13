@@ -84,9 +84,11 @@
   @media (max-width: 640px) {
     h1 { font-size: clamp(30px, 8.2vw, 44px) !important; line-height: 1.12 !important; }
   }
-  /* touch targets: lift icon buttons + mobile tab items toward the 44px minimum */
+  /* touch targets + even distribution: 44px min & equal-width tabs across the bar
+     (the inline repeat(6,1fr) grid is inert under display:flex, so tabs were
+     left-bunched with dead space on the right; flex:1 spreads all 7 evenly) */
   @media (max-width: 880px) {
-    .mobile-tabbar button, .mobile-tabbar a { min-height: 44px; }
+    .mobile-tabbar button, .mobile-tabbar a { min-height: 44px; flex: 1 1 0; min-width: 0; }
   }
   @media (max-width: 560px) {
     .rh-banner { flex-direction: column !important; align-items: flex-start !important; gap: 14px !important; }
