@@ -232,6 +232,8 @@ function Nav({
     }
   }, "Football"))), /*#__PURE__*/React.createElement("div", {
     className: "nav-links",
+    role: "tablist",
+    "aria-label": "主导航",
     style: {
       display: 'flex',
       gap: 2,
@@ -239,6 +241,9 @@ function Nav({
     }
   }, WC_TABS.map(([key, label]) => /*#__PURE__*/React.createElement("button", {
     key: key,
+    role: "tab",
+    id: "nav-tab-" + key,
+    "aria-selected": tab === key,
     onClick: () => setTab(key),
     style: {
       font: tab === key ? '600 13.5px/1 var(--sans)' : '500 13.5px/1 var(--sans)',
@@ -307,6 +312,8 @@ function Nav({
     }
   }, "\u21AA")))), /*#__PURE__*/React.createElement("div", {
     className: "mobile-tabbar",
+    role: "tablist",
+    "aria-label": "\u4E3B\u5BFC\u822A",
     style: {
       position: 'fixed',
       left: 0,
@@ -323,9 +330,12 @@ function Nav({
     }
   }, WC_TABS.map(([key, label]) => /*#__PURE__*/React.createElement("button", {
     key: key,
+    role: "tab",
+    id: "m-tab-" + key,
+    "aria-selected": tab === key,
     onClick: () => setTab(key),
     style: {
-      minHeight: 42,
+      minHeight: 44,
       font: tab === key ? '600 11px/1.1 var(--sans)' : '500 11px/1.1 var(--sans)',
       color: tab === key ? 'var(--accent)' : 'var(--muted-2)',
       background: tab === key ? 'var(--accent-50)' : 'transparent',
