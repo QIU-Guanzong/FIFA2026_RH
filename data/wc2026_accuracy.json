@@ -1,0 +1,284 @@
+{
+  "meta": {
+    "as_of": "2026-06-13T10:51:59+00:00",
+    "model_version": 17,
+    "model_fit_time": "2026-06-04T16:34:53+00:00",
+    "data_cutoff": "2026-06-02",
+    "neutral_policy": "all matches neutral=True（与线上 MatchPredictor / 锦标赛模拟同口径；东道主主场加成未建模）",
+    "small_n_threshold": 16,
+    "scope": "group stage",
+    "result_sources": [
+      "martj42"
+    ],
+    "unmatched_results": []
+  },
+  "summary": {
+    "n": 4,
+    "indicative": true,
+    "pick_accuracy": 0.5,
+    "log_loss": 1.0064,
+    "brier": 0.6055,
+    "log_loss_uniform": 1.0986,
+    "brier_uniform": 0.6667,
+    "skill_vs_uniform_ll": 0.0922,
+    "exact_score_hits": 1,
+    "exact_score_rate": 0.25,
+    "top3_hits": 3,
+    "top3_rate": 0.75,
+    "exact_ceiling": 0.12,
+    "ou25_accuracy": 0.5,
+    "btts_accuracy": 0.75,
+    "total_goals_mae": 1.048,
+    "mean_prob_on_actual": 0.3825
+  },
+  "matches": [
+    {
+      "date": "2026-06-11",
+      "group": "A",
+      "home": "Mexico",
+      "away": "South Africa",
+      "home_zh": "墨西哥",
+      "away_zh": "南非",
+      "home_flag": "🇲🇽",
+      "away_flag": "🇿🇦",
+      "p_home": 0.5727,
+      "p_draw": 0.2357,
+      "p_away": 0.1915,
+      "pick": "home",
+      "pick_conf": 0.5727,
+      "modal_score": [
+        1,
+        1
+      ],
+      "exp_total": 2.837,
+      "exp_home": 1.854,
+      "exp_away": 0.983,
+      "pred_score": [
+        1,
+        0
+      ],
+      "top3": [
+        [
+          [
+            1,
+            1
+          ],
+          0.1121
+        ],
+        [
+          [
+            1,
+            0
+          ],
+          0.1033
+        ],
+        [
+          [
+            2,
+            0
+          ],
+          0.1007
+        ]
+      ],
+      "in_top3": true,
+      "over25": 0.5394,
+      "btts_pred": 0.5331,
+      "home_goals": 2,
+      "away_goals": 0,
+      "outcome": "home",
+      "prob_actual": 0.5727,
+      "pick_correct": true,
+      "exact_correct": false,
+      "ou_correct": false,
+      "btts_correct": false,
+      "surprisal": 0.557,
+      "source": "martj42"
+    },
+    {
+      "date": "2026-06-11",
+      "group": "A",
+      "home": "South Korea",
+      "away": "Czech Republic",
+      "home_zh": "韩国",
+      "away_zh": "捷克",
+      "home_flag": "🇰🇷",
+      "away_flag": "🇨🇿",
+      "p_home": 0.3824,
+      "p_draw": 0.2701,
+      "p_away": 0.3475,
+      "pick": "home",
+      "pick_conf": 0.3824,
+      "modal_score": [
+        1,
+        1
+      ],
+      "exp_total": 2.701,
+      "exp_home": 1.388,
+      "exp_away": 1.313,
+      "pred_score": [
+        1,
+        0
+      ],
+      "top3": [
+        [
+          [
+            1,
+            1
+          ],
+          0.1285
+        ],
+        [
+          [
+            1,
+            0
+          ],
+          0.0871
+        ],
+        [
+          [
+            2,
+            1
+          ],
+          0.0849
+        ]
+      ],
+      "in_top3": true,
+      "over25": 0.5066,
+      "btts_pred": 0.5547,
+      "home_goals": 2,
+      "away_goals": 1,
+      "outcome": "home",
+      "prob_actual": 0.3824,
+      "pick_correct": true,
+      "exact_correct": false,
+      "ou_correct": true,
+      "btts_correct": true,
+      "surprisal": 0.961,
+      "source": "martj42"
+    },
+    {
+      "date": "2026-06-12",
+      "group": "B",
+      "home": "Canada",
+      "away": "Bosnia and Herzegovina",
+      "home_zh": "加拿大",
+      "away_zh": "波黑",
+      "home_flag": "🇨🇦",
+      "away_flag": "🇧🇦",
+      "p_home": 0.5065,
+      "p_draw": 0.2536,
+      "p_away": 0.2399,
+      "pick": "home",
+      "pick_conf": 0.5065,
+      "modal_score": [
+        1,
+        1
+      ],
+      "exp_total": 2.764,
+      "exp_home": 1.679,
+      "exp_away": 1.086,
+      "pred_score": [
+        1,
+        0
+      ],
+      "top3": [
+        [
+          [
+            1,
+            1
+          ],
+          0.1206
+        ],
+        [
+          [
+            1,
+            0
+          ],
+          0.1
+        ],
+        [
+          [
+            2,
+            1
+          ],
+          0.0964
+        ]
+      ],
+      "in_top3": true,
+      "over25": 0.522,
+      "btts_pred": 0.5445,
+      "home_goals": 1,
+      "away_goals": 1,
+      "outcome": "draw",
+      "prob_actual": 0.2536,
+      "pick_correct": false,
+      "exact_correct": true,
+      "ou_correct": false,
+      "btts_correct": true,
+      "surprisal": 1.372,
+      "source": "martj42"
+    },
+    {
+      "date": "2026-06-12",
+      "group": "D",
+      "home": "United States",
+      "away": "Paraguay",
+      "home_zh": "美国",
+      "away_zh": "巴拉圭",
+      "home_flag": "🇺🇸",
+      "away_flag": "🇵🇾",
+      "p_home": 0.3214,
+      "p_draw": 0.2686,
+      "p_away": 0.41,
+      "pick": "away",
+      "pick_conf": 0.41,
+      "modal_score": [
+        1,
+        1
+      ],
+      "exp_total": 2.707,
+      "exp_home": 1.257,
+      "exp_away": 1.45,
+      "pred_score": [
+        0,
+        1
+      ],
+      "top3": [
+        [
+          [
+            1,
+            1
+          ],
+          0.1277
+        ],
+        [
+          [
+            0,
+            1
+          ],
+          0.0907
+        ],
+        [
+          [
+            1,
+            2
+          ],
+          0.0882
+        ]
+      ],
+      "in_top3": false,
+      "over25": 0.5081,
+      "btts_pred": 0.5537,
+      "home_goals": 4,
+      "away_goals": 1,
+      "outcome": "home",
+      "prob_actual": 0.3214,
+      "pick_correct": false,
+      "exact_correct": false,
+      "ou_correct": true,
+      "btts_correct": true,
+      "surprisal": 1.135,
+      "source": "martj42"
+    }
+  ]
+}

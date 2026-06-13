@@ -149,6 +149,21 @@ function TeamLine({
     }
   }, team.en));
 }
+// 已完赛比分条（真实赛果 + 赛前模型押注对照）
+const RES_ZH = { home: '主胜', draw: '平局', away: '客胜' };
+function FxResult({ r }) {
+  const h = React.createElement;
+  const ok = r.pick_correct;
+  return h('div', { style: {
+    display: 'flex', alignItems: 'center', gap: 10, marginBottom: 11, padding: '6px 11px',
+    borderRadius: 'var(--r-6)', background: ok ? 'var(--down-bg)' : 'var(--up-bg)', flexWrap: 'wrap',
+  } },
+    h('span', { style: { font: '600 10px/1 var(--font-head)', letterSpacing: '0.06em', color: 'var(--muted-2)', textTransform: 'uppercase' } }, '完场'),
+    h('span', { style: { font: '700 17px/1 var(--font-display)', color: 'var(--ink)', fontVariantNumeric: 'tabular-nums' } }, r.hg + ' – ' + r.ag),
+    h('span', { style: { font: 'var(--label)', color: ok ? 'var(--down)' : 'var(--up)', marginLeft: 'auto' } },
+      '赛前押 ' + RES_ZH[r.pick] + (ok ? ' ✓' : ' ✗')),
+  );
+}
 function FixtureCard({
   f,
   market,
@@ -169,7 +184,9 @@ function FixtureCard({
       cursor: 'pointer',
       transition: 'border-color var(--dur-fast) var(--ease)'
     }
-  }, /*#__PURE__*/React.createElement("div", {
+  }, f.result && /*#__PURE__*/React.createElement(FxResult, {
+    r: f.result
+  }), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       alignItems: 'center',
@@ -562,7 +579,7 @@ function KnockoutView() {
   }, m.b ? slot(m.b) : /*#__PURE__*/React.createElement("span", null, "\u80DC ", m.wb))))))));
 }
 function Fixtures() {
-  const fx = window.WC_FIXTURES;
+  const fx = window.WC_REAL_FIXTURES || window.WC_FIXTURES;
   const [stage, setStage] = useState7('group');
   const [mkt, setMkt] = useState7(FX_MARKETS[0]);
   const [card, setCard] = useState7(false);
@@ -624,7 +641,7 @@ function Fixtures() {
       color: 'var(--muted-2)',
       whiteSpace: 'nowrap'
     }
-  }, "Upcoming \xB7 \u4E16\u754C\u676F 104 \u573A"), /*#__PURE__*/React.createElement("h2", {
+  }, "\u8D5B\u7A0B \xB7 \u5DF2\u5F00\u8D5B \xB7 104 \u573A"), /*#__PURE__*/React.createElement("h2", {
     style: {
       font: 'var(--h1)',
       letterSpacing: '-0.02em',

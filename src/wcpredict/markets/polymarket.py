@@ -102,6 +102,8 @@ class PolymarketSource:
         """
         rows = []
         for m in (event.get("markets") or []):
+            if m.get("closed") is True:
+                continue   # 跳过已结算/退市市场（如 Peru lastPx=1.0、Italy 未参赛）——否则污染去水位分母
             title = m.get("groupItemTitle") or m.get("question")
             if not title:
                 continue

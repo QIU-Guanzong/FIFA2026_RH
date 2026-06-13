@@ -1,0 +1,96 @@
+WC2026 CHAMPION UNDER-DISPERSION — MODEL INTERNALS DIAGNOSIS
+(all numbers from no-leak walk-forward on 15,616 intl matches 2010-2026, passes=4,
+ min_train=200, refit_every=50; champion sims OfficialWC2026Simulator seed=2026)
+
+KEY FINDING: explanation B's PRESCRIPTION ("raise goals_scale") is WRONG. The model is
+NOT under-confident on big favorites per-match — it is slightly OVER-confident.
+
+1. SUPREMACY-BINNED RELIABILITY (market-independent, the discriminator):
+   At deployed-ish scale 0.0018, favorite-win realized < predicted in EVERY bin:
+   p_fav 0.80-1.01: pred 0.894 vs real 0.854 (gap -0.040). Favorites win LESS than model says.
+   => raising scale (more favoritism) makes per-match calibration WORSE.
+
+2. goals_scale SWEEP (1X2 log-loss + top-bin gap):
+   scale 0.0008 ll 0.935 | 0.0012 ll 0.910 | 0.0015 ll 0.9039 (BEST, top-bin gap +0.007)
+   0.0018 ll 0.908 (gap -0.040) | 0.0022 ll 0.927 | 0.0030 ll 1.011 | 0.0040 ll 1.191
+   1X2-OPTIMAL scale ~= 0.0015. Calibration sweet spot (top-bin gap~0) also at 0.0015.
+
+3. CHAMPION SLOPE vs market by scale (top-48 universe, "auto" gives scale~0.00103):
+   0.00103 slope 0.632 (=deployed 0.627 reproduced) | 0.0015 slope 0.870 |
+   0.0018 slope 0.994 (matches market) | 0.0022 slope 1.151 (over-concentrates)
+   => slope=1 needs scale ~0.0018, ABOVE the 1X2 optimum 0.0015 and FAR above deployed 0.00103.
+
+4. att=-def IDENTITY COST of raising scale (Spain vs Qatar):
+   scale 0.00103: lam 2.84 vs 0.64, total 3.48, ratio 4.4
+   scale 0.0018:  lam 4.96 vs 0.37, total 5.33, ratio 13.5  <- absurd blowout, total goals inflated
+   Raising scale to fix supremacy ALSO inflates TOTAL goals (cosh(delta) term) -> breaks scoreline realism.
+
+5. 50/50 SHOOTOUT B-CHANNEL (invisible to 1X2 backtest):
+   baseline 50/50: champ_top1 0.140, top5sum 0.425, slope 0.634
+   strength-tilted pens: champ_top1 0.153, top5sum 0.452, slope 0.683
+   Real but modest: ~0.05 of the 0.63->1.0 slope gap. P(reach pens) only 5-13% per knockout tie.
+   This IS legitimate structural under-dispersion fixable WITHOUT touching goals_scale.
+
+DECOMPOSITION of the 0.63->1.0 champion slope gap:
+ a) deployed scale 0.00103 sits BELOW its own 1X2 optimum 0.0015 -> moving to 0.0015
+    is a FREE calibration win (slope 0.63->0.87, ll 0.908->0.904). NOT market-fitting.
+ b) 50/50 shootout -> strength-tilt: slope +0.05, free (invisible to 1X2).
+ c) RESIDUAL (slope 0.87 w/ a+b ~0.92 still < 1.0): closing it needs scale 0.0018 which
+    BREAKS scoreline realism (Spain 5-0 Qatar) and pushes favorites to over-confidence.
+    This residual = explanation A (elite knockout intangibles market prices, we don't) +
+    possible market over-concentration on glamour favorites. SHOULD NOT be chased by scaling.
+
+ANSWER TO "继续训练":
+ - More DATA will NOT fix this. Calibration is already good on average; under-dispersion is a
+   PARAMETERIZATION property (single global goals_scale + att=-def + 50/50 resolution).
+ - Two FREE structural fixes (do not require chasing the market):
+   (i) set goals_scale to the 1X2 backtest optimum (~0.0015) instead of "auto"(~0.00103);
+   (ii) strength-tilt the penalty shootout instead of 50/50.
+   Together: slope ~0.63 -> ~0.90, with EQUAL or BETTER 1X2 calibration.
+ - The remaining gap to slope=1.0 is NOT a bug to fix by scaling — it is the model honestly
+   declining to price elite intangibles. The "don't bet the longshots / under-dispersion not
+   edge" headline STANDS, but is now precisely attributable, not hand-waved.
+
+=========================================================================
+TOP-48 SUBSET CORRECTION (advisor-flagged, load-bearing) — RESULT FLIPS (i)
+=========================================================================
+1X2 log-loss optimum is REGIME-DEPENDENT:
+  full universe (n=15616):        optimum scale ~0.0015 (ll 0.9039)
+  EITHER team official (n=7255):  optimum scale ~0.0015 (ll 0.8816)
+  BOTH teams official (n=1907):   optimum scale ~0.0012 (ll 1.0079)  <- DEPLOYMENT REGIME
+Deployed auto~=0.00103 is CLOSE to the both-official optimum (0.0012), NOT below 0.0015.
+
+both-official top-bin reliability (strong vs strong):
+  scale 0.00103: gaps +0.013/+0.034/-0.057  (near-calibrated, top bin n=62 noisy)
+  scale 0.0012:  gaps +0.009/+0.009/-0.027  (BEST, nearly flat)
+  scale 0.0015:  gaps -0.010/-0.024/-0.108  (OVER-confident on favorites)
+
+=> Prescription (i) "set scale to 0.0015 as a free win" DOES NOT SURVIVE the top-48 test.
+   In the deployment regime (two strong teams) the optimum is ~0.0012, essentially where the
+   model already sits (auto 0.00103). Pushing to 0.0015 trades a tiny either-regime gain for
+   over-confidence in strong-vs-strong games. NOT free.
+
+REVISED VERDICT:
+ - The model is HONESTLY CALIBRATED for its regime. The 0.63 champion slope is NOT a fixable
+   scale bug. Both explanations contribute but A dominates the residual:
+   * B (mechanical compression): partly real but the scale is ALREADY near its calibration
+     optimum; can't crank it without breaking per-match calibration AND scoreline realism
+     (Spain 5-0 Qatar at 0.0018). att=-def + single global scale caps how concentrated the
+     champion dist can get WITHOUT distorting totals.
+   * A (elite intangibles): the residual. Even at matched dispersion the model peaks on Spain
+     (top1 0.22 vs market 0.163) while market spreads love on France/Portugal/England.
+     Model & market disagree on SHAPE not just spread -> market prices glamour/intangibles
+     the goals-Elo prior structurally cannot.
+ - 50/50 shootout: 50/50 is largely CORRECT (shootouts are near coin-flips); strength-tilt is
+   a minor debatable +0.05 slope, not a clear bug fix. Reaches shootout only 5-13% per tie.
+
+继续训练 ANSWER (final):
+ - More DATA won't fix it. The model is already calibrated; this is a structural property.
+ - Don't chase the champion slope by raising goals_scale — it's near its per-match optimum and
+   raising it breaks both calibration (over-confident favorites) and scoreline realism (totals).
+ - The "under-dispersion not edge / don't bet the longshots" headline STANDS and is now precise:
+   the model is calibrated per-match; the champion gap is the goals-Elo prior honestly declining
+   to price elite knockout intangibles (squad depth, fatigue, big-game pedigree), which the
+   $2.2B market does price. That's a known limitation to NAME, not a bug to patch.
+ - If anything is worth doing structurally (future, not "train more"): add an intangibles
+   feature to the prior (depth/fatigue/pedigree) — a MODELING change, not more data, not scaling.

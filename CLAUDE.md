@@ -16,6 +16,30 @@
 - **R32 路径图填球队**（2026-06-05）：`refresh_wc2026_site.py` 的 `_modal_positions` 给 R32 入口槽填"最可能球队+概率"（头名=argmax win_group，次名=头名外 argmax **advance**，与组卡片同规则保证不矛盾）；最佳第三槽保持多组候选、16 强后保持"胜 N"（只填入口层，下游填死=假装确定）。bracket 行高 100px（容纳每卡 5 行，避免叠压）。
 - **线上页**：loop 只刷新本地 `site/index.html`，**不自动 scp**；服务器更新仍需 `bash site/deploy.sh`（走 `ssh cfd`）。线上可能滞后于本地。
 
+## 开赛后准确率追踪 + 比分预测（2026-06-13，世界杯 6-11 开赛）
+
+- **准确率追踪全链路**（门户「戰報」tab，已上线）：
+  - `scripts/freeze_predictions.py` → `data/wc2026_predictions_frozen.json`：部署模型 default **v17**（fit 6-04，数据 cutoff **2026-06-02**，开赛前 9 天 → **ex-ante 无泄漏**；WC 比分在训练数据里是 NA，martj42 占位行被 validate 丢弃）一次性冻结 72 场小组赛 1X2/比分/大小球/BTTS。**写一次**（--force 才重冻）。铁律 #4：冻结后不回调。含 `pred_score`（条件最可能比分）+ `top_scores`（top-5）。
+  - `scripts/score_predictions.py` → `site/portal/assets/accuracy.js`（`window.WC_ACCURACY` + `window.WC_REAL_FIXTURES`）+ `data/wc2026_accuracy.json`：真实赛果 = martj42 实时 CSV（canonical，自动更新；滞后 1-2 天）∪ `data/wc2026_results_manual.json`（Web 核验补 martj42 未 ingest）。**刷新准确率只跑这一个脚本**。实时 CSV 下到 repo 外 `~/FootballData/wc2026_live_results.csv`，**绝不**覆盖训练缓存 `data/raw/international_results.csv`。
+  - UI：`assets/sections8.js`(LiveReport) + `WC_TABS`(sections1) + `app.js`；`sections7.js` 改读 `WC_REAL_FIXTURES`（真实官方分组，**修了合成赛程把韩国/捷克错分 A/H 组的 bug**，真实同在 A 组）+ 完赛比分条。**改 JS 必 bump `index.html` 里 `?v=`** 否则线上吃旧缓存。
+  - 纪律：n<16 指标结构性置灰「指示性」。改门户**必须** `node -c` + 本地 `python3 -m http.server` + playwright 真渲染再 deploy（禁直接 deploy，一处 typo 白屏整站）。
+- **刷新/自动化**：日常刷新一条命令 `bash scripts/refresh_accuracy.sh`（= score + analyze_market + deploy，从 Terminal/交互 shell 跑、TCC 继承 Downloads 访问，可用）。
+  - **当前自动机制 = 无-FDA 脱离式守护** `scripts/accuracy_daemon.sh`（每 6h 跑 refresh）：`nohup bash scripts/accuracy_daemon.sh >/dev/null 2>&1 & disown` 启动（**macOS 无 setsid**，用 nohup；继承「终端」的 FDA → 能访问 Downloads）。PID 文件 `logs/accuracy-refresh/daemon.pid`，停 `bash scripts/stop_accuracy_daemon.sh`。**局限：不随重启自启**（重启后重跑启动命令）。已在跑(本会话启动)。
+  - ssh 偶发 `Connection closed by …22`=服务器侧**限流/临时封 IP**（本会话密集 deploy 触发 fail2ban），数分钟自解；守护 deploy 失败不致命，本地产物已更新，下个 6h 周期自动补传。
+  - **launchd 自动跑被 macOS TCC 挡**：`~/Downloads` 是隐私保护目录，launchd 后台 agent exec 此处脚本报 `Operation not permitted`（exit 126）——**本项目 `com.gavin.wcpredict.market-snapshot` 同病**，`com.astock.*` 的 status 0 是旧状态（停跑前遗留），现跑也会挡。
+  - 启用真·全自动需**一次性手动**：系统设置→隐私与安全性→完全磁盘访问，给 `/bin/bash`（或 launchd）授权，再 `launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.redfootball.accuracy-refresh.plist`（plist 已备 `scripts/com.redfootball.accuracy-refresh.plist`，每日 10:00/22:00）。未授权前**别留 loaded**（每日 2 次报错噪声），已 bootout。
+  - ssh 偶发 `Connection closed by …22`=服务器侧限流瞬断，重试即可（refresh 脚本对 deploy 失败不致命，本地 accuracy.js 仍更新）。
+- **比分预测：测量结论（`scripts/measure_scoreline.py`，国际赛 7071 场留出）**：
+  - 「最可能比分常年 1-1」「期望总进球被压在 2.70」**不是 bug，是 `attack=−defence` Elo 参数化的数学恒等式**：`log λh+log λa=2·intercept` 恒定 → `λh·λa=base_goals²`，总进球 `=2·base_goals·cosh(δ)≥2·base_goals`，min=2.70=2×1.35 是指纹。**`goals_scale` 控的是 supremacy(净胜)不是总进球，禁止为「让比分不全是 1-1」去调它**。
+  - 真实国际赛**均总进球 2.72**，模型同量级（mismatch 里反而**略高估** totals，从不低估）；4 场 WC 均 3.0 是小样本噪声。
+  - `base_goals` **越低越好**（1.30 略优于 1.35：scoreline-LL 2.943 vs 2.966、1X2-LL 0.888 vs 0.890），但增益在噪声内，**不值得动已 banked 的校准**（0.9049）。`rho=-0.05` 已近最优。
+  - **精确比分天花板≈12%**（最优调参也只 12% 命中）→ 单一比分天生不笃定。故 UI 改用 **Top-3 比分分布 + 预期进球**呈现（已实现：战报卡 top-3 chips 高亮真实命中 + 「比分·Top-3命中」KPI，实测 3/4）。**结论：模型校准良好，无需改模型；优化=诚实呈现**。
+- **链上市场套利/分歧（门户「分歧研究」tab MarketScan，已上线）**：
+  - `scripts/analyze_market.py` → `site/portal/assets/market.js`(`window.WC_MARKET`)+`data/wc2026_market.json`：Polymarket 夺冠盘效率(vig)、无风险套利硬判定、跨市场一致性、模型 vs 市场分歧(+EV)、赔率流变动。
+  - **修了 de-vig 污染 bug**：`parse_winner_market` 原未滤 `closed` 市场 → Peru(已结算 lastPx=1.0)+Italy(未参赛) 进入分母 → Σyes=2.03 而非干净 1.028 → **市场概率被腰斩到真实的 51%**（影响 CLV snapshot `market_p` 与 CLI；**线上门户不受影响**，它走 engine.js 原始 cents 非 de-vig）。修复=`parse` 跳过 `closed is True`，+回归测试 `test_closed_markets_excluded_from_devig`。
+  - **套利答案（实测有证据）**：夺冠盘 $2.2B 成交、vig 2.8%、买全 48 队 Yes 成本 1.046>1 → **无无风险套利**；12 组「小组头名」盘对照 0 例反常（缺「出线」盘，无干净 dutch-book）。可操作的只有**模型 vs 市场分歧(+EV 价值，非无风险)**，铁律「独立≠edge」。
+  - **赔率流**：富字段(bid/ask/spread/overround/volume) 追加 `~/FootballData/data/market_flow.parquet`，**已并入 `refresh_accuracy.sh`**（score→market→deploy 一条龙）。旧 `market_snapshots.parquet`(仅 yes_price，6-05 停于 TCC) 不再依赖。
+
 ## 技术栈
 
 - Python 3.12（`.venv/`，homebrew python3.12）

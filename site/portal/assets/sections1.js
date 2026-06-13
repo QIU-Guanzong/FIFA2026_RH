@@ -176,7 +176,7 @@ function sharePortal() {
 }
 
 // ── Top navigation + tabs
-const WC_TABS = [['overview', '總覽'], ['schedule', '賽程'], ['match', '單場'], ['tree', '晉級樹'], ['bets', '分歧研究'], ['method', '方法']];
+const WC_TABS = [['overview', '總覽'], ['report', '戰報'], ['schedule', '賽程'], ['match', '單場'], ['tree', '晉級樹'], ['bets', '分歧研究'], ['method', '方法']];
 function Nav({
   tab,
   setTab

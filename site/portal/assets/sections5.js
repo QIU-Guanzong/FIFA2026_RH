@@ -68,7 +68,7 @@ function ValueBets() {
   }, /*#__PURE__*/React.createElement(SectionHead, {
     kicker: "\u5E02\u5834\u5206\u6B67\u7814\u7A76 \xB7 \u6A21\u578B vs \u5E02\u5834\u50F9\u683C",
     title: "\u5148\u770B\u5206\u6B67\uFF0C\u518D\u5224\u65B7\u662F\u5426\u503C\u5F97\u7814\u7A76",
-    sub: "\u53BB\u6C34\u4F4D\u5F8C\uFF0C\u7528\u6A21\u578B\u6982\u7387\u8207\u5E02\u5834\u96B1\u542B\u6982\u7387\u5C0D\u7167\u3002edge \u53EA\u662F\u5206\u6B67\u5EA6\uFF0C\u4E0D\u7B49\u65BC\u53EF\u4EA4\u6613\u512A\u52E2\uFF1BKelly \u50C5\u4F5C\u98A8\u96AA\u91CF\u7D1A\u53C3\u8003\uFF0C\u4E0D\u69CB\u6210\u6295\u6CE8\u6216\u8CC7\u91D1\u914D\u7F6E\u5EFA\u8B70\u3002"
+    sub: "\u7528\u6A21\u578B\u6982\u7387\u8207\u5E02\u5834\u96B1\u542B\u6982\u7387\u5C0D\u7167\uFF08\u793A\u610F\u6027\u6649\u7D1A\u5C0D\u9663\uFF0C\u8CE0\u7387\u5DF2\u6B63\u898F\u5316\uFF09\u3002edge \u53EA\u662F\u5206\u6B67\u5EA6\uFF0C\u4E0D\u7B49\u65BC\u53EF\u4EA4\u6613\u512A\u52E2\uFF0C\u4E0D\u69CB\u6210\u6295\u6CE8\u5EFA\u8B70\u3002"
   }), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
@@ -93,7 +93,7 @@ function ValueBets() {
       font: 'var(--small)',
       color: 'var(--ink-soft)'
     }
-  }, "\u4EC5\u4F9B\u7814\u7A76 \xB7 \u6A21\u578B\u4E0E\u5E02\u573A\u4EF7\u683C\u5BF9\u6BD4\uFF0C\u975E\u6295\u6CE8\u5EFA\u8BAE\u3002\u6570\u636E\u4E3A\u5408\u6210/\u9A8C\u8BC1\u94FE\u8DEF\uFF0C\u7406\u6027\u5BF9\u5F85\u98CE\u9669\u3002")), /*#__PURE__*/React.createElement("div", {
+  }, "\u4EC5\u4F9B\u7814\u7A76 \xB7 \u6A21\u578B\u4E0E\u5E02\u573A\u4EF7\u683C\u5BF9\u6BD4\uFF0C\u975E\u6295\u6CE8\u5EFA\u8BAE\u3002\u6B63 edge \u591A\u534A\u53CD\u6620\u6A21\u578B\u6BD4\u5E02\u573A\u66F4\u5E73\uFF08\u6B20\u79BB\u6563\uFF09\u800C\u975E\u771F edge\uFF1B\u593A\u51A0\u76D8\u7684\u51B7\u95E8\u7CFB\u7EDF\u6027\u504F\u79BB\u8BCA\u65AD\u8BE6\u89C1\u300C\u5206\u6B67\u7814\u7A76\u300D\u3002")),/*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       justifyContent: 'space-between',
@@ -165,8 +165,7 @@ function ValueBets() {
     style: {
       textAlign: 'right'
     }
-  }, "\u98A8\u96AA\u91CF\u7D1A \xBCK")), value.map((o, i) => {
-    const stake = Math.max(0, o.kelly * 0.25);
+  }, "\u5E02\u5834\u50F9\xB7\u53C3\u8003")), value.map((o, i) => {
     return /*#__PURE__*/React.createElement("div", {
       key: i,
       style: {
@@ -213,25 +212,15 @@ function ValueBets() {
       style: {
         textAlign: 'right',
         font: '600 14px/1 var(--mono)',
-        color: 'var(--up)'
+        color: 'var(--ink-soft)'
       }
     }, "+", (o.edge * 100).toFixed(1)), /*#__PURE__*/React.createElement("span", {
       style: {
-        textAlign: 'right'
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        font: '600 13px/1 var(--mono)',
-        color: 'var(--accent)'
-      }
-    }, (stake * 100).toFixed(1), "%"), /*#__PURE__*/React.createElement("span", {
-      style: {
-        display: 'inline-block',
-        marginLeft: 8,
-        font: 'var(--label)',
+        textAlign: 'right',
+        font: '500 13px/1 var(--mono)',
         color: 'var(--muted)'
       }
-    }, "@", o.mktOdds.toFixed(2))));
+    }, o.mktOdds.toFixed(2), "x"));
   })), /*#__PURE__*/React.createElement("div", {
     className: "vb-grid",
     style: {

@@ -47,6 +47,24 @@ def test_parse_winner_market_and_price_priority():
     assert df.set_index("team").loc["England", "yes_price"] == pytest.approx(0.11)        # outcomePrices 回退
 
 
+def test_closed_markets_excluded_from_devig():
+    """已结算市场（Peru lastPx=1.0、Italy 未参赛）必须被丢弃——否则去水位分母被污染、市场概率被腰斩。"""
+    event = {
+        "markets": [
+            {"groupItemTitle": "Spain", "lastTradePrice": 0.16, "closed": False},
+            {"groupItemTitle": "France", "lastTradePrice": 0.16, "closed": False},
+            {"groupItemTitle": "Peru", "lastTradePrice": 1.0, "closed": True},     # 已结算 → 不计
+            {"groupItemTitle": "Italy", "lastTradePrice": 0.001, "closed": True},  # 未参赛 → 不计
+        ]
+    }
+    df = PolymarketSource.parse_winner_market(event)
+    assert set(df["team"]) == {"Spain", "France"}            # 两个 closed 被排除
+    # 去水位分母 = 0.16+0.16 = 0.32（而非含 Peru 的 1.32）→ 各队 ~50%
+    p = market_win_probs(df)
+    assert p["Spain"] == pytest.approx(0.5)
+    assert p.sum() == pytest.approx(1.0)
+
+
 def test_devig_sums_to_one():
     s = pd.Series({"A": 0.16, "B": 0.10, "C": 0.80})   # 和=1.06（含水位）
     d = devig_multiway(s)
