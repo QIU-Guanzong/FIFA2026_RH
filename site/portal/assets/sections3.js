@@ -495,8 +495,8 @@ function Footer() {
       width: 30,
       height: 30,
       borderRadius: 8,
-      background: 'rgba(255,255,255,0.18)',
-      color: '#fff',
+      background: 'color-mix(in srgb, var(--on-brand) 18%, transparent)',
+      color: 'var(--on-brand)',
       display: 'inline-flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -507,18 +507,18 @@ function Footer() {
       font: 'var(--label)',
       textTransform: 'uppercase',
       letterSpacing: '0.12em',
-      color: 'rgba(255,255,255,0.7)'
+      color: 'color-mix(in srgb, var(--on-brand) 70%, transparent)'
     }
   }, sponsor.kicker)), /*#__PURE__*/React.createElement("div", {
     style: {
       font: '600 22px/1.3 var(--sans)',
-      color: '#fff',
+      color: 'var(--on-brand)',
       letterSpacing: '-0.01em'
     }
   }, sponsor.description), /*#__PURE__*/React.createElement("p", {
     style: {
       font: 'var(--small)',
-      color: 'rgba(255,255,255,0.82)',
+      color: 'color-mix(in srgb, var(--on-brand) 82%, transparent)',
       lineHeight: 1.6,
       margin: '10px 0 18px',
       maxWidth: 380
@@ -529,7 +529,7 @@ function Footer() {
       display: 'inline-block',
       font: '600 14px/1 var(--sans)',
       color: 'var(--accent)',
-      background: '#fff',
+      background: 'var(--on-brand)',
       padding: '12px 22px',
       borderRadius: 8
     }
