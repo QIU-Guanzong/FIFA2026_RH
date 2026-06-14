@@ -38,7 +38,7 @@ CEO Gavin 2026-06-13 夜间授权：自主持续升级，不必逐次询问，AI
 - [x] A3 弹窗 a11y：role=dialog/aria-modal/aria-labelledby + 焦点入弹窗- [ ] A3 弹窗 a11y：`role=dialog` `aria-modal` `aria-labelledby` + 关闭后焦点归还（sections4.js:296、sections7.js:272）。关闭归还 + 关闭按钮 aria-label——已修(sections7 FixturePopover)
 - [x] A4 可点卡片键盘可达：grp-card role=button+tabIndex+Enter/Space+aria-label(sections7)；sections4 实为原生 select/button 无需改
 - [x] A5 晋级树移动端：已在 .bkt-scroll overflowX:auto 容器内 375 不撑破页面；加 .bkt-hint 横滑提示(仅移动端)——已修
-- [ ] P1 杂散 `Arial` 字体来源定位并归一到字体 token。
+- [x] P1 杂散 Arial：实为浏览器 button/svg UA 默认字体，加 font-family:inherit + svg var(--sans) 归一(arial-exact 6→0)——已修
 - [ ] P2 组件内联 hex/rgba 字面量替换为语义变量（sections1.js:285、sections3.js:499 等 Codex 标记处），分小批。
 - [ ] P3 战报/列表 decorative 左边框卡片（sections8.js:104）视觉去同质化（轻量）。
 - [ ] P4 复跑 design-review 关键检查（contrast 全 token、touch target、responsive 880/560 断点），回归则修。
