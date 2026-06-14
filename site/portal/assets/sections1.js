@@ -285,8 +285,8 @@ function Nav({
     onClick: () => setDark(d => !d),
     title: "\u5207\u6362\u4E3B\u9898",
     style: {
-      width: 34,
-      height: 34,
+      width: 40,
+      height: 40,
       borderRadius: 8,
       border: '1px solid var(--hairline-strong)',
       background: 'var(--surface)',
@@ -317,8 +317,8 @@ function Nav({
     onClick: sharePortal,
     title: "\u5206\u4EAB\u6216\u8907\u88FD\u9023\u7D50",
     style: {
-      width: 34,
-      height: 34,
+      width: 40,
+      height: 40,
       borderRadius: 8,
       border: '1px solid var(--hairline-strong)',
       background: 'var(--surface)',
