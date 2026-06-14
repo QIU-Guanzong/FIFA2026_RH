@@ -28,6 +28,9 @@
   html, body { overflow-x: clip; }
   body { margin: 0; max-width: 100%; }
   a { -webkit-tap-highlight-color: transparent; }
+  /* P1: 表单控件 + SVG 不继承页面字体，浏览器默认落到 Arial → 归一到设计 token */
+  button, input, select, textarea { font-family: inherit; }
+  svg { font-family: var(--sans); }
   ::selection { background: var(--accent-soft); }
   #root { min-height: 100vh; }
 
