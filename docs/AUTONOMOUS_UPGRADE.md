@@ -41,7 +41,7 @@ CEO Gavin 2026-06-13 夜间授权：自主持续升级，不必逐次询问，AI
 - [x] P1 杂散 Arial：实为浏览器 button/svg UA 默认字体，加 font-family:inherit + svg var(--sans) 归一(arial-exact 6→0)——已修
 - [x] P2(批1) white-on-brand #fff → 新增 --on-brand token 迁移 sections1 ×5(语义化零视觉变化)；sections3 横幅白留 P2b
 - [x] P2b sections3 横幅白 6 处→--on-brand/color-mix(零视觉变化,白字面量6→0)——已修
-- [ ] P3 战报/列表 decorative 左边框卡片（sections8.js:104）视觉去同质化（轻量）。
+- [x] P3 战报卡片去 AI-slop 左色条：移除 3px 绿/红左边框(与 ✓/✗ chip 冗余)，统一 1px hairline——已修
 - [ ] P4 复跑 design-review 关键检查（contrast 全 token、touch target、responsive 880/560 断点），回归则修。
 
 ## 当前状态

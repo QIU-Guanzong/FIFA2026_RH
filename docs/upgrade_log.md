@@ -17,3 +17,4 @@
 - 2026-06-14 08:02 | P1 Arial 归一 | done(部署延后) | 排查发现源码无 Arial 字面量(仅 favicon SVG 合理回退)；Arial 来自浏览器对 <button>/<svg> 的 UA 默认字体(不继承页面字体)。修=button,input,select,textarea{font-family:inherit}+svg{font-family:var(--sans)}；实测渲染为 Arial 的元素 6→0、brand+svg 转 --sans、0 error 无横滚。距上次部署<25min 节流，下轮部署。
 - 2026-06-14 08:50 | P2批1 --on-brand token | done(部署延后) | 调查:被标 #fff 多为品牌色上正确白(--ink-inverted 会暗色翻黑出错)。新增 --on-brand(双主题#FFF)迁 sections1×5 color:#fff;实测 token=#FFFFFF 白字保留 P1Arial仍0 0error无横滚。sections3 横幅白留 P2b。
 - 2026-06-14 08:53 | P2b 横幅白语义化 | done(部署延后) | sections3 6 处白:solid→var(--on-brand)、rgba白→color-mix(in srgb,--on-brand X%,transparent)值相同；实测 sections3 CTA 仍白底accent字(3个rh-cta中第3个)、whiteish保留、0error无横滚、白字面量6→0。与 P2批1 同批待部署。
+- 2026-06-14 09:08 | P3 去左色条 | done(部署延后) | MatchCard 3px 绿/红左边框=AI-slop 色条+与右侧 ✓命中/✗未中 chip 冗余+列表同质化；移除改统一 1px hairline，正误仍由 chip 传达。实测 3px 色条 0、chip 保留、0error 无横滚。距上次部署 20min 节流，与 P2批1/P2b 同批待部署。
