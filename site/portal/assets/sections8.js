@@ -101,7 +101,7 @@ function MatchCard({ m }) {
   return h('div', { style: {
     background: 'var(--surface)', border: '1px solid var(--hairline)', borderRadius: 'var(--r-10)',
     padding: 'var(--s-5) var(--s-6)', display: 'flex', alignItems: 'center', gap: 'var(--s-6)',
-    flexWrap: 'wrap', borderLeft: '3px solid ' + (m.pick_correct ? 'var(--down)' : 'var(--up)'),
+    flexWrap: 'wrap',
   } },
     h('div', { style: { display: 'flex', flexDirection: 'column', gap: 4, minWidth: 60, flex: '0 0 auto' } },
       h('span', { style: { font: '600 12px/1 var(--mono)', color: 'var(--ink-soft)' } }, m.date.slice(5)),
