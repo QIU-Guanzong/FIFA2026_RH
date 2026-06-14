@@ -47,3 +47,4 @@ CEO Gavin 2026-06-13 夜间授权：自主持续升级，不必逐次询问，AI
 ## 当前状态
 - 已完成（本次会话，design-review）：F1 赞助蓝链 / F2 muted 对比度 / F3 移动横滚 / F4 favicon / F5 H1 响应式 / F6 触控目标。
 - 数据刷新：accuracy_daemon.sh 6h 周期运行中（pid 见 logs/accuracy-refresh/daemon.pid）。
+- [x] P5 顶栏工具图标 ☾/↪ 34→40 触控目标(nav 高不变)；页脚外链/logo/hero CTA 过 WCAG2.2 AA(24px)保留——已修

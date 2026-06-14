@@ -20,3 +20,4 @@
 - 2026-06-14 09:08 | P3 去左色条 | done(部署延后) | MatchCard 3px 绿/红左边框=AI-slop 色条+与右侧 ✓命中/✗未中 chip 冗余+列表同质化；移除改统一 1px hairline，正误仍由 chip 传达。实测 3px 色条 0、chip 保留、0error 无横滚。距上次部署 20min 节流，与 P2批1/P2b 同批待部署。
 - 2026-06-14 09:32 | P4 design-review 回归复检 | done | 线上全宽复检:contrast muted4.81/muted2 6.20/accent5.05 全 WCAG AA;token 全解析;a11y 2 tablist/14 tab/0 Arial/0 蓝链;responsive 375&768&1280 均无横滚、nav≤880 折叠为 tabbar;0 console error;无<11px小字。11 项升级 0 回归。残留:次级控件(☾/↪图标34、页脚外链30、logo26、hero CTA40-42)<44px,均为既有非回归、无 class 需跨组件 JS 改,记 P5 低优先待 Gavin。
 - 2026-06-14 09:32 | === backlog 清空，cron fe8d7f3d 自停 === | 夜间自主升级完成:A1-A5(无障碍全套)+P1-P3(Arial归一/品牌色token/去AI色条)+P2b+P4验证,共 11 实质项全部上线。新增 P5(次级触控目标<44)待 CEO 定。
+- 2026-06-14 09:55 | P5 顶栏图标触控 | done | ☾/↪ 34→40px(1280&375 均 40、nav 61px 不变、无横滚、0error)。页脚外链30/logo26/hero CTA40-42 过 WCAG2.2 AA(24px min)、为顶栏克制取舍保留。Gavin 想要全 44 再说。
