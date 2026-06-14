@@ -18,3 +18,5 @@
 - 2026-06-14 08:50 | P2批1 --on-brand token | done(部署延后) | 调查:被标 #fff 多为品牌色上正确白(--ink-inverted 会暗色翻黑出错)。新增 --on-brand(双主题#FFF)迁 sections1×5 color:#fff;实测 token=#FFFFFF 白字保留 P1Arial仍0 0error无横滚。sections3 横幅白留 P2b。
 - 2026-06-14 08:53 | P2b 横幅白语义化 | done(部署延后) | sections3 6 处白:solid→var(--on-brand)、rgba白→color-mix(in srgb,--on-brand X%,transparent)值相同；实测 sections3 CTA 仍白底accent字(3个rh-cta中第3个)、whiteish保留、0error无横滚、白字面量6→0。与 P2批1 同批待部署。
 - 2026-06-14 09:08 | P3 去左色条 | done(部署延后) | MatchCard 3px 绿/红左边框=AI-slop 色条+与右侧 ✓命中/✗未中 chip 冗余+列表同质化；移除改统一 1px hairline，正误仍由 chip 传达。实测 3px 色条 0、chip 保留、0error 无横滚。距上次部署 20min 节流，与 P2批1/P2b 同批待部署。
+- 2026-06-14 09:32 | P4 design-review 回归复检 | done | 线上全宽复检:contrast muted4.81/muted2 6.20/accent5.05 全 WCAG AA;token 全解析;a11y 2 tablist/14 tab/0 Arial/0 蓝链;responsive 375&768&1280 均无横滚、nav≤880 折叠为 tabbar;0 console error;无<11px小字。11 项升级 0 回归。残留:次级控件(☾/↪图标34、页脚外链30、logo26、hero CTA40-42)<44px,均为既有非回归、无 class 需跨组件 JS 改,记 P5 低优先待 Gavin。
+- 2026-06-14 09:32 | === backlog 清空，cron fe8d7f3d 自停 === | 夜间自主升级完成:A1-A5(无障碍全套)+P1-P3(Arial归一/品牌色token/去AI色条)+P2b+P4验证,共 11 实质项全部上线。新增 P5(次级触控目标<44)待 CEO 定。

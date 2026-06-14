@@ -42,7 +42,7 @@ CEO Gavin 2026-06-13 夜间授权：自主持续升级，不必逐次询问，AI
 - [x] P2(批1) white-on-brand #fff → 新增 --on-brand token 迁移 sections1 ×5(语义化零视觉变化)；sections3 横幅白留 P2b
 - [x] P2b sections3 横幅白 6 处→--on-brand/color-mix(零视觉变化,白字面量6→0)——已修
 - [x] P3 战报卡片去 AI-slop 左色条：移除 3px 绿/红左边框(与 ✓/✗ chip 冗余)，统一 1px hairline——已修
-- [ ] P4 复跑 design-review 关键检查（contrast 全 token、touch target、responsive 880/560 断点），回归则修。
+- [x] P4 复跑 design-review 关键检查：contrast(muted4.81/muted2 6.20/accent5.05 全 AA)/token 解析/a11y(2 tablist 14 tab 0Arial 0蓝链)/responsive(375/768/1280 无横滚 nav 正确折叠)/0 console error——全通过 0 回归。残留次级控件(图标/页脚链 <44px,无 class)记 P5 待 Gavin 定。
 
 ## 当前状态
 - 已完成（本次会话，design-review）：F1 赞助蓝链 / F2 muted 对比度 / F3 移动横滚 / F4 favicon / F5 H1 响应式 / F6 触控目标。
