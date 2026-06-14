@@ -622,6 +622,15 @@ function Bracket() {
       background: confColor(c)
     }
   }), c)))), /*#__PURE__*/React.createElement("div", {
+    className: "bkt-hint",
+    "aria-hidden": "true",
+    style: {
+      font: 'var(--label)',
+      color: 'var(--muted)',
+      textAlign: 'center',
+      padding: '0 0 6px'
+    }
+  }, "← 横向滑动查看晋级树 →"), /*#__PURE__*/React.createElement("div", {
     className: "bkt-scroll",
     style: {
       overflowX: 'auto',
@@ -1085,6 +1094,15 @@ function OfficialTree() {
       fontFamily: 'var(--mono)'
     }
   }, t.sims, "\u5C4A \xB7 ", t.asof)), /*#__PURE__*/React.createElement("div", {
+    className: "bkt-hint",
+    "aria-hidden": "true",
+    style: {
+      font: 'var(--label)',
+      color: 'var(--muted)',
+      textAlign: 'center',
+      padding: '0 0 6px'
+    }
+  }, "\u2190 \u6A2A\u5411\u6ED1\u52A8\u67E5\u770B\u664B\u7EA7\u6811 \u2192"), /*#__PURE__*/React.createElement("div", {
     className: "bkt-scroll",
     style: {
       overflowX: 'auto',

@@ -63,6 +63,9 @@
   .bkt-match { position: relative; }
   .bkt-clickable { transition: border-color var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease); }
   .bkt-clickable:hover { border-color: var(--ink) !important; box-shadow: var(--shadow-2) !important; }
+  /* A5: 晋级树横向滑动提示，仅移动端显示(桌面 bracket 基本全宽不需要) */
+  .bkt-hint { display: none; }
+  @media (max-width: 880px) { .bkt-hint { display: block; } }
 
   /* football logo roll */
   @keyframes rf-roll { from { transform: rotate(0); } to { transform: rotate(360deg); } }
@@ -121,7 +124,7 @@
 <script src="assets/bracket.js?v=202606111136"></script>
 <script src="assets/polymarket.js?v=202606111136"></script>
 <script src="assets/api.js?v=202606111136"></script>
-<script src="assets/sections6.js?v=202606111136"></script>
+<script src="assets/sections6.js?v=202606140900"></script>
 <script src="assets/sections7.js?v=202606140800"></script>
 <script src="assets/sections8.js?v=202606131500"></script><!-- 战报 / 实时准确率组件 LiveReport -->
 <script src="assets/marketscan.js?v=202606132000"></script><!-- 链上市场套利扫描组件 MarketScan -->
