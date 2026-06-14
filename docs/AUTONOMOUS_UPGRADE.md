@@ -39,7 +39,8 @@ CEO Gavin 2026-06-13 夜间授权：自主持续升级，不必逐次询问，AI
 - [x] A4 可点卡片键盘可达：grp-card role=button+tabIndex+Enter/Space+aria-label(sections7)；sections4 实为原生 select/button 无需改
 - [x] A5 晋级树移动端：已在 .bkt-scroll overflowX:auto 容器内 375 不撑破页面；加 .bkt-hint 横滑提示(仅移动端)——已修
 - [x] P1 杂散 Arial：实为浏览器 button/svg UA 默认字体，加 font-family:inherit + svg var(--sans) 归一(arial-exact 6→0)——已修
-- [ ] P2 组件内联 hex/rgba 字面量替换为语义变量（sections1.js:285、sections3.js:499 等 Codex 标记处），分小批。
+- [x] P2(批1) white-on-brand #fff → 新增 --on-brand token 迁移 sections1 ×5(语义化零视觉变化)；sections3 横幅白留 P2b
+- [ ] P2b sections3 赞助横幅白(rgba 白叠加/白 CTA)按需迁 --on-brand(主题不变白,低优先)
 - [ ] P3 战报/列表 decorative 左边框卡片（sections8.js:104）视觉去同质化（轻量）。
 - [ ] P4 复跑 design-review 关键检查（contrast 全 token、touch target、responsive 880/560 断点），回归则修。
 
