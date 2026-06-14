@@ -163,7 +163,7 @@ def main() -> int:
     asof = datetime.now(timezone.utc).isoformat(timespec="seconds")
     flow_dir = Path.home() / "FootballData" / "data"
     flow_dir.mkdir(parents=True, exist_ok=True)
-    flow_path = flow_dir / "market_flow.parquet"
+    flow_path = flow_dir / "market_flow.jsonl"  # JSONL 追加：杜绝 parquet read-rewrite 反复损坏
     snap_rows = []
     for _, r in df.iterrows():
         t = r["team"]
@@ -179,17 +179,22 @@ def main() -> int:
             "market_p": float(market_p[t]), "model_p": float(mp.get(t, float("nan"))),
             "overround": round(overround, 4), "volume_usd": ev.get("volume"),
         })
-    flow_new = pd.DataFrame(snap_rows)
-    flow_all = flow_new
-    if flow_path.exists():
-        try:
-            flow_all = pd.concat([pd.read_parquet(flow_path), flow_new], ignore_index=True)
-        except Exception as exc:   # parquet 损坏不应中断刷新：隔离坏档，从本次快照重建
-            bad = flow_path.with_suffix(".parquet.corrupt")
-            flow_path.replace(bad)
-            print(f"  ⚠ flow parquet 损坏（{exc}）→ 隔离至 {bad.name}，从本次快照重建")
-    flow_all.to_parquet(flow_path, index=False)
-    print(f"  赔率流 +{len(flow_new)} 行 → {flow_path}（累计 {len(flow_all)} 行）")
+    # 纯追加，不读改写 → 杜绝 parquet read-rewrite 的反复损坏（曾两次 histogram mismatch）
+    with open(flow_path, "a", encoding="utf-8") as fh:
+        for row in snap_rows:
+            fh.write(json.dumps(row, ensure_ascii=False) + "\n")
+    flow_rows = []
+    with open(flow_path, encoding="utf-8") as fh:
+        for line in fh:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                flow_rows.append(json.loads(line))
+            except json.JSONDecodeError:
+                pass   # 跳过坏行，不中断刷新
+    flow_all = pd.DataFrame(flow_rows)
+    print(f"  赔率流 +{len(snap_rows)} 行 → {flow_path}（累计 {len(flow_all)} 行）")
 
     # 最近两次快照的最大变动队（动量/CLV 雏形）
     movers = []
