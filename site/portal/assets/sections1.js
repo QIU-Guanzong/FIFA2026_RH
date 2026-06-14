@@ -306,7 +306,7 @@ function Nav({
     rel: "noopener noreferrer",
     style: {
       font: '600 13px/1 var(--sans)',
-      color: '#fff',
+      color: 'var(--on-brand)',
       background: 'var(--accent)',
       textDecoration: 'none',
       padding: '9px 15px',
@@ -460,7 +460,7 @@ function Hero({
     onClick: () => setTab('match'),
     style: {
       font: '600 14px/1 var(--font-head)',
-      color: '#fff',
+      color: 'var(--on-brand)',
       background: 'var(--pitch)',
       border: 'none',
       cursor: 'pointer',
@@ -628,7 +628,7 @@ function RHMark({
       height: size,
       borderRadius: Math.round(size * 0.24),
       background: 'var(--accent)',
-      color: '#fff',
+      color: 'var(--on-brand)',
       display: 'inline-flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -704,7 +704,7 @@ function RedHorseBanner() {
     style: {
       flexShrink: 0,
       font: '600 14px/1 var(--sans)',
-      color: '#fff',
+      color: 'var(--on-brand)',
       background: 'var(--accent)',
       padding: '12px 20px',
       borderRadius: 8,
@@ -767,7 +767,7 @@ function RedHorseCard() {
     style: {
       display: 'inline-block',
       font: '600 13px/1 var(--sans)',
-      color: '#fff',
+      color: 'var(--on-brand)',
       background: 'var(--accent)',
       padding: '10px 16px',
       borderRadius: 7

@@ -61,6 +61,7 @@
   --p-tlq:       #B8472D;  /* T strategy — terracotta */
 
   --ink-inverted: #FFFFFF;
+  --on-brand:     #FFFFFF;  /* text on brand colors (accent/pitch) — theme-invariant white */
 
   /* ---------- Type families ---------- */
   --serif:  ui-serif, Georgia, 'Songti SC', 'Noto Serif SC', serif;
@@ -253,6 +254,7 @@ code, kbd, samp { font: var(--code); }
   --p-tlq:       #E8927C;
 
   --ink-inverted: #0D0D0D;
+  --on-brand:     #FFFFFF;  /* stays white on brand colors even in dark theme */
 
   --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.30);
   --shadow-2: 0 1px 3px rgba(0, 0, 0, 0.40), 0 0 0 1px var(--hairline);
