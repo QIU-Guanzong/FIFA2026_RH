@@ -13,3 +13,4 @@
 - 2026-06-14 07:35 | A3 弹窗 a11y | done(部署延后) | FixturePopover: role=dialog/aria-modal=true/aria-labelledby=fx-modal-title/tabIndex=-1；开弹窗焦点移入、关闭归还触发元素；关闭按钮 aria-label=关闭；Escape 关闭实测 gone；0 error 无横滚。sections4.js 经核实无弹窗(Codex 行号漂移)。距上次部署 10min 节流，与 A2d 一并待下轮部署。
 - 2026-06-14 07:40 | A4 可点卡片键盘 | done(部署延后) | sections7 grp-card → role=button tabIndex=0 aria-label onKeyDown(Enter/Space)→onOpen；实测 Tab→Enter 开弹窗+焦点入弹窗+环显示；0 error。sections4 clickable 实为原生 select/button 已可达，无需改。与 A2d/A3 同批待部署。
 - 2026-06-14 07:54 | 部署 A2d+A3+A4 | done | 节流清除(29min)，一并上线；线上确认 sections1 wcTabKeyNav×3、sections7 role=dialog/button×2。
+- 2026-06-14 08:00 | A5 晋级树横滑提示 | done(部署延后) | bracket 早已在 .bkt-scroll(overflowX:auto) 内，375 page 不横滚(body clip)且内部 scrollW1040>317 可滑；两处加 .bkt-hint"←横向滑动→"仅≤880px 显示，实测 375 显/1280 隐、0 error。下轮随部署。
