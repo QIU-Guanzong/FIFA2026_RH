@@ -3,6 +3,8 @@
 
 const { useState: useState1, useEffect: useEffect1 } = React;
 const RF_SIMS_WAN = Math.round((((window.RF_ENGINE || {}).sims) || 40000) / 10000);  // 引擎模拟届数（万）
+const RF_ASOF = (((window.RF_ENGINE || {}).asof)) || '';                              // 引擎数据 as-of（单一真理源）
+const RF_ASOF_MD = RF_ASOF.includes('-') ? (p => `${+p[1]}-${p[2]}`)(RF_ASOF.split('-')) : RF_ASOF;  // "2026-06-07"→"6-07"
 const RF_getSponsor = window.RF_getSponsor || (() => null);
 const RF_trackSponsor = window.RF_trackSponsor || (() => false);
 
@@ -217,7 +219,7 @@ function HeroCard() {
           <div style={{ font: 'var(--eyebrow)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--muted-2)' }}>夺冠概率 · Top 8</div>
           <div style={{ font: 'var(--h3)', marginTop: 6 }}>2026 世界杯</div>
         </div>
-        <span style={{ font: 'var(--label)', color: 'var(--muted)', fontFamily: 'var(--mono)' }}>6-04 更新</span>
+        <span style={{ font: 'var(--label)', color: 'var(--muted)', fontFamily: 'var(--mono)' }}>{RF_ASOF_MD} 更新</span>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s-5)' }}>
         {top.map((t, i) => (
@@ -238,7 +240,7 @@ function HeroCard() {
       </div>
       <div style={{ marginTop: 'var(--s-6)', paddingTop: 'var(--s-5)', borderTop: '1px solid var(--divider)', display: 'flex', justifyContent: 'space-between', font: 'var(--label)', color: 'var(--muted-2)' }}>
         <span>基于每队历史实力评分</span>
-        <span style={{ fontFamily: 'var(--mono)' }}>40,000 届模拟</span>
+        <span style={{ fontFamily: 'var(--mono)' }}>{RF_SIMS_WAN} 万届模拟</span>
       </div>
     </div>
   );

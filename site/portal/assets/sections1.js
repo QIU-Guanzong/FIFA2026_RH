@@ -7,6 +7,7 @@ const {
   useEffect: useEffect1
 } = React;
 const RF_SIMS_WAN = Math.round(((window.RF_ENGINE || {}).sims || 40000) / 10000); // 引擎模拟届数（万）
+const RF_ASOF_MD = (function () { const a = ((window.RF_ENGINE || {}).asof) || ""; return a.indexOf("-") > 0 ? (+a.split("-")[1]) + "-" + a.split("-")[2] : a; })(); // 引擎 as-of "2026-06-07"→"6-07"（单一真理源）
 const RF_getSponsor = window.RF_getSponsor || (() => null);
 const RF_trackSponsor = window.RF_trackSponsor || (() => false);
 
@@ -541,7 +542,7 @@ function HeroCard() {
       color: 'var(--muted)',
       fontFamily: 'var(--mono)'
     }
-  }, "6-04 \u66F4\u65B0")), /*#__PURE__*/React.createElement("div", {
+  }, RF_ASOF_MD + " \u66F4\u65B0")), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       flexDirection: 'column',
@@ -615,7 +616,7 @@ function HeroCard() {
     style: {
       fontFamily: 'var(--mono)'
     }
-  }, "40,000 \u5C4A\u6A21\u62DF")));
+  }, RF_SIMS_WAN + " \u4E07\u5C4A\u6A21\u62DF")));
 }
 
 // ── RedHorse (红马) embedded sponsor mark — small accent letter tag, not the RedFootball ball
