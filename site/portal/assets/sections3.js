@@ -523,7 +523,7 @@ function Footer() {
       margin: '10px 0 18px',
       maxWidth: 380
     }
-  }, "\u67E5\u770B\u5206\u6B67\u3001\u8D54\u7387\u53C2\u8003\u4E0E EV \u89E3\u91CA\u3002"), /*#__PURE__*/React.createElement("span", {
+  }, "\u67E5\u770B\u5206\u6B67\u3001\u8D54\u7387\u53C2\u8003\u4E0E EV \u89E3\u91CA\u3002\u72EC\u7ACB\u5206\u6790\uFF0C\u4E0D\u6784\u6210\u6295\u6CE8\u5EFA\u8BAE\u3002"), /*#__PURE__*/React.createElement("span", {
     className: "rh-cta",
     style: {
       display: 'inline-block',
@@ -553,7 +553,7 @@ function Footer() {
       font: 'var(--label)',
       color: 'var(--muted)'
     }
-  }, "\u6570\u636E\u66F4\u65B0\u4E8E 2026-06-04"))));
+  }, "\u9884\u6D4B\u51BB\u7ED3\u4E8E 2026-06-02\uFF08ex-ante\uFF09\xB7 \u95E8\u6237 2026-06-04 \u751F\u6210"))));
 }
 Object.assign(window, {
   Backtest,

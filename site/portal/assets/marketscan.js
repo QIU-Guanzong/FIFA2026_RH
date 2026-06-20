@@ -88,7 +88,9 @@ function MarketScan() {
       h('b', { style: { color: 'var(--ink)', fontFamily: 'var(--mono)' } }, 'slope = ' + disp.slope.toFixed(2)),
       '。slope<1 = 模型比 $' + volB.toFixed(1) + 'B 市场更平（向均匀收缩）：',
       h('b', { style: { color: 'var(--ink)' } }, '冷门给太多、热门给不够'),
-      '。所以我们的"价值"系统性落在高赔冷门一侧（押 Ecuador 121x、Colombia 62x；空 France/Portugal/Brazil），',
+      '。所以我们的"价值"系统性落在高赔冷门一侧（押 ' +
+        dv.value.slice(0, 2).map(d => zhOf(d.team) + ' ' + Math.round(1 / d.market) + 'x').join('、') +
+        '；空 ' + dv.fade.slice(0, 3).map(d => zhOf(d.team)).join('/') + '），',
       h('b', { style: { color: 'var(--up)' } }, '这多半是模型欠离散，不是已证 edge'),
       '——不应照此下注。'),
     // 分层 edge：热门→超长

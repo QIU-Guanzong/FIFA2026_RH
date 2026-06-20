@@ -74,7 +74,8 @@ function MatchPredictor() {
     background: 'var(--surface)',
     border: '1px solid var(--hairline-strong)',
     borderRadius: 'var(--r-6)',
-    padding: '10px 12px',
+    padding: '12px 12px',
+    minHeight: 44,
     cursor: 'pointer',
     minWidth: 0,
     flex: 1
@@ -128,6 +129,7 @@ function MatchPredictor() {
   }, /*#__PURE__*/React.createElement("select", {
     value: homeEn,
     onChange: e => setHomeEn(e.target.value),
+    "aria-label": "选择主队",
     style: selStyle
   }, teamOpts), /*#__PURE__*/React.createElement("span", {
     style: {
@@ -138,6 +140,7 @@ function MatchPredictor() {
   }, "VS"), /*#__PURE__*/React.createElement("select", {
     value: awayEn,
     onChange: e => setAwayEn(e.target.value),
+    "aria-label": "选择客队",
     style: selStyle
   }, teamOpts)), same && /*#__PURE__*/React.createElement("p", {
     style: {
@@ -145,7 +148,7 @@ function MatchPredictor() {
       color: 'var(--warn)',
       marginBottom: 'var(--s-5)'
     }
-  }, "\u8BF7\u9009\u62E9\u4E24\u652F\u4E0D\u540C\u7403\u961F\u3002"), /*#__PURE__*/React.createElement("div", {
+  }, "\u8BF7\u9009\u62E9\u4E24\u652F\u4E0D\u540C\u7403\u961F\u3002"), !same && /*#__PURE__*/React.createElement("div", {
     className: "match-grid",
     style: {
       display: 'grid',
@@ -429,7 +432,7 @@ function ScoreMatrix({
     const diag = x === y;
     const win = x > y;
     const bg = diag ? `rgba(115,115,115,${0.08 + a * 0.5})` : win ? `rgba(184,71,45,${0.06 + a * 0.62})` : `rgba(46,139,87,${0.06 + a * 0.55})`;
-    const fg = a > 0.5 ? '#fff' : 'var(--ink-soft)';
+    const fg = a > 0.5 ? 'var(--on-brand)' : 'var(--ink-soft)';
     return /*#__PURE__*/React.createElement("div", {
       key: y,
       style: {

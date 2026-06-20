@@ -26,7 +26,10 @@ cd "$REPO" || { echo "no repo $REPO"; exit 1; }
   else
     echo "  ⚠ market FAILED（Polymarket 拉取失败？跳过，不阻断部署）"
   fi
-  echo "[3/3] deploy.sh（scp 门户 → cfd，验证 200）"
+  echo "[3/3] bump ?v= 缓存戳（铁律：改 JS 必 bump 否则线上吃旧缓存）+ deploy.sh"
+  VTS="$(date +%Y%m%d%H%M)"
+  sed -i '' -E "s#(assets/(accuracy|market)\.js\?v=)[0-9]+#\1${VTS}#g" site/portal/index.html
+  echo "  accuracy.js/market.js ?v= → ${VTS}"
   if bash site/deploy.sh; then
     echo "  deploy OK"
   else

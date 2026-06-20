@@ -9,7 +9,7 @@
   3. 跨市场一致性：夺冠盘 vs 各组「小组头名」盘（world-cup-group-{x}-winner）——
      逻辑上 P(夺冠) 不应 > P(小组头名)+P(小组次名)；缺「出线」盘故无干净 dutch-book，仅作软一致性。
   + 模型 vs 市场分歧（去水位后）= 真正可操作的「价值/+EV」（非无风险），带 edge%。
-  + 赔率流：market_snapshots 最近两次快照的最大变动队（动量/CLV 雏形）。
+  + 赔率流：最新 vs ≥~20h 前快照的最大变动队（真实日内/跨日动量，非几秒抓取抖动；附 span_h）。
 
 用法：PYTHONPATH=src python scripts/analyze_market.py [--sims 40000]
 """
@@ -196,19 +196,28 @@ def main() -> int:
     flow_all = pd.DataFrame(flow_rows)
     print(f"  赔率流 +{len(snap_rows)} 行 → {flow_path}（累计 {len(flow_all)} 行）")
 
-    # 最近两次快照的最大变动队（动量/CLV 雏形）
+    # 最新 vs ≥~20h 前最近一次快照的盘口移动（真实日内/跨日动量，而非几秒抓取抖动）
     movers = []
+    span_h = None
+    WINDOW_H = 20
     ts_sorted = sorted(flow_all["ts"].unique())
     flow_asof = [str(ts_sorted[0])[:16], str(ts_sorted[-1])[:16]] if ts_sorted else []
     if len(ts_sorted) >= 2:
-        a, b = ts_sorted[-2], ts_sorted[-1]
-        pa = flow_all[flow_all["ts"] == a].set_index("team")["yes_price"]
-        pb = flow_all[flow_all["ts"] == b].set_index("team")["yes_price"]
-        d = (pb - pa).dropna()
-        d = d[d.abs() > 1e-9].sort_values()
-        for t in list(d.index[-3:][::-1]) + list(d.index[:3]):
-            movers.append({"team": t, "from": round(float(pa[t]), 4), "to": round(float(pb[t]), 4),
-                           "delta": round(float(d[t]), 4)})
+        t_now = ts_sorted[-1]
+        t_now_dt = pd.to_datetime(t_now)
+        earlier = [t for t in ts_sorted
+                   if (t_now_dt - pd.to_datetime(t)).total_seconds() >= WINDOW_H * 3600]
+        t_from = earlier[-1] if earlier else ts_sorted[0]   # 历史不足窗口→退回最早，并如实标注实际跨度
+        if t_from != t_now:
+            span_h = round((t_now_dt - pd.to_datetime(t_from)).total_seconds() / 3600, 1)
+            pa = flow_all[flow_all["ts"] == t_from].set_index("team")["yes_price"]
+            pb = flow_all[flow_all["ts"] == t_now].set_index("team")["yes_price"]
+            d = (pb - pa).dropna()
+            d = d[d.abs() > 1e-9].sort_values()
+            for t in list(d.index[-3:][::-1]) + list(d.index[:3]):
+                movers.append({"team": t, "from": round(float(pa[t]), 4), "to": round(float(pb[t]), 4),
+                               "delta": round(float(d[t]), 4), "span_h": span_h})
+            flow_asof = [str(t_from)[:16], str(t_now)[:16]]
 
     out = {
         "meta": {

@@ -620,7 +620,6 @@ def run_market(slug: str = "world-cup-winner", model: str = "default",
     """
     from datetime import datetime, timezone
 
-    from wcpredict.config import DATA_DIR
     from wcpredict.markets.polymarket import PolymarketSource, compare_to_market, market_win_probs
     from wcpredict.registry import ModelStore
     from wcpredict.tournament.wc2026 import OfficialWC2026Simulator
@@ -659,17 +658,34 @@ def run_market(slug: str = "world-cup-winner", model: str = "default",
           f"市场给我方 48 队的概率质量={coverage:.1%}（其余在 Italy/Peru/附加赛等非参赛队）")
 
     if snapshot:
+        import json
+        from pathlib import Path
         ts = datetime.now(timezone.utc).isoformat(timespec="seconds")
-        snap = parsed[["team", "yes_price"]].copy()
-        snap["market_p"] = mkt.reindex(snap["team"]).to_numpy()
-        snap["model_p"] = model_p.reindex(snap["team"]).to_numpy()   # 非我方队为 NaN
-        snap.insert(0, "ts", ts)
-        dest = DATA_DIR / "market_snapshots.parquet"
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        if dest.exists():
-            snap = pd.concat([pd.read_parquet(dest), snap], ignore_index=True)
-        snap.to_parquet(dest)
-        print(f"\n  ✓ 已记录快照 @ {ts} → {dest}（累计 {len(snap)} 行，用于日后 CLV/flow 分析）")
+        # 统一到 analyze_market.py 同一个 flow 库（JSONL 追加），杜绝双库劈裂、CLV 历史断成两半
+        flow_path = Path.home() / "FootballData" / "data" / "market_flow.jsonl"
+        flow_path.parent.mkdir(parents=True, exist_ok=True)
+
+        def _num(v):
+            try:
+                return float(v)
+            except (TypeError, ValueError):
+                return None
+
+        n = 0
+        with open(flow_path, "a", encoding="utf-8") as fh:
+            for _, r in parsed.iterrows():
+                t = r["team"]
+                bid, ask = _num(r.get("bestBid")), _num(r.get("bestAsk"))
+                fh.write(json.dumps({
+                    "ts": ts, "team": t, "yes_price": float(r["yes_price"]),
+                    "bestBid": bid, "bestAsk": ask,
+                    "spread": (ask - bid) if (bid is not None and ask is not None) else None,
+                    "market_p": float(mkt.get(t, float("nan"))),
+                    "model_p": float(model_p.get(t, float("nan"))),
+                    "src": "cli.market",
+                }, ensure_ascii=False) + "\n")
+                n += 1
+        print(f"\n  ✓ 已记录快照 @ {ts} → {flow_path}（+{n} 行，与 analyze_market 同库，供 CLV/flow 分析）")
 
     _section("4. 诚实边界（务必读）")
     print("  · 独立≠edge：夺冠盘是有效前沿，分歧大多=我们被市场修正，不是优势证据。")
