@@ -38,7 +38,8 @@
   - `scripts/analyze_market.py` → `site/portal/assets/market.js`(`window.WC_MARKET`)+`data/wc2026_market.json`：Polymarket 夺冠盘效率(vig)、无风险套利硬判定、跨市场一致性、模型 vs 市场分歧(+EV)、赔率流变动。
   - **修了 de-vig 污染 bug**：`parse_winner_market` 原未滤 `closed` 市场 → Peru(已结算 lastPx=1.0)+Italy(未参赛) 进入分母 → Σyes=2.03 而非干净 1.028 → **市场概率被腰斩到真实的 51%**（影响 CLV snapshot `market_p` 与 CLI；**线上门户不受影响**，它走 engine.js 原始 cents 非 de-vig）。修复=`parse` 跳过 `closed is True`，+回归测试 `test_closed_markets_excluded_from_devig`。
   - **套利答案（实测有证据）**：夺冠盘 $2.2B 成交、vig 2.8%、买全 48 队 Yes 成本 1.046>1 → **无无风险套利**；12 组「小组头名」盘对照 0 例反常（缺「出线」盘，无干净 dutch-book）。可操作的只有**模型 vs 市场分歧(+EV 价值，非无风险)**，铁律「独立≠edge」。
-  - **赔率流**：富字段(bid/ask/spread/overround/volume) 追加 `~/FootballData/data/market_flow.parquet`，**已并入 `refresh_accuracy.sh`**（score→market→deploy 一条龙）。旧 `market_snapshots.parquet`(仅 yes_price，6-05 停于 TCC) 不再依赖。
+  - **赔率流**：富字段(bid/ask/spread/overround/volume) 追加 `~/FootballData/data/market_flow.jsonl`（纯追加 JSONL，杜绝 parquet read-rewrite 反复损坏；旧 `market_flow.parquet`/`market_snapshots.parquet` 已弃），**已并入 `refresh_accuracy.sh`**（score→market→deploy 一条龙）。
+  - **M2 校准结论（2026-06-21，实测否决）**：审计建议「出 edge 前做温度/Herfindahl 校准把模型概率向市场离散度对齐」**实测会适得其反**——单一温度锐化会把模型 #1 顶过市场（Spain 13.9%→22.4%，凭空造出 +9.1pp 假 edge），因为模型与市场对**谁是头号热门**的排序本就分歧；属审计 verifier 标注的 `fix_sound:false`。**故只落地安全部分**：`MIN_EDGE=0.015`（|edge|<1.5pp 不进价值/反向清单，滤噪声）+ 既有诚实口径承担「分辨力不足/欠离散→不应照此下注」（`dispersion.reading`+`verdict`+ MarketScan 面板标题，已 render-verify 紧贴价值行）。**禁止再尝试「把 T 夹得更狠」——失败是结构性的不是调参问题**。校准模块已建后删（不留死代码）。
 
 ## 技术栈
 

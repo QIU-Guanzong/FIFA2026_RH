@@ -1,16 +1,16 @@
 {
   "meta": {
-    "as_of": "2026-06-20T14:07:25+00:00",
+    "as_of": "2026-06-21T06:21:34+00:00",
     "source": "Polymarket Gamma · World Cup Winner",
     "model_version": 19,
-    "volume_usd": 2738377437.1114964,
-    "liquidity_usd": 567181179.63309,
+    "volume_usd": 2798563799.808365,
+    "liquidity_usd": 575515902.86145,
     "n_teams": 46
   },
   "efficiency": {
-    "overround": 1.0265,
-    "vig_pct": 2.65,
-    "buy_all_yes_cost": 1.042,
+    "overround": 1.0305,
+    "vig_pct": 3.05,
+    "buy_all_yes_cost": 1.045,
     "riskless_arb": false
   },
   "cross_market": {
@@ -31,75 +31,64 @@
     "note": "缺「出线/晋级」盘，无干净跨市场 dutch-book；以上为夺冠盘 vs 小组头名盘软一致性。"
   },
   "divergence": {
+    "min_edge": 0.015,
     "value": [
       {
         "team": "Ecuador",
         "model": 0.0362,
-        "market": 0.0034,
-        "edge": 0.0328
+        "market": 0.001,
+        "edge": 0.0353
       },
       {
         "team": "Colombia",
         "model": 0.0429,
-        "market": 0.0151,
-        "edge": 0.0278
+        "market": 0.0141,
+        "edge": 0.0289
       },
       {
         "team": "Switzerland",
         "model": 0.029,
-        "market": 0.0073,
-        "edge": 0.0216
+        "market": 0.0063,
+        "edge": 0.0226
       },
       {
         "team": "Croatia",
         "model": 0.024,
-        "market": 0.0063,
-        "edge": 0.0177
-      },
-      {
-        "team": "Japan",
-        "model": 0.0275,
-        "market": 0.0132,
-        "edge": 0.0144
-      },
-      {
-        "team": "Belgium",
-        "model": 0.0284,
-        "market": 0.0151,
-        "edge": 0.0133
+        "market": 0.0053,
+        "edge": 0.0187
       }
     ],
     "fade": [
       {
         "team": "France",
         "model": 0.0761,
-        "market": 0.1914,
-        "edge": -0.1154
+        "market": 0.1917,
+        "edge": -0.1156
       },
       {
         "team": "England",
         "model": 0.0587,
-        "market": 0.1223,
-        "edge": -0.0636
-      },
-      {
-        "team": "Portugal",
-        "model": 0.0443,
-        "market": 0.0697,
-        "edge": -0.0254
+        "market": 0.1218,
+        "edge": -0.0631
       },
       {
         "team": "United States",
         "model": 0.0101,
-        "market": 0.0317,
-        "edge": -0.0215
+        "market": 0.0374,
+        "edge": -0.0272
+      },
+      {
+        "team": "Portugal",
+        "model": 0.0443,
+        "market": 0.0674,
+        "edge": -0.0232
       }
     ]
   },
   "flow": {
     "asof": [
       "2026-06-14T02:52",
-      "2026-06-20T14:07"
+      "2026-06-21T06:21"
     ],
     "movers": [
       {
@@ -107,76 +96,76 @@
         "from": 0.0785,
         "to": 0.1175,
         "delta": 0.039,
-        "span_h": 155.3
+        "span_h": 171.5
       },
       {
         "team": "France",
         "from": 0.1605,
-        "to": 0.1965,
-        "delta": 0.036,
-        "span_h": 155.3
+        "to": 0.1975,
+        "delta": 0.037,
+        "span_h": 171.5
       },
       {
         "team": "England",
         "from": 0.0965,
         "to": 0.1255,
         "delta": 0.029,
-        "span_h": 155.3
+        "span_h": 171.5
       },
       {
         "team": "Portugal",
         "from": 0.1165,
-        "to": 0.0715,
-        "delta": -0.045,
-        "span_h": 155.3
+        "to": 0.0695,
+        "delta": -0.047,
+        "span_h": 171.5
       },
       {
         "team": "Spain",
         "from": 0.1655,
         "to": 0.1365,
         "delta": -0.029,
-        "span_h": 155.3
+        "span_h": 171.5
       },
       {
         "team": "Brazil",
         "from": 0.0745,
         "to": 0.0595,
         "delta": -0.015,
-        "span_h": 155.3
+        "span_h": 171.5
       }
     ]
   },
   "dispersion": {
-    "slope": 0.574,
-    "intercept": 0.0086,
-    "corr_market_edge": -0.779,
+    "slope": 0.57,
+    "intercept": 0.0087,
+    "corr_market_edge": -0.777,
     "tiers": [
       {
         "tier": "热门",
         "n": 4,
-        "avg_edge": -0.0473,
+        "avg_edge": -0.047,
         "pct_pos": 0.25
       },
       {
         "tier": "中",
         "n": 5,
-        "avg_edge": -0.0168,
+        "avg_edge": -0.0192,
         "pct_pos": 0.0
       },
       {
         "tier": "长",
         "n": 6,
-        "avg_edge": 0.0135,
+        "avg_edge": 0.0139,
         "pct_pos": 1.0
       },
       {
         "tier": "超长",
         "n": 31,
-        "avg_edge": 0.0052,
-        "pct_pos": 0.742
+        "avg_edge": 0.0055,
+        "pct_pos": 0.774
       }
     ],
-    "reading": "slope<1 → 模型比 $2.7B 市场更平（向均匀收缩）：高赔冷门给太多、热门给不够；故'价值'系统性落在冷门一侧，多半是模型欠离散而非已证 edge，不应照此下注。"
+    "reading": "slope<1 → 模型比 $2.8B 市场更平（向均匀收缩）：高赔冷门给太多、热门给不够；故'价值'系统性落在冷门一侧，多半是模型欠离散而非已证 edge，不应照此下注。"
   },
-  "verdict": "无无风险套利（夺冠盘 vig 2.6%、成交 $2.7B、买全队成本 1.042>1）；分歧偏向冷门(slope 0.57<1=模型欠离散)，属研究性参照而非可下注 edge。"
+  "verdict": "无无风险套利（夺冠盘 vig 3.0%、成交 $2.8B、买全队成本 1.045>1）；分歧偏向冷门(slope 0.57<1=模型欠离散)，已滤 <1.5pp 噪声，属研究性参照而非可下注 edge。"
 }

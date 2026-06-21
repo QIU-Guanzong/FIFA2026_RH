@@ -132,8 +132,12 @@ def main() -> int:
     div["edge"] = div["model"] - div["market"]            # >0 模型更看好（潜在价值）
     div["edge_ratio"] = div["model"] / div["market"].clip(lower=1e-6)
     div = div.sort_values("edge", ascending=False)
-    top_value = div.head(6)
-    top_fade = div.tail(4).iloc[::-1]
+    # M2：对 |edge| 设最小阈值，滤掉噪声级分歧（<1.5pp 不进价值/反向清单）。
+    # 注：温度/Herfindahl 校准实测会过度锐化模型 #1（Spain 13.9%→22.4%，造出假 +9pp），故不采用；
+    # 模型欠离散的诚实口径由下方 dispersion.reading + verdict 承担（研究参照、非可下注 edge）。
+    MIN_EDGE = 0.015
+    top_value = div[div["edge"] >= MIN_EDGE].head(6)
+    top_fade = div[div["edge"] <= -MIN_EDGE].tail(4).iloc[::-1]
 
     # ---- 离散度诊断：模型相对市场是否"更平"（回答"是否因赔率低才买"）----
     # 非循环口径：回归 model ~ market，slope<1 = 模型向均匀收缩（欠离散）。
@@ -236,6 +240,7 @@ def main() -> int:
             "note": "缺「出线/晋级」盘，无干净跨市场 dutch-book；以上为夺冠盘 vs 小组头名盘软一致性。",
         },
         "divergence": {
+            "min_edge": MIN_EDGE,
             "value": [{"team": t, "model": round(float(r.model), 4), "market": round(float(r.market), 4),
                        "edge": round(float(r.edge), 4)} for t, r in top_value.iterrows()],
             "fade": [{"team": t, "model": round(float(r.model), 4), "market": round(float(r.market), 4),
@@ -244,7 +249,7 @@ def main() -> int:
         "flow": {"asof": flow_asof, "movers": movers},
         "dispersion": dispersion,
         "verdict": ("无无风险套利（夺冠盘 vig %.1f%%、成交 $%.1fB、买全队成本 %.3f>1）；"
-                    "分歧偏向冷门(slope %.2f<1=模型欠离散)，属研究性参照而非可下注 edge。"
+                    "分歧偏向冷门(slope %.2f<1=模型欠离散)，已滤 <1.5pp 噪声，属研究性参照而非可下注 edge。"
                     % (vig_pct, (ev.get("volume") or 0) / 1e9, buy_all_cost, slope)),
     }
     OUT_JSON.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
