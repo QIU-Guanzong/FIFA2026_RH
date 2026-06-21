@@ -1,6 +1,7 @@
 ;(function () {
 /* global React, Section, SectionHead, Sparkline */
 // wcpredict — sections part 2: ChampionBoard, Pipeline
+const RF_SIMS_WAN_2 = Math.round((((window.RF_ENGINE || {}).sims) || 40000) / 10000); // 引擎模拟届数（万），单一真理源
 
 // ── Full championship board with rating cross-reference
 function ChampionBoard() {
@@ -49,7 +50,7 @@ function ChampionBoard() {
       color: 'var(--muted)',
       fontFamily: 'var(--mono)'
     }
-  }, "40,000 \u5C4A\u6A21\u62DF")), /*#__PURE__*/React.createElement("div", {
+  }, RF_SIMS_WAN_2 + " \u4E07\u5C4A\u6A21\u62DF")), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'grid',
       gridTemplateColumns: '20px minmax(96px,1.2fr) 1fr 50px 46px 46px 42px',

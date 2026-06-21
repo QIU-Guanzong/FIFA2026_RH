@@ -1,6 +1,7 @@
 ;(function () {
 /* global React, Section, SectionHead, Sparkline */
 // wcpredict — sections part 3: 可信度, Boundaries, Footer (fan-facing)
+const RF_ASOF_3 = (((window.RF_ENGINE || {}).asof)) || "2026-06-04"; // 门户生成日，单一真理源（ex-ante 冻结日另写死）
 
 const {
   useEffect: useEffect3
@@ -553,7 +554,7 @@ function Footer() {
       font: 'var(--label)',
       color: 'var(--muted)'
     }
-  }, "\u9884\u6D4B\u51BB\u7ED3\u4E8E 2026-06-02\uFF08ex-ante\uFF09\xB7 \u95E8\u6237 2026-06-04 \u751F\u6210"))));
+  }, "\u9884\u6D4B\u51BB\u7ED3\u4E8E 2026-06-02\uFF08ex-ante\uFF09\xB7 \u95E8\u6237 " + RF_ASOF_3 + " \u751F\u6210"))));
 }
 Object.assign(window, {
   Backtest,
